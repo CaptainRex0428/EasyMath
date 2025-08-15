@@ -4,8 +4,16 @@
 #include "Common.h"
 #include "Vector.h"
 
+#include <iostream>
+#include <array>
+#include <initializer_list>
+#include <cassert>
+#include <iomanip>
+#include <sstream>
+
 namespace EM
 {
+
 	template <typename T, size_t rows, size_t cols>
 	class Matrix
 	{
@@ -20,35 +28,38 @@ namespace EM
 
 		Matrix(std::initializer_list<T> InitializeList)
 		{
-			assert(InitializeList.size() == rows * cols && "Invalid initializer list size");
+			assert(InitializeList.size() == rows * cols && "Invalid initializer list size.");
+
 			std::copy(InitializeList.begin(), InitializeList.end(), data.begin());
 		}
 
 		// 访问元素（行主序）
 		T& operator[](size_t idx)
 		{
-			limit_max(idx, rows * cols - 1);
+			assert(idx < rows * cols && idx >= 0 && "Element index out of bound exception.");
+
 			return data[idx];
 		}
 
 		const T& operator[](size_t idx) const
 		{
-			limit_max(idx, rows * cols - 1);
+			assert(idx < rows * cols && idx >= 0 && "Element index out of bound exception.");
+			
 			return data[idx];
 		}
 
 		T& operator()(size_t row, size_t col)
 		{
-			limit_max(row, rows - 1);
-			limit_max(col, cols - 1);
+			assert(row < rows && row >= 0 && "Element index out of bound exception.");
+			assert(col < cols && col >= 0 && "Element index out of bound exception.");
 
 			return data[row * cols + col];
 		}
 
 		const T& operator()(size_t row, size_t col) const
 		{
-			limit_max(row, rows - 1);
-			limit_max(col, cols - 1);
+			assert(row < rows && row >= 0 && "Element index out of bound exception.");
+			assert(col < cols && col >= 0 && "Element index out of bound exception.");
 
 			return data[row * cols + col];
 		}
@@ -77,8 +88,77 @@ namespace EM
 			return submat;
 		}
 
+		T determinant() const 
+		{
+			static_assert(rows == cols, "Matrix must be square to compute determinant.");
+
+			if constexpr (rows == 1) {
+				// 1x1矩阵的行列式就是它的唯一元素
+				return data[0];
+			}
+			else if constexpr (rows == 2)
+			{
+				// 2x2矩阵的行列式公式：ad - bc
+				return data[0] * data[3] - data[1] * data[2];
+			}
+			else {
+				T det = 0;
+				for (size_t i = 0; i < cols; ++i) {
+					// 根据行列式展开公式计算
+					// 使用 submatrix() 函数生成子矩阵
+					auto submat = submatrix(0, i);
+					det += (i % 2 == 0 ? 1 : -1) * data[i] * submat.determinant();
+				}
+				return det;
+			}
+		}
+
 	private:
 		std::array<T, rows* cols> data;
+
+		friend std::ostream& operator<<(std::ostream& os, const Matrix<T, rows, cols>& matrix)
+		{
+			os << std::fixed << std::setprecision(3);  // 设置小数精度为3，并使用固定点表示
+
+			// 根据列宽决定每列的宽度
+			size_t max_width = 0;
+			for (size_t i = 0; i < rows; ++i)
+			{
+				for (size_t j = 0; j < cols; ++j)
+				{
+					// 获取每个元素的字符串宽度
+					std::ostringstream oss;
+					oss << std::fixed << std::setprecision(3) << matrix(i, j);  // 设置精度为3
+					std::string str = oss.str();
+					size_t element_width = str.length();
+					max_width = std::max(max_width, element_width);  // 获取最大宽度
+				}
+			}
+
+			std::cout << "Matrix " << rows << "x" << cols << std::endl;
+
+			os << "-";
+			os << std::setw(max_width * cols + cols+2);
+			os << "-\n";
+
+			for (size_t i = 0; i < rows; ++i)
+			{
+				os << "|";
+				for (size_t j = 0; j < cols; ++j)
+				{
+					os << std::setw(max_width) << matrix(i, j) << " ";
+				}
+
+				os << "|";
+				os << "\n";  // 打印每一行后换行
+			}
+			
+			os << "-";
+			os << std::setw(max_width * cols + cols+2);
+			os << "-\n";
+
+			return os;
+		}
 	};
 
 	typedef Matrix<float, 3, 3> Matrix3x3;
