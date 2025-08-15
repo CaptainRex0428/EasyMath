@@ -1,9 +1,9 @@
 include "Directory.lua"
 include "Dependencies.lua"
 
-workspace "CommonCPPTemplate"
+workspace "EasyMath"
 	architecture "x64"
-	startproject "EntryProject"
+	startproject "Sandbox"
 	configurations
 	{
 		"Debug",
@@ -16,4 +16,7 @@ workspace "CommonCPPTemplate"
 	
 
 group ""
-	include "EntryProject.lua"
+	include "EasyMath.lua"
+
+group "Sandbox"
+	include "Sandbox.lua"

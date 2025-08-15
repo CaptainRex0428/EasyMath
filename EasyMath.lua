@@ -1,13 +1,12 @@
-project "EntryProject"
-    kind "ConsoleApp"
+project "EasyMath"
+    kind "SharedLib"
     language "C++"
     cppdialect "C++20"
 
     files
     {
-        "src/**.cpp",
-        "src/**.h",
-        "include/**.h"
+        "include/**.h", "include/**.cpp",
+        "src/**.h",     "src/**.cpp"
     }
 
     includedirs
@@ -21,6 +20,7 @@ project "EntryProject"
 
     defines
 	{
+        "EASYMATH_DLL"
 	}
 
     flags
@@ -33,17 +33,22 @@ project "EntryProject"
 
     buildoptions { "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus"}
 
-    -- warnings "off"
+    warnings "off"
 
     location (LocationDir)
-    targetdir (EXEDir)
+    targetdir (TargetDir)
     objdir (ObjectDir)
 
     -- inlining    "Explicit"
 	-- intrinsics  "Off"
 
+    postbuildcommands
+	{
+		("{COPY} %{cfg.buildtarget.relpath} "..DynamicDir)
+	}
+
     filter "system:windows" 
-        -- staticruntime "Off"
+        staticruntime "Off"
         systemversion "latest"
         defines { "_WINDOWS" }
 
