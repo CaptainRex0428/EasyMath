@@ -87,7 +87,8 @@ namespace EM
 			}
 			return submat;
 		}
-
+		
+		// 计算行列式
 		T determinant() const 
 		{
 			static_assert(rows == cols, "Matrix must be square to compute determinant.");
@@ -111,6 +112,73 @@ namespace EM
 				}
 				return det;
 			}
+		}
+
+		// 计算指定位置的代数余子式
+		T cofactor(size_t row, size_t col) const
+		{
+			static_assert(rows == cols, "Matrix must be square to compute cofactor.");
+			static_assert(rows > 1, "Matrix must be at least 2x2 to compute cofactor.");
+
+			// 代数余子式 = (-1)^(i+j) * M_ij
+			// 其中 M_ij 是去掉第i行第j列后的子矩阵的行列式
+			auto submat = submatrix(row, col);
+			T minor = submat.determinant();
+
+			// 计算符号：(-1)^(row+col)
+			T sign = ((row + col) % 2 == 0) ? 1 : -1;
+
+			return sign * minor;
+		}
+
+		// 计算代数余子式矩阵（伴随矩阵的转置）
+		Matrix<T, rows, cols> cofactorMatrix() const
+		{
+			static_assert(rows == cols, "Matrix must be square to compute cofactor matrix.");
+
+			Matrix<T, rows, cols> result;
+
+			for (size_t i = 0; i < rows; ++i) {
+				for (size_t j = 0; j < cols; ++j) {
+					result(i, j) = cofactor(i, j);
+				}
+			}
+
+			return result;
+		}
+
+		// 计算矩阵转置
+		Matrix<T, cols, rows> transpose() const
+		{
+			Matrix<T, cols, rows> result{};
+
+			for (size_t i = 0; i < rows; ++i) {
+				for (size_t j = 0; j < cols; ++j) {
+					result(j, i) = (*this)(i, j);
+				}
+			}
+			return result;
+		}
+
+		// 可选：计算伴随矩阵（代数余子式矩阵的转置）
+		Matrix<T, rows, cols> adjugate() const
+		{
+			static_assert(rows == cols, "Matrix must be square to compute adjugate matrix.");
+
+			auto cofMat = cofactorMatrix();
+			return MTXTranspose(cofMat);
+		}
+
+		// 可选：计算逆矩阵（使用伴随矩阵方法）
+		Matrix<T, rows, cols> inverse() const
+		{
+			static_assert(rows == cols, "Matrix must be square to compute inverse.");
+
+			T det = determinant();
+			assert(det != 0 && "Matrix is singular (determinant is zero), cannot compute inverse.");
+
+			auto adj = adjugate();
+			return  (1.0 / det) * adj;
 		}
 
 	private:
