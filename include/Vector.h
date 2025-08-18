@@ -1,14 +1,14 @@
-#pragma once
+﻿#pragma once
 
 #include "EasyMathAPI.h"
+#include "Common.h"
 
 #include <cstdint>
 #include <cmath>
 #include <iostream>
 #include <array>
 #include <cassert>
-
-#include "Common.h"
+#include <algorithm>
 
 namespace EM
 {
@@ -40,8 +40,7 @@ namespace EM
 	class Vector
 	{
 	public:
-		static_assert(std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, long double>, "Member of vector must be float, double or long double.");
-
+		static_assert(std::is_arithmetic_v<T>, "Vector element type must be arithmetic");
 		static_assert(dimension > 0, "vector dimension must be positive.");
 
 		Vector()
@@ -49,12 +48,9 @@ namespace EM
 		{
 		};
 
-		Vector(const T& num)
+		explicit Vector(const T& value)
 		{
-			for (auto it = data.begin(); it != data.end(); ++it)
-			{
-				*it = num;
-			}
+			data.fill(value);
 		};
 
 		Vector(std::initializer_list<T> InitializeList)
@@ -64,207 +60,9 @@ namespace EM
 			std::copy(InitializeList.begin(), InitializeList.end(), data.begin());
 		}
 
-		T& operator[](size_t idx)
-		{
-			limit_max(idx, dimension - 1);
-			return data[idx];
-		}
+		Vector(const Vector&) = default;
 
-		const T& operator[](size_t idx) const
-		{
-			limit_max(idx, dimension - 1);
-			return data[idx];
-		}
-
-		T& operator[](VectorFilterDimension1D d)
-		{
-			uint8_t idx = (uint8_t)d % 4;
-
-			assert(idx < dimension && "dimension index attached the vector border.");
-
-			return data[(size_t)idx];
-		}
-
-		const T& operator[](VectorFilterDimension1D d) const
-		{
-			uint8_t idx = (uint8_t)d % 4;
-
-			assert(idx < dimension && "dimension index attached the vector border.");
-
-			return data[(size_t)idx];
-		}
-
-		Vector<T, 2> operator[](VectorFilterDimension2D d)
-		{
-			assert(dimension > 1 && "vector dimension doesn't support double swizzle.");
-
-			uint8_t idx = (uint8_t)d % 6;
-
-			if (idx < 1)
-			{
-				return Vector<T, 2>{data[0], data[1]};
-			}
-
-			if (idx < 3)
-			{
-				assert(dimension > 2 && "dimension index attached the vector border.");
-
-				if (idx == 1)
-				{
-					return Vector<T, 2>{data[0], data[2]};
-				}
-
-				if (idx == 2)
-				{
-					return Vector<T, 2>{data[1], data[2]};
-				}
-			}
-
-
-			assert(dimension > 3 && "dimension index attached the vector border.");
-
-			if (idx == 3)
-			{
-				return Vector<T, 2>{data[0], data[3]};
-			}
-
-			if (idx == 4)
-			{
-				return Vector<T, 2>{data[1], data[3]};
-			}
-
-			return Vector<T, 2>{data[2], data[3]};
-
-		}
-
-		const Vector<T, 2> operator[](VectorFilterDimension2D d) const
-		{
-			assert(dimension > 1 && "vector dimension doesn't support double swizzle.");
-
-			uint8_t idx = (uint8_t)d % 6;
-
-			if (idx < 1)
-			{
-				return Vector<T, 2>{data[0], data[1]};
-			}
-
-			if (idx < 3)
-			{
-				assert(dimension > 2 && "dimension index attached the vector border.");
-
-				if (idx == 1)
-				{
-					return Vector<T, 2>{data[0], data[2]};
-				}
-
-				if (idx == 2)
-				{
-					return Vector<T, 2>{data[1], data[2]};
-				}
-			}
-
-			assert(dimension > 3 && "dimension index attached the vector border.");
-
-			if (idx == 3)
-			{
-				return Vector<T, 2>{data[0], data[3]};
-			}
-
-			if (idx == 4)
-			{
-				return Vector<T, 2>{data[1], data[3]};
-			}
-
-			return Vector<T, 2>{data[2], data[3]};
-
-		}
-
-		Vector<T, 3> operator[](VectorFilterDimension3D d)
-		{
-			assert(dimension > 2 && "vector dimension doesn't support triple swizzle.");
-
-			uint8_t idx = (uint8_t)d % 3;
-
-			if (idx < 1)
-			{
-				return Vector<T, 3>{data[0], data[1], data[2]};
-			}
-
-			assert(dimension > 3 && "dimension index attached the vector border.");
-
-			if (idx == 1)
-			{
-				return Vector<T, 3>{data[0], data[1], data[3]};
-			}
-
-			return Vector<T, 3>{data[1], data[2], data[3]};
-		}
-
-		const Vector<T, 3> operator[](VectorFilterDimension3D d) const
-		{
-			assert(dimension > 2 && "vector dimension doesn't support triple swizzle.");
-
-			uint8_t idx = (uint8_t)d % 3;
-
-			if (idx < 1)
-			{
-				return Vector<T, 3>{data[0], data[1], data[2]};
-			}
-
-			assert(dimension > 3 && "dimension index attached the vector border.");
-
-			if (idx == 1)
-			{
-				return Vector<T, 3>{data[0], data[1], data[3]};
-			}
-
-			return Vector<T, 3>{data[1], data[2], data[3]};
-		}
-
-		T Length(bool dimensionalityReduction = true) const
-		{
-			T sum = T(0);
-
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				if (dimensionalityReduction && idx > 2)
-				{
-					break;
-				}
-
-				sum += data[idx] * data[idx];
-			}
-
-			return std::sqrt(sum);
-		}
-
-		Vector<T, dimension> Normalize(bool dimensionalityReduction = true) const
-		{
-			T len = Length(dimensionalityReduction);
-
-			Vector<T, dimension> result;
-
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				if (dimensionalityReduction && idx > 2)
-				{
-					result[idx] = data[idx];
-					continue;
-				}
-
-				if (len == 0)
-				{
-					result[idx] = 0;
-					continue;
-				}
-
-				result[idx] = data[idx] / len;
-			}
-
-			return result;
-		}
-
-		static constexpr size_t Dimension() { return dimension; }
+		Vector(Vector&&) = default;
 
 		Vector<T, dimension>& operator=(const Vector<T, dimension>& other)
 		{
@@ -276,271 +74,645 @@ namespace EM
 			return *this;
 		}
 
-	protected:
-		std::array<T, dimension> data;
+		Vector<T, dimension>& operator=(Vector<T, dimension>&& other)
+		{
+			for (size_t idx = 0; idx < dimension; ++idx)
+			{
+				this->data[idx] = other[idx];
+			}
+
+			return *this;
+		}
+
+		T& operator[](size_t idx)
+		{
+			assert(idx < dimension && "Index out of bounds");
+			return data[idx];
+		}
+
+		const T& operator[](size_t idx) const
+		{
+			assert(idx < dimension && "Index out of bounds");
+			return data[idx];
+		}
+
+		// Swizzle
+		T& operator[](VectorFilterDimension1D d)
+		{
+			uint8_t idx = (uint8_t)d % 4;
+			assert(idx < dimension && "Swizzle index out of bounds");
+			return data[idx];
+		}
+
+		const T& operator[](VectorFilterDimension1D d) const
+		{
+			uint8_t idx = (uint8_t)d % 4;
+			assert(idx < dimension && "Swizzle index out of bounds");
+			return data[idx];
+		}
+
+		// 2D Swizzle
+		Vector<T, 2> operator[](VectorFilterDimension2D d) const
+		{
+			assert(dimension >= 2 && "Vector dimension too small for 2D swizzle");
+			uint8_t idx = (uint8_t)d % 6;
+
+			switch (idx) 
+			{
+				case 0: return { data[0], data[1] };  // xy
+				case 1: assert(dimension >= 3); return { data[0], data[2] };  // xz
+				case 2: assert(dimension >= 3); return { data[1], data[2] };  // yz
+				case 3: assert(dimension >= 4); return { data[0], data[3] };  // xw
+				case 4: assert(dimension >= 4); return { data[1], data[3] };  // yw
+				case 5: assert(dimension >= 4); return { data[2], data[3] };  // zw
+				default: return { data[0], data[1] };
+			}
+
+		}
+
+		// 3D Swizzle
+		Vector<T, 3> operator[](VectorFilterDimension3D d) const
+		{
+			assert(dimension >= 3 && "Vector dimension too small for 3D swizzle");
+			uint8_t idx = static_cast<uint8_t>(d) % 3;
+
+			switch (idx) {
+			case 0: return { data[0], data[1], data[2] };  // xyz
+			case 1: assert(dimension >= 4); return { data[0], data[1], data[3] };  // xyw
+			case 2: assert(dimension >= 4); return { data[1], data[2], data[3] };  // yzw
+			default: return { data[0], data[1], data[2] };
+			}
+		}
+
+		// 成员函数：复合赋值运算符
+		Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] += other.data[i];
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator+=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] += scalar;
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator-=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] -= other.data[i];
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator-=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] -= scalar;
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator*=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] *= other.data[i];
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator*=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] *= scalar;
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator/=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				assert(other.data[i] != T{ 0 } && "Division by zero");
+				data[i] /= other.data[i];
+			}
+			return *this;
+		}
+
+		Vector<T, dimension>& operator/=(const T& scalar)
+		{
+			assert(scalar != T{ 0 } && "Division by zero");
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] /= scalar;
+			}
+			return *this;
+		}
+
+		// 向量运算成员函数
+
+		[[nodiscard]] T length() const noexcept
+		{
+			T sum = T(0);
+			for (size_t idx = 0; idx < dimension; ++idx)
+			{
+				sum += data[idx] * data[idx];
+			}
+			return std::sqrt(sum);
+		}
+
+		[[nodiscard]]  T length(bool dimensionalityReduction) const noexcept
+		{
+			if (!dimensionalityReduction) {
+				return length();
+			}
+
+			T sum = T(0);
+			size_t maxDim = std::min(dimension, size_t(3));  // 只计算前3个维度
+			for (size_t idx = 0; idx < maxDim; ++idx)
+			{
+				sum += data[idx] * data[idx];
+			}
+			return std::sqrt(sum);
+		}
+
+		[[nodiscard]] constexpr T lengthSquared() const noexcept
+		{
+			T sum = T(0);
+			for (size_t idx = 0; idx < dimension; ++idx)
+			{
+				sum += data[idx] * data[idx];
+			}
+			return sum;
+		}
+
+		[[nodiscard]] constexpr T lengthSquared(bool dimensionalityReduction) const noexcept
+		{
+			if (!dimensionalityReduction) {
+				return lengthSquared();
+			}
+
+			T sum = T(0);
+			size_t maxDim = std::min(dimension, size_t(3));
+			for (size_t idx = 0; idx < maxDim; ++idx)
+			{
+				sum += data[idx] * data[idx];
+			}
+			return sum;
+		}
+
+		[[nodiscard]] Vector<T, dimension> normalized() const
+		{
+			T len = length();
+
+			if (len == T{ 0 })
+			{
+				return Vector<T, dimension>{};  // 返回零向量
+			}
+
+			Vector<T, dimension> result;
+			for (size_t idx = 0; idx < dimension; ++idx)
+			{
+				result[idx] = data[idx] / len;
+			}
+
+			return result;
+		}
+
+		[[nodiscard]] Vector<T, dimension> normalized(bool dimensionalityReduction) const
+		{
+			T len = length(dimensionalityReduction);
+
+			if (len == T{ 0 })
+			{
+				return Vector<T, dimension>{};
+			}
+
+			Vector<T, dimension> result;
+
+			if (dimensionalityReduction) {
+				size_t maxDim = std::min(dimension, size_t(3));
+				for (size_t idx = 0; idx < maxDim; ++idx)
+				{
+					result[idx] = data[idx] / len;
+				}
+				// 保持其他维度不变
+				for (size_t idx = maxDim; idx < dimension; ++idx)
+				{
+					result[idx] = data[idx];
+				}
+			}
+			else {
+				for (size_t idx = 0; idx < dimension; ++idx)
+				{
+					result[idx] = data[idx] / len;
+				}
+			}
+
+			return result;
+		}
+
+		void normalize()
+		{
+			*this = normalized();
+		}
+
+		void normalize(bool dimensionalityReduction)
+		{
+			*this = normalized(dimensionalityReduction);
+		}
+
+		// 图形渲染专用函数
+		[[nodiscard]] bool isZero(T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
+		{
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				if (std::abs(data[i]) > epsilon) 
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		[[nodiscard]] bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
+		{
+			return std::abs(length(dimensionalityReduction) - T{ 1 }) <= epsilon;
+		}
+
+		// 线性插值
+		[[nodiscard]] Vector<T, dimension> lerp(const Vector<T, dimension>& other, T t) const noexcept
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i) {
+				result.data[i] = data[i] + t * (other.data[i] - data[i]);
+			}
+			return result;
+		}
+
+		// 反射（需要基础单位法向量）
+		[[nodiscard]] Vector<T, dimension> reflect(const Vector<T, dimension>& normal) const
+		{
+			static_assert(dimension >= 2, "Reflection requires at least 2D vector");
+
+			T dot_product = dot(*this, normal.normalized());
+			return T{ 2 } *dot_product * normal - * this;
+		}
+
+		// 投影
+		[[nodiscard]] Vector project(const Vector& onto) const
+		{
+			T dot_product = dot(*this, onto);
+			T onto_length_sq = onto.lengthSquared();
+			if (onto_length_sq == T{ 0 }) 
+			{
+				return Vector{};
+			}
+			return (dot_product / onto_length_sq) * onto;
+		}
+
+		[[nodiscard]] Vector project(const Vector& onto, bool dimensionalityReduction) const
+		{
+			T dot_product = dot(*this, onto);
+			T onto_length_sq = onto.lengthSquared(dimensionalityReduction);
+			if (onto_length_sq == T{ 0 }) {
+				return Vector{};
+			}
+			return (dot_product / onto_length_sq) * onto;
+		}
+
+		// 向量的齐次坐标相关操作
+
+		template<size_t newDim = dimension + 1>
+		[[nodiscard]] Vector<T, newDim> toHomogeneous(T w = T{ 1 }) const
+		{
+			static_assert(newDim > dimension, "New dimension must be larger");
+			Vector<T, newDim> result;
+
+			for (size_t i = 0; i < dimension; ++i) {
+				result[i] = data[i];
+			}
+
+			if constexpr (newDim == dimension + 1) {
+				result[dimension] = w;
+			}
+
+			return result;
+		}
+
+		// 从齐次坐标转换回普通坐标
+		template<size_t newDim = dimension - 1>
+		[[nodiscard]] Vector<T, newDim> fromHomogeneous() const
+		{
+			static_assert(newDim < dimension, "New dimension must be smaller");
+			static_assert(dimension > 0, "Cannot reduce dimension of empty vector");
+
+			Vector<T, newDim> result;
+			T w = data[dimension - 1];
+
+			// 处理w=0的情况（无穷远点）
+			if (std::abs(w) < T{ NEARZERO_THRESHOLD }) {
+				// 返回方向向量（不进行透视除法）
+				for (size_t i = 0; i < newDim; ++i) {
+					result[i] = data[i];
+				}
+			}
+			else {
+				// 进行透视除法
+				for (size_t i = 0; i < newDim; ++i) 
+				{
+					result[i] = data[i] / w;
+				}
+			}
+
+			return result;
+		}
+
+		// 数据访问
+		[[nodiscard]] T* Data() noexcept { return data.data(); }
+		[[nodiscard]] const T* Data() const noexcept { return data.data(); }
+
+		[[nodiscard]] T* begin() noexcept { return data.data(); }
+		[[nodiscard]] const T* begin() const noexcept { return data.data(); }
+
+		[[nodiscard]] T* end() noexcept { return data.data() + dimension; }
+		[[nodiscard]] const T* end() const noexcept { return data.data() + dimension; }
+
+		// 基础信息
+		[[nodiscard]] static constexpr size_t size() noexcept { return dimension; }
+		[[nodiscard]] constexpr size_t getDimension() const noexcept { return dimension; }
+		[[nodiscard]] static constexpr size_t Dimension() noexcept { return dimension; }
+
+		[[nodiscard]] T& at(size_t idx)
+		{
+			if (idx >= dimension) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
+		}
+
+		[[nodiscard]] const T& at(size_t idx) const
+		{
+			if (idx >= dimension) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
+		}
 
 	private:
+		// 友元函数：二元运算符
+		friend Vector<T, dimension> operator+(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			Vector result;
+			for (size_t i = 0; i < dimension; ++i)
+			{
+				result.data[i] = lhs.data[i] + rhs.data[i];
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator+(const Vector<T, dimension>& vec, const T& scalar)
+		{
+			Vector result;
+			for (size_t i = 0; i < dimension; ++i) {
+				result.data[i] = vec.data[i] + scalar;
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator+(const T& scalar, const Vector<T, dimension>& vec)
+		{
+			return vec + scalar;
+		}
+
+		friend Vector<T, dimension> operator-(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i)
+			{
+				result.data[i] = lhs.data[i] - rhs.data[i];
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator-(const Vector<T, dimension>& vec, const T& scalar)
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i)
+			{
+				result.data[i] = vec.data[i] - scalar;
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator-(const Vector<T, dimension>& vec)  // 一元负号
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i)
+			{
+				result.data[i] = -vec.data[i];
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator*(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result.data[i] = lhs.data[i] * rhs.data[i];
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator*(const Vector<T, dimension>& vec, const T& scalar)
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result.data[i] = vec.data[i] * scalar;
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator*(const T& scalar, const Vector<T, dimension>& vec)
+		{
+			return vec * scalar;
+		}
+
+		friend Vector<T, dimension> operator/(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				assert(rhs.data[i] != T{ 0 } && "Division by zero");
+				result.data[i] = lhs.data[i] / rhs.data[i];
+			}
+			return result;
+		}
+
+		friend Vector<T, dimension> operator/(const Vector<T, dimension>& vec, const T& scalar)
+		{
+			assert(scalar != T{ 0 } && "Division by zero");
+			Vector<T, dimension> result;
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result.data[i] = vec.data[i] / scalar;
+			}
+			return result;
+		}
+
+		// 比较运算符
+		friend bool operator==(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			if constexpr (std::is_floating_point_v<T>) 
+			{
+				// 浮点数使用epsilon比较
+				for (size_t i = 0; i < dimension; ++i)
+				{
+					if (std::abs(lhs.data[i] - rhs.data[i]) > T{ NEARZERO_THRESHOLD })
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			else 
+			{
+				// 整数类型直接比较
+				for (size_t i = 0; i < dimension; ++i)
+				{
+					if (lhs.data[i] != rhs.data[i])
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+
+		friend bool operator!=(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
+		{
+			return !(lhs == rhs);
+		}
+
+		// 输出运算符
+		friend std::ostream& operator<<(std::ostream& out, const Vector& vec)
+		{
+			out << "(";
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				out << vec.data[i];
+				if (i < dimension - 1) {
+					out << ", ";
+				}
+			}
+			out << ")";
+			return out;
+		}
+
+	private:
+		std::array<T, dimension> data;
 
 	};
 
-
-
-	template<typename T, size_t dimension_var>
-	Vector<T, 3> Cross(const Vector<T, dimension_var>& vectorA, const Vector<T, dimension_var>& vectorB)
+	// 全局向量函数
+	template<typename T, size_t D>
+	T dot(const Vector<T, D>& a, const Vector<T, D>& b)
 	{
-		static_assert(dimension_var == 2 || dimension_var == 3, "Cross vector must be Vector2 or Vector3.");
-
-		if (dimension_var == 2)
+		T result = T{ 0 };
+		for (size_t i = 0; i < D; ++i) 
 		{
-			return Vector<T, 3>{ 0, 0, vectorA[x] * vectorB[y] - vectorA[y] * vectorB[x] };
+			result += a[i] * b[i];
 		}
-
-		return Vector<T, 3>{ vectorA[y] * vectorB[z] - vectorA[z] * vectorB[y],
-			vectorA[z] * vectorB[x] - vectorA[x] * vectorB[z],
-			vectorA[x] * vectorB[y] - vectorA[y] * vectorB[x] };
-	}
-
-	template<typename T, size_t dimension_var>
-	T Dot(const Vector<T, dimension_var>& vectorA, const Vector<T, dimension_var>& vectorB, bool dimensionalityReduction = true)
-	{
-		T result = 0;
-
-		for (size_t idx = 0; idx < dimension_var; ++idx)
-		{
-			if (dimensionalityReduction && idx > 2)
-			{
-				break;
-			}
-
-			result += vectorA[idx] * vectorB[idx];
-		}
-
 		return result;
 	}
 
-	template<typename T, size_t D>
-	std::ostream& operator<<(std::ostream& out, const Vector<T, D>& vector)
+	// 3D叉积
+	template<typename T>
+	Vector<T, 3> cross(const Vector<T, 3>& a, const Vector<T, 3>& b)
 	{
-		out << "(";
+		return {
+			a[y] * b[z] - a[z] * b[y],
+			a[z] * b[x] - a[x] * b[z],
+			a[x] * b[y] - a[y] * b[x]
+		};
+	}
 
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			out << vector[idx];
+	// 2D叉积（返回标量）
+	template<typename T>
+	T cross2D(const Vector<T, 2>& a, const Vector<T, 2>& b)
+	{
+		return a[x] * b[y] - a[y] * b[x];
+	}
 
-			if (idx != D - 1)
-			{
-				out << ",";
-			}
-		}
-
-		out << ")";
-
-		return out;
+	// 距离函数
+	template<typename T, size_t D>
+	T distance(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction = true)
+	{
+		return (b - a).length(dimensionalityReduction);
 	}
 
 	template<typename T, size_t D>
-	Vector<T, D>& operator+=(Vector<T, D>& vector, T scalar)
+	T distanceSquared(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction = true)
 	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] += scalar;
-		}
-
-		return vector;
+		return (b - a).lengthSquared(dimensionalityReduction);
 	}
 
+	// 角度函数
 	template<typename T, size_t D>
-	Vector<T, D>& operator+=(Vector<T, D>& vector, const Vector<T, D>& other)
+	T angle(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction = true)
 	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] += other[idx];
+		T dot_product = dot(a, b);
+		T magnitude_product = a.length(dimensionalityReduction) * b.length(dimensionalityReduction);
+		if (magnitude_product == T{ 0 }) {
+			return T{ 0 };
 		}
-
-		return vector;
+		return std::acos(std::clamp(dot_product / magnitude_product, T{ -1 }, T{ 1 }));
 	}
 
+	// 线性插值
 	template<typename T, size_t D>
-	Vector<T, D>& operator*=(Vector<T, D>& vector, T scalar)
+	Vector<T, D> lerp(const Vector<T, D>& a, const Vector<T, D>& b, T t)
 	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] *= scalar;
-		}
-
-		return vector;
+		return a.lerp(b, t);
 	}
 
+	// 球面线性插值（仅用于单位向量）
 	template<typename T, size_t D>
-	Vector<T, D>& operator*=(Vector<T, D>& vector, const Vector<T, D>& other)
+	Vector<T, D> slerp(const Vector<T, D>& a, const Vector<T, D>& b, T t)
 	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] *= other[idx];
+		T dot_product = std::clamp(dot(a, b), T{ -1 }, T{ 1 });
+		T theta = std::acos(std::abs(dot_product));
+
+		if (theta < T{ 1e-6 }) {
+			return lerp(a, b, t);  // 向量几乎平行，使用线性插值
 		}
 
-		return vector;
-	}
+		T sin_theta = std::sin(theta);
+		T factor_a = std::sin((T{ 1 } - t) * theta) / sin_theta;
+		T factor_b = std::sin(t * theta) / sin_theta;
 
-	template<typename T, size_t D>
-	Vector<T, D>& operator-=(Vector<T, D>& vector, T scalar)
-	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] -= scalar;
+		if (dot_product < T{ 0 }) {
+			factor_b = -factor_b;  // 选择较短路径
 		}
 
-		return vector;
+		return factor_a * a + factor_b * b;
 	}
 
-	template<typename T, size_t D>
-	Vector<T, D>& operator-=(Vector<T, D>& vector, const Vector<T, D>& other)
-	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] -= other[idx];
-		}
+	// 常用的向量类型定义
+	using Vector2f = Vector<float, 2>;
+	using Vector3f = Vector<float, 3>;
+	using Vector4f = Vector<float, 4>;
 
-		return vector;
-	}
+	using Vector2d = Vector<double, 2>;
+	using Vector3d = Vector<double, 3>;
+	using Vector4d = Vector<double, 4>;
 
-	template<typename T, size_t D>
-	Vector<T, D>& operator/=(Vector<T, D>& vector, T scalar)
-	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] /= scalar;
-		}
-
-		return vector;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D>& operator/=(Vector<T, D>& vector, const Vector<T, D>& other)
-	{
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			vector[idx] /= other[idx];
-		}
-
-		return vector;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator*(const Vector<T, D>& vectorA, const Vector<T, D>& vectorB)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vectorA[idx] * vectorB[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator*(const Vector<T, D>& vector, T scalar)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = scalar * vector[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator+(const Vector<T, D>& vectorA, const Vector<T, D>& vectorB)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vectorA[idx] + vectorB[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator+(const Vector<T, D>& vector, T scalar)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = scalar + vector[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator-(const Vector<T, D>& vectorA, const Vector<T, D>& vectorB)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vectorA[idx] - vectorB[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator-(const Vector<T, D>& vector, T scalar)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vector[idx] - scalar;
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator/(const Vector<T, D>& vectorA, const Vector<T, D>& vectorB)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vectorA[idx] / vectorB[idx];
-		}
-
-		return result;
-	}
-
-	template<typename T, size_t D>
-	Vector<T, D> operator/(const Vector<T, D>& vector, T scalar)
-	{
-		Vector<T, D> result;
-
-		for (size_t idx = 0; idx < D; ++idx)
-		{
-			result[idx] = vector[idx] / scalar;
-		}
-
-		return result;
-	}
-
-	typedef Vector<float, 2> Vector2;
-	typedef Vector<float, 3> Vector3;
-	typedef Vector<float, 4> Vector4;
-
-	EASYMATH_API bool NearZero(const Vector2& src);
-	EASYMATH_API bool NearZero(const Vector3& src);
-
-	EASYMATH_API Vector2 DegreeToRadians(const Vector2& degree);
-	EASYMATH_API Vector3 DegreeToRadians(const Vector3& degree);
-
-	EASYMATH_API Vector2 RadiansToDegree(Vector2& radians);
-	EASYMATH_API Vector3 RadiansToDegree(Vector3& radians);
+	using Vector2i = Vector<int, 2>;
+	using Vector3i = Vector<int, 3>;
+	using Vector4i = Vector<int, 4>;
 
 }
