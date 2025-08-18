@@ -278,6 +278,9 @@ namespace EM
 
 	protected:
 		std::array<T, dimension> data;
+
+	private:
+
 	};
 
 
