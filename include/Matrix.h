@@ -308,7 +308,7 @@ namespace EM
 
 		// 向量矩阵乘法运算
 		// 矩阵 × 向量（列向量）: Matrix<T, rows, cols> × Vector<T, cols> -> Vector<T, rows>
-		template<typename T, size_t rows, size_t cols, size_t dimension>
+		template<size_t dimension>
 		friend Vector<T, rows> operator*(const Matrix<T, rows, cols>& matrix, const Vector<T, dimension>& vec)
 		{
 			static_assert(cols == dimension, "Matrix columns must match vector dimension for multiplication");
@@ -329,7 +329,7 @@ namespace EM
 		}
 
 		// 向量（行向量）× 矩阵: Vector<T, rows> × Matrix<T, rows, cols> -> Vector<T, cols>
-		template<typename T, size_t rows, size_t cols, size_t dimension>
+		template<size_t dimension>
 		friend Vector<T, cols> operator*(const Vector<T, dimension>& vec, const Matrix<T, rows, cols>& matrix)
 		{
 			static_assert(dimension == rows, "Vector dimension must match matrix rows for multiplication");

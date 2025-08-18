@@ -531,7 +531,7 @@ namespace EM
 			return result;
 		}
 
-		friend Vector<T, dimension> operator-(const Vector<T, dimension>& vec)  // 一元负号
+		friend Vector<T, dimension> operator-(const Vector<T, dimension>& vec)
 		{
 			Vector<T, dimension> result;
 			for (size_t i = 0; i < dimension; ++i)
