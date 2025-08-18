@@ -13,7 +13,7 @@
 
 namespace EM
 {
-	template<typename T, size_t dimension>
+	template<typename T, size_t dimension, typename>
 	class Vector;
 
 	template <typename T, size_t rows, size_t cols, 
@@ -301,6 +301,49 @@ namespace EM
 					}
 					result(i, j) = sum;
 				}
+			}
+
+			return result;
+		}
+
+		// 向量矩阵乘法运算
+		// 矩阵 × 向量（列向量）: Matrix<T, rows, cols> × Vector<T, cols> -> Vector<T, rows>
+		template<typename T, size_t rows, size_t cols, size_t dimension>
+		friend Vector<T, rows> operator*(const Matrix<T, rows, cols>& matrix, const Vector<T, dimension>& vec)
+		{
+			static_assert(cols == dimension, "Matrix columns must match vector dimension for multiplication");
+
+			Vector<T, rows> result;
+
+			for (size_t i = 0; i < rows; ++i)
+			{
+				T sum = T{ 0 };
+				for (size_t j = 0; j < cols; ++j)
+				{
+					sum += matrix(i, j) * vec[j];
+				}
+				result[i] = sum;
+			}
+
+			return result;
+		}
+
+		// 向量（行向量）× 矩阵: Vector<T, rows> × Matrix<T, rows, cols> -> Vector<T, cols>
+		template<typename T, size_t rows, size_t cols, size_t dimension>
+		friend Vector<T, cols> operator*(const Vector<T, dimension>& vec, const Matrix<T, rows, cols>& matrix)
+		{
+			static_assert(dimension == rows, "Vector dimension must match matrix rows for multiplication");
+
+			Vector<T, cols> result;
+
+			for (size_t j = 0; j < cols; ++j)
+			{
+				T sum = T{ 0 };
+				for (size_t i = 0; i < rows; ++i)
+				{
+					sum += vec[i] * matrix(i, j);
+				}
+				result[j] = sum;
 			}
 
 			return result;

@@ -97,38 +97,6 @@ namespace EM
 		return result;
 	}
 
-	// ========== Matrix-Vector 运算 ==========
-
-	// 矩阵乘以向量（将向量视为列向量）
-	template<typename T, size_t rows, size_t cols>
-	Vector<T, rows> operator*(const Matrix<T, rows, cols>& matrix, const Vector<T, cols>& vec)
-	{
-		Vector<T, rows> result;
-		for (size_t i = 0; i < rows; ++i) {
-			T sum = T{ 0 };
-			for (size_t j = 0; j < cols; ++j) {
-				sum += matrix(i, j) * vec[j];
-			}
-			result[i] = sum;
-		}
-		return result;
-	}
-
-	// 向量乘以矩阵（将向量视为行向量）
-	template<typename T, size_t rows, size_t cols>
-	Vector<T, cols> operator*(const Vector<T, rows>& vec, const Matrix<T, rows, cols>& matrix)
-	{
-		Vector<T, cols> result;
-		for (size_t j = 0; j < cols; ++j) {
-			T sum = T{ 0 };
-			for (size_t i = 0; i < rows; ++i) {
-				sum += vec[i] * matrix(i, j);
-			}
-			result[j] = sum;
-		}
-		return result;
-	}
-
 	// ========== 特殊转换函数 ==========
 
 	// 创建反对称矩阵（用于3D向量的叉积运算）
@@ -210,22 +178,4 @@ namespace EM
 			z * x * one_minus_cos - y * sin_theta,  z * y * one_minus_cos + x * sin_theta,   cos_theta + z * z * one_minus_cos
 		};
 	}
-
-	// ========== 类型别名 ==========
-
-	// 常用的矩阵-向量组合类型
-	using Matrix2f = Matrix<float, 2, 2>;
-	using Matrix3f = Matrix<float, 3, 3>;
-	using Matrix4f = Matrix<float, 4, 4>;
-
-	using Matrix2d = Matrix<double, 2, 2>;
-	using Matrix3d = Matrix<double, 3, 3>;
-	using Matrix4d = Matrix<double, 4, 4>;
-
-	// 便利的转换函数别名
-	template<typename T>
-	using Vec3ToMat4 = Matrix<T, 4, 4>(*)(const Vector<T, 3>&);
-
-	template<typename T>
-	using Mat4ToVec3 = Vector<T, 3>(*)(const Matrix<T, 4, 4>&);
 }
