@@ -129,7 +129,7 @@ namespace EM
 			T minor = submat.determinant();
 
 			// 计算符号：(-1)^(row+col)
-			T sign = ((row + col) % 2 == 0) ? 1 : -1;
+			T sign = T(((row + col) % 2 == 0) ? 1 : -1);
 
 			return sign * minor;
 		}
