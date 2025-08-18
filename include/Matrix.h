@@ -13,6 +13,9 @@
 
 namespace EM
 {
+	template<typename T, size_t dimension>
+	class Vector;
+
 	template <typename T, size_t rows, size_t cols, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	class Matrix

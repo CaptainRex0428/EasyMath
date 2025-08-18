@@ -36,6 +36,9 @@ namespace EM
 		RGB, RGA, GBA
 	};
 
+	template <typename T, size_t rows, size_t cols, typename>
+	class Matrix;
+
 	template<typename T, size_t dimension>
 	class Vector
 	{
@@ -143,6 +146,9 @@ namespace EM
 			default: return { data[0], data[1], data[2] };
 			}
 		}
+
+		// 转换为矩阵
+
 
 		// 成员函数：复合赋值运算符
 		Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)

@@ -5,5 +5,4 @@
 #include "Common.h"
 #include "ByteSize.h"
 
-#include "Vector.h"
-#include "Matrix.h"
+#include "EasyConversion.h"
