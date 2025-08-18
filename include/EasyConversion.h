@@ -7,27 +7,8 @@ namespace EM
 {
 	// ========== Vector 到 Matrix 的转换 ==========
 
-	// 将 Vector 转换为列向量矩阵
-	template<typename T, size_t dimension>
-	Matrix<T, dimension, 1> VectorCMatrix(const Vector<T, dimension>& vec)
-	{
-		Matrix<T, dimension, 1> result;
-		for (size_t i = 0; i < dimension; ++i) {
-			result(i, 0) = vec[i];
-		}
-		return result;
-	}
 
 	// 将 Vector 转换为行向量矩阵
-	template<typename T, size_t dimension>
-	Matrix<T, 1, dimension> VectorRMatrix(const Vector<T, dimension>& vec)
-	{
-		Matrix<T, 1, dimension> result;
-		for (size_t i = 0; i < dimension; ++i) {
-			result(0, i) = vec[i];
-		}
-		return result;
-	}
 
 	// 将多个 Vector 组合成矩阵（每个 Vector 作为一列）
 	template<typename T, size_t dimension, size_t numVectors>

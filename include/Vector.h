@@ -148,7 +148,25 @@ namespace EM
 		}
 
 		// 转换为矩阵
+		Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> toColMatrix()
+		{
+			Matrix<T, dimension, 1> result{};
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result(i, 0) = this->data[i];
+			}
+			return result;
+		}
 
+		Matrix<T, 1, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> toRowMatrix()
+		{
+			Matrix<T, 1, dimension> result{};
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result(0, i) = this->data[i];
+			}
+			return result;
+		}
 
 		// 成员函数：复合赋值运算符
 		Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)
