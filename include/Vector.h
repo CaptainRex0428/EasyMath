@@ -798,6 +798,10 @@ namespace EM
 	}
 
 	// 常用的向量类型定义
+	using Vector2 = Vector<float, 2>;
+	using Vector3 = Vector<float, 3>;
+	using Vector4 = Vector<float, 4>;
+	
 	using Vector2f = Vector<float, 2>;
 	using Vector3f = Vector<float, 3>;
 	using Vector4f = Vector<float, 4>;
