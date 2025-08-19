@@ -454,6 +454,77 @@ namespace EM
 			return result;
 		}
 
+		template<typename = std::enable_if_t<dimension == 3>>
+		Matrix<T, 4, 4, std::enable_if_t<std::is_arithmetic_v<T>>> toTranslationMatrix(bool usedWithOrient = false)
+		{
+			Matrix<T, 4, 4> result = MTXIdentity<T, 4>();
+			result(0, 3) = data[0];
+			result(1, 3) = data[1];
+			result(2, 3) = data[2];
+
+			if (usedWithOrient)
+			{
+				result(3, 3) = 0;
+			}
+
+			return result;
+		}
+
+		[[nodiscard]] Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> skewSymmetric() const
+		{
+
+			static_assert(dimension > 1, "dimension must greater than 1");
+
+			if constexpr (dimension == 2) 
+			{
+				Matrix<T, 3, 3, std::enable_if_t<std::is_arithmetic_v<T>>> result{};  // 初始化为零矩阵
+				
+				result(0, 1) = T{ 0 };      // 0 (因为z=0)
+				result(0, 2) = data[1];   //  y
+				result(1, 0) = T{ 0 };      //  0 (因为z=0)
+				result(1, 2) = -data[0];  // -x
+				result(2, 0) = -data[1];  // -y
+				result(2, 1) = data[0];   //  x
+
+				return result;
+			}
+
+
+			Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> result{};  // 初始化为零矩阵
+
+			if constexpr (dimension == 3) 
+			{
+				// 三维向量的标准反对矩阵
+				result(0, 1) = -data[2];  // -z
+				result(0, 2) = data[1];   //  y
+				result(1, 0) = data[2];   //  z
+				result(1, 2) = -data[0];  // -x
+				result(2, 0) = -data[1];  // -y
+				result(2, 1) = data[0];   //  x
+			}
+			else 
+			{
+				// 高维向量的通用构造方法
+				// 使用循环填充模式
+				size_t idx = 0;
+				for (size_t i = 0; i < dimension && i < dimension; ++i) 
+				{
+					for (size_t j = i + 1; j < dimension && j < dimension; ++j)
+					{
+						if (idx < dimension) 
+						{
+							T value = (idx % 2 == 0) ? data[idx] : -data[idx];
+							result(i, j) = value;
+							result(j, i) = -value;
+							idx++;
+						}
+					}
+				}
+			}
+
+			return result;
+		}
+
 		// 数据访问
 		[[nodiscard]] T* Data() noexcept { return data.data(); }
 		[[nodiscard]] const T* Data() const noexcept { return data.data(); }

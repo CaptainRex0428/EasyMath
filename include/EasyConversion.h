@@ -99,28 +99,6 @@ namespace EM
 
 	// ========== 特殊转换函数 ==========
 
-	// 创建反对称矩阵（用于3D向量的叉积运算）
-	template<typename T>
-	Matrix<T, 3, 3> VectorToSkewSymmetricMatrix(const Vector<T, 3>& vec)
-	{
-		return {
-			 T{0}, -vec[z],  vec[y],
-			 vec[z],  T{0}, -vec[x],
-			-vec[y],  vec[x],  T{0}
-		};
-	}
-
-	// 创建齐次坐标变换矩阵（从3D向量创建平移矩阵）
-	template<typename T>
-	Matrix<T, 4, 4> VectorToTranslationMatrix(const Vector<T, 3>& translation)
-	{
-		Matrix<T, 4, 4> result = MTXIdentity<T, 4>();
-		result(0, 3) = translation[x];
-		result(1, 3) = translation[y];
-		result(2, 3) = translation[z];
-		return result;
-	}
-
 	// 从变换矩阵提取平移向量
 	template<typename T>
 	Vector<T, 3> ExtractTranslationFromMatrix(const Matrix<T, 4, 4>& matrix)

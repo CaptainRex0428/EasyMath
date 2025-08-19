@@ -448,12 +448,18 @@ namespace EM
 	// 3D平移矩阵
 	template<typename T, size_t N,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXTranslation(T x, T y, T z)
+	Matrix<T, 4, 4> MTXTranslation(T x, T y, T z, bool usedWithOrient = false)
 	{
 		Matrix<T, 4, 4> mat = MTXIdentity<T, 4>();
 		mat(0, 3) = x;
 		mat(1, 3) = y;
 		mat(2, 3) = z;
+
+		if (usedWithOrient)
+		{
+			mat(3, 3) = 0;
+		}
+
 		return mat;
 	}
 
