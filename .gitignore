@@ -48,3 +48,4 @@ settings/*
 # exclude
 !Scripts/*/*.*
 bin
+.idea
