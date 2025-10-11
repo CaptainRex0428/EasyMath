@@ -49,3 +49,4 @@ settings/*
 !Scripts/*/*.*
 bin
 .idea
+.run
