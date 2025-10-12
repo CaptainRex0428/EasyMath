@@ -1,5 +1,6 @@
 #include "Vector.h"
 #include "Matrix.h"
+#include "Quaternion.h"
 
 #define PRINT(var) std::cout << var << std::endl;
 
@@ -19,5 +20,8 @@ int main(int argc, char * argv[])
 	PRINT(C.skewSymmetric());
 	PRINT(A.toTranslationMatrix());
 
+	EM::Quaternion<float> QA(A,4);
+	std::cout << QA;
+	
 	return 0;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-// ¼ì²âC++°æ±¾
+// C++ç‰ˆæœ¬åˆ¤æ–­
 #if __cplusplus >= 202002L
 #define CPP20_OR_LATER
 #elif __cplusplus >= 201703L

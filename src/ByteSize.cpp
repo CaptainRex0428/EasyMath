@@ -2,7 +2,7 @@
 
 double EM::ByteSizeTo(int bytesize, SystemSizeUnit unit)
 {
-	// 定义转换常量
+
 	const double KB = 1024.0;
 	const double MB = 1024.0 * KB;
 	const double GB = 1024.0 * MB;
@@ -13,29 +13,29 @@ double EM::ByteSizeTo(int bytesize, SystemSizeUnit unit)
 	const double YB = 1024.0 * ZB;
 
 
-	// 根据目标单位进行转换
+
 	switch (unit)
 	{
 	case SizeUnitByte:
-		return bytesize; // 直接返回字节数
+		return bytesize; // 直
 	case SizeUnitKB:
-		return bytesize / KB; // 转换为KB
+		return bytesize / KB; //
 	case SizeUnitMB:
-		return bytesize / MB; // 转换为MB
+		return bytesize / MB; // 
 	case SizeUnitGB:
-		return bytesize / GB; // 转换为GB
+		return bytesize / GB; // 
 	case SizeUnitTB:
-		return bytesize / TB; // 转换为TB
+		return bytesize / TB; // 
 	case SizeUnitPB:
-		return bytesize / PB; // 转换为PB
+		return bytesize / PB; // 
 	case SizeUnitEB:
-		return bytesize / EB; // 转换为EB
+		return bytesize / EB; // 
 	case SizeUnitZB:
-		return bytesize / ZB; // 转换为ZB
+		return bytesize / ZB; // 
 	case SizeUnitYB:
-		return bytesize / YB; // 转换为YB
+		return bytesize / YB; // 
 	default:
-		return bytesize; // 默认返回字节数
+		return bytesize; // 
 	}
 
 }

@@ -556,6 +556,21 @@ namespace EM
 			return data[idx];
 		}
 
+		// 输出
+		virtual std::ostream& print(std::ostream& out) const
+		{
+			out << "(";
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				out << (*this).data[i];
+				if (i < dimension - 1) {
+					out << ", ";
+				}
+			}
+			out << ")";
+			return out;
+		}
+
 	private:
 		// 友元函数：二元运算符
 		friend Vector<T, dimension> operator+(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
@@ -693,25 +708,16 @@ namespace EM
 			return !(lhs == rhs);
 		}
 
-		// 输出运算符
-		friend std::ostream& operator<<(std::ostream& out, const Vector& vec)
-		{
-			out << "(";
-			for (size_t i = 0; i < dimension; ++i) 
-			{
-				out << vec.data[i];
-				if (i < dimension - 1) {
-					out << ", ";
-				}
-			}
-			out << ")";
-			return out;
-		}
-
-	private:
+	protected:
 		std::array<T, dimension> data;
 
 	};
+
+	template<typename T, size_t dimension>
+	std::ostream& operator<<(std::ostream& out, const Vector<T,dimension>& vec)
+	{
+		return vec.print(out);
+	}
 
 	// 全局向量函数
 	template<typename T, size_t D>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Version.h"
+
 #ifdef EASYMATH_DLL
 #define EASYMATH_API __declspec(dllexport)
 #else
