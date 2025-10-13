@@ -18,16 +18,15 @@ namespace EM
         
         virtual T length(bool dimensionalityReduction = false) const noexcept override
         {
-            T sum = T(0);
-            for (size_t idx = 0; idx < 4; ++idx)
-            {
-                sum += this->data[idx] * this->data[idx];
-            }
-            return std::sqrt(sum);
+            assert(!dimensionalityReduction && "Quaternion does not support dimensionalityReduction");
+            
+            return std::sqrt(lengthSquared(dimensionalityReduction));
         }
 
         virtual constexpr T lengthSquared(bool dimensionalityReduction = false) const noexcept override
         {
+            assert(!dimensionalityReduction && "Quaternion does not support dimensionalityReduction");
+            
             T sum = T(0);
             for (size_t idx = 0; idx < 4; ++idx)
             {
