@@ -1,6 +1,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Quaternion.h"
+#include "Color.h"
 
 #define PRINT(var) std::cout << var << std::endl;
 
@@ -21,7 +22,10 @@ int main(int argc, char * argv[])
 	PRINT(A.toTranslationMatrix());
 
 	EM::Quaternion<float> QA(A,4);
-	std::cout << QA;
+	PRINT(QA);
+
+	EM::Color<float> CA(.4f);
+	PRINT(CA.luminance())
 	
 	return 0;
 }
