@@ -36,6 +36,53 @@ namespace EM
 			std::copy(InitializeList.begin(), InitializeList.end(), data.begin());
 		}
 
+		virtual ~Matrix() = default;
+
+		virtual std::ostream& print(std::ostream& out) const
+		{
+			out << std::fixed << std::setprecision(3);  // 设置小数精度为3，并使用固定点表示
+
+			// 根据列宽决定每列的宽度
+			size_t max_width = 0;
+			for (size_t i = 0; i < rows; ++i)
+			{
+				for (size_t j = 0; j < cols; ++j)
+				{
+					// 获取每个元素的字符串宽度
+					std::ostringstream oss;
+					oss << std::fixed << std::setprecision(3) << (*this)(i, j);  // 设置精度为3
+					std::string str = oss.str();
+					size_t element_width = str.length();
+					max_width = std::max(max_width, element_width);  // 获取最大宽度
+				}
+			}
+
+			std::cout << "Matrix " << rows << "x" << cols << std::endl;
+
+			out << "-";
+			out << std::setw(max_width * cols + cols+2);
+			out << "-\n";
+
+			for (size_t i = 0; i < rows; ++i)
+			{
+				out << "|";
+				for (size_t j = 0; j < cols; ++j)
+				{
+					out << std::setw(max_width) << (*this)(i, j) << " ";
+				}
+
+				out << "|";
+				out << "\n";  // 打印每一行后换行
+			}
+			
+			out << "-";
+			out << std::setw(max_width * cols + cols+2);
+			out << "-\n";
+
+			return out;
+		
+		}
+
 		// 访问元素（行主序）
 		T& operator[](size_t idx)
 		{
@@ -218,51 +265,6 @@ namespace EM
 
 	private:
 		std::array<T, rows* cols> data;
-
-		friend std::ostream& operator<<(std::ostream& os, const Matrix<T, rows, cols>& matrix)
-		{
-			os << std::fixed << std::setprecision(3);  // 设置小数精度为3，并使用固定点表示
-
-			// 根据列宽决定每列的宽度
-			size_t max_width = 0;
-			for (size_t i = 0; i < rows; ++i)
-			{
-				for (size_t j = 0; j < cols; ++j)
-				{
-					// 获取每个元素的字符串宽度
-					std::ostringstream oss;
-					oss << std::fixed << std::setprecision(3) << matrix(i, j);  // 设置精度为3
-					std::string str = oss.str();
-					size_t element_width = str.length();
-					max_width = std::max(max_width, element_width);  // 获取最大宽度
-				}
-			}
-
-			std::cout << "Matrix " << rows << "x" << cols << std::endl;
-
-			os << "-";
-			os << std::setw(max_width * cols + cols+2);
-			os << "-\n";
-
-			for (size_t i = 0; i < rows; ++i)
-			{
-				os << "|";
-				for (size_t j = 0; j < cols; ++j)
-				{
-					os << std::setw(max_width) << matrix(i, j) << " ";
-				}
-
-				os << "|";
-				os << "\n";  // 打印每一行后换行
-			}
-			
-			os << "-";
-			os << std::setw(max_width * cols + cols+2);
-			os << "-\n";
-
-			return os;
-		}
-
 		
 		template<typename ScalarType,
 			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
@@ -391,6 +393,12 @@ namespace EM
 
 	};
 
+	template<typename T, size_t rows, size_t cols>
+		std::ostream& operator<<(std::ostream& out, const Matrix<T,rows, cols>& matrix)
+	{
+		return matrix.print(out);
+	}
+	
 	// 单位矩阵
 	template<typename T, size_t N, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>

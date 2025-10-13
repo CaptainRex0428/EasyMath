@@ -39,6 +39,9 @@ namespace EM
 	template <typename T, size_t rows, size_t cols, typename>
 	class Matrix;
 
+	template<typename T, typename>
+	class Quaternion;
+
 	template<typename T, size_t dimension, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	class Vector
 	{
@@ -66,6 +69,16 @@ namespace EM
 		Vector(const Vector&) = default;
 
 		Vector(Vector&&) = default;
+
+		Vector(Quaternion<T, std::enable_if_t<std::is_arithmetic_v<T>>>&& Q)
+		{
+			static_assert(dimension == 4, "dimension must be 4 as a quaternion.");
+
+			this->data[x] = Q[x];
+			this->data[y] = Q[y];
+			this->data[z] = Q[z];
+			this->data[w] = Q[w];
+		}
 
 		virtual ~Vector() = default;
 
@@ -239,20 +252,15 @@ namespace EM
 
 		// 向量运算成员函数
 
-		[[nodiscard]] virtual T length() const noexcept
-		{
-			T sum = T(0);
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				sum += data[idx] * data[idx];
-			}
-			return std::sqrt(sum);
-		}
-
-		[[nodiscard]] virtual T length(bool dimensionalityReduction) const noexcept
+		virtual T length(bool dimensionalityReduction = false) const noexcept
 		{
 			if (!dimensionalityReduction) {
-				return length();
+				T sum = T(0);
+				for (size_t idx = 0; idx < dimension; ++idx)
+				{
+					sum += data[idx] * data[idx];
+				}
+				return std::sqrt(sum);
 			}
 
 			T sum = T(0);
@@ -264,20 +272,15 @@ namespace EM
 			return std::sqrt(sum);
 		}
 
-		[[nodiscard]] virtual constexpr T lengthSquared() const noexcept
-		{
-			T sum = T(0);
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				sum += data[idx] * data[idx];
-			}
-			return sum;
-		}
-
-		[[nodiscard]] virtual constexpr T lengthSquared(bool dimensionalityReduction) const noexcept
+		virtual constexpr T lengthSquared(bool dimensionalityReduction = false) const noexcept
 		{
 			if (!dimensionalityReduction) {
-				return lengthSquared();
+				T sum = T(0);
+				for (size_t idx = 0; idx < dimension; ++idx)
+				{
+					sum += data[idx] * data[idx];
+				}
+				return sum;
 			}
 
 			T sum = T(0);
@@ -289,25 +292,7 @@ namespace EM
 			return sum;
 		}
 
-		[[nodiscard]] virtual Vector<T, dimension> normalized() const
-		{
-			T len = length();
-
-			if (len == T{ 0 })
-			{
-				return Vector<T, dimension>{};  // 返回零向量
-			}
-
-			Vector<T, dimension> result;
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				result[idx] = data[idx] / len;
-			}
-
-			return result;
-		}
-
-		[[nodiscard]] virtual Vector<T, dimension> normalized(bool dimensionalityReduction) const
+		virtual Vector<T, dimension> normalized(bool dimensionalityReduction = false) const
 		{
 			T len = length(dimensionalityReduction);
 
@@ -318,7 +303,8 @@ namespace EM
 
 			Vector<T, dimension> result;
 
-			if (dimensionalityReduction) {
+			if (dimensionalityReduction)
+				{
 				size_t maxDim = std::min(dimension, size_t(3));
 				for (size_t idx = 0; idx < maxDim; ++idx)
 				{
@@ -330,7 +316,8 @@ namespace EM
 					result[idx] = data[idx];
 				}
 			}
-			else {
+			else
+			{
 				for (size_t idx = 0; idx < dimension; ++idx)
 				{
 					result[idx] = data[idx] / len;
@@ -339,19 +326,14 @@ namespace EM
 
 			return result;
 		}
-
-		virtual void normalize()
-		{
-			*this = normalized();
-		}
-
-		virtual void normalize(bool dimensionalityReduction)
+		
+		virtual void normalize(bool dimensionalityReduction = false)
 		{
 			*this = normalized(dimensionalityReduction);
 		}
 
 		// 图形渲染专用函数
-		[[nodiscard]] virtual bool isZero(T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
+		virtual bool isZero(T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
 		{
 			for (size_t i = 0; i < dimension; ++i) 
 			{
@@ -363,13 +345,13 @@ namespace EM
 			return true;
 		}
 
-		[[nodiscard]] virtual bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
+		virtual bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
 		{
 			return std::abs(length(dimensionalityReduction) - T{ 1 }) <= epsilon;
 		}
 
 		// 线性插值
-		[[nodiscard]] virtual Vector<T, dimension> lerp(const Vector<T, dimension>& other, T t) const noexcept
+		virtual Vector<T, dimension> lerp(const Vector<T, dimension>& other, T t) const noexcept
 		{
 			Vector<T, dimension> result;
 			for (size_t i = 0; i < dimension; ++i) {
@@ -379,7 +361,7 @@ namespace EM
 		}
 
 		// 反射（需要基础单位法向量）
-		[[nodiscard]] virtual Vector<T, dimension> reflect(const Vector<T, dimension>& normal) const
+		virtual Vector<T, dimension> reflect(const Vector<T, dimension>& normal) const
 		{
 			static_assert(dimension >= 2, "Reflection requires at least 2D vector");
 
@@ -388,7 +370,7 @@ namespace EM
 		}
 
 		// 投影
-		[[nodiscard]] virtual Vector project(const Vector& onto) const
+		virtual Vector project(const Vector& onto) const
 		{
 			T dot_product = dot(*this, onto);
 			T onto_length_sq = onto.lengthSquared();
@@ -399,7 +381,7 @@ namespace EM
 			return (dot_product / onto_length_sq) * onto;
 		}
 
-		[[nodiscard]] virtual Vector project(const Vector& onto, bool dimensionalityReduction) const
+		virtual Vector project(const Vector& onto, bool dimensionalityReduction) const
 		{
 			T dot_product = dot(*this, onto);
 			T onto_length_sq = onto.lengthSquared(dimensionalityReduction);
@@ -412,7 +394,7 @@ namespace EM
 		// 向量的齐次坐标相关操作
 
 		template<size_t newDim = dimension + 1>
-		[[nodiscard]] Vector<T, newDim> toHomogeneous(T w = T{ 1 }) const
+		Vector<T, newDim> toHomogeneous(T w = T{ 1 }) const
 		{
 			static_assert(newDim > dimension, "New dimension must be larger");
 			Vector<T, newDim> result;
@@ -430,7 +412,7 @@ namespace EM
 
 		// 从齐次坐标转换回普通坐标
 		template<size_t newDim = dimension - 1>
-		[[nodiscard]] Vector<T, newDim> fromHomogeneous() const
+		Vector<T, newDim> fromHomogeneous() const
 		{
 			static_assert(newDim < dimension, "New dimension must be smaller");
 			static_assert(dimension > 0, "Cannot reduce dimension of empty vector");
@@ -472,7 +454,7 @@ namespace EM
 			return result;
 		}
 
-		[[nodiscard]] virtual Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> skewSymmetric() const
+		virtual Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> skewSymmetric() const
 		{
 
 			static_assert(dimension > 1, "dimension must greater than 1");
@@ -523,7 +505,7 @@ namespace EM
 		}
 
 		template<size_t D = dimension>
-		[[nodiscard]] typename std::enable_if_t<D == 2, Matrix<T, 3, 3, std::enable_if_t<std::is_arithmetic_v<T>>>> skewSymmetric_2D() const
+		typename std::enable_if_t<D == 2, Matrix<T, 3, 3, std::enable_if_t<std::is_arithmetic_v<T>>>> skewSymmetric_2D() const
 		{
 
 			static_assert(dimension == 2, "dimension must be 2");
@@ -543,21 +525,21 @@ namespace EM
 		}
 
 		// 数据访问
-		[[nodiscard]] virtual T* Data() noexcept { return data.data(); }
-		[[nodiscard]] virtual const T* Data() const noexcept { return data.data(); }
+		virtual T* Data() noexcept { return data.data(); }
+		virtual const T* Data() const noexcept { return data.data(); }
 
-		[[nodiscard]] virtual T* begin() noexcept { return data.data(); }
-		[[nodiscard]] virtual const T* begin() const noexcept { return data.data(); }
+		virtual T* begin() noexcept { return data.data(); }
+		virtual const T* begin() const noexcept { return data.data(); }
 
-		[[nodiscard]] virtual T* end() noexcept { return data.data() + dimension; }
-		[[nodiscard]] virtual const T* end() const noexcept { return data.data() + dimension; }
+		virtual T* end() noexcept { return data.data() + dimension; }
+		virtual const T* end() const noexcept { return data.data() + dimension; }
 
 		// 基础信息
-		[[nodiscard]] static constexpr size_t size() noexcept { return dimension; }
-		[[nodiscard]] virtual constexpr size_t getDimension() const noexcept { return dimension; }
-		[[nodiscard]] static constexpr size_t Dimension() noexcept { return dimension; }
+		static constexpr size_t size() noexcept { return dimension; }
+		virtual constexpr size_t getDimension() const noexcept { return dimension; }
+		static constexpr size_t Dimension() noexcept { return dimension; }
 
-		[[nodiscard]] virtual T& at(size_t idx)
+		virtual T& at(size_t idx)
 		{
 			if (idx >= dimension) {
 				throw std::out_of_range("Vector index out of range");
@@ -565,7 +547,7 @@ namespace EM
 			return data[idx];
 		}
 
-		[[nodiscard]] virtual const T& at(size_t idx) const
+		virtual const T& at(size_t idx) const
 		{
 			if (idx >= dimension) {
 				throw std::out_of_range("Vector index out of range");
@@ -584,7 +566,7 @@ namespace EM
 					out << ", ";
 				}
 			}
-			out << ")";
+			out << ") (V mode: xyzw)";
 			return out;
 		}
 
