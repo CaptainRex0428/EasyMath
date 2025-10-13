@@ -414,7 +414,7 @@ namespace EM
 	}
 
 	// 3D旋转矩阵
-	template<typename T, size_t N,
+	template<typename T, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	Matrix<T, 4, 4> MTXRotationX(T radians) {
 		T cos = std::cos(radians);
@@ -427,7 +427,7 @@ namespace EM
 		};
 	}
 
-	template<typename T, size_t N,
+	template<typename T, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	Matrix<T, 4, 4> MTXRotationY(T radians) {
 		T cos = std::cos(radians);
@@ -440,7 +440,7 @@ namespace EM
 		};
 	}
 
-	template<typename T, size_t N,
+	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	Matrix<T, 4, 4> MTXRotationZ(T radians) {
 		T cos = std::cos(radians);
@@ -454,7 +454,7 @@ namespace EM
 	}
 
 	// 3D平移矩阵
-	template<typename T, size_t N,
+	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	Matrix<T, 4, 4> MTXTranslation(T x, T y, T z, bool usedWithOrient = false)
 	{
@@ -472,7 +472,7 @@ namespace EM
 	}
 
 	// 3D缩放矩阵
-	template<typename T, size_t N,
+	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	Matrix<T, 4, 4> MTXScale(T x, T y, T z)
 	{

@@ -74,10 +74,10 @@ namespace EM
 		{
 			static_assert(dimension == 4, "dimension must be 4 as a quaternion.");
 
-			this->data[x] = Q[x];
-			this->data[y] = Q[y];
-			this->data[z] = Q[z];
-			this->data[w] = Q[w];
+			this->data[x] = Q.swizzle(x);
+			this->data[y] = Q.swizzle(y);
+			this->data[z] = Q.swizzle(z);
+			this->data[w] = Q.swizzle(w);
 		}
 
 		virtual ~Vector() = default;
@@ -115,14 +115,28 @@ namespace EM
 		}
 
 		// Swizzle
+		virtual const T& operator[](VectorFilterDimension1D d) const
+		{
+			uint8_t idx = (uint8_t)d % 4;
+			assert(idx < dimension && "Swizzle index out of bounds");
+			return data[idx];
+		}
+		
 		virtual T& operator[](VectorFilterDimension1D d)
 		{
 			uint8_t idx = (uint8_t)d % 4;
 			assert(idx < dimension && "Swizzle index out of bounds");
 			return data[idx];
 		}
+		
+		const T& swizzle(VectorFilterDimension1D d) const
+		{
+			uint8_t idx = (uint8_t)d % 4;
+			assert(idx < dimension && "Swizzle index out of bounds");
+			return data[idx];
+		}
 
-		virtual const T& operator[](VectorFilterDimension1D d) const
+		T& swizzle(VectorFilterDimension1D d)
 		{
 			uint8_t idx = (uint8_t)d % 4;
 			assert(idx < dimension && "Swizzle index out of bounds");
@@ -130,7 +144,7 @@ namespace EM
 		}
 
 		// 2D Swizzle
-		virtual Vector<T, 2> operator[](VectorFilterDimension2D d) const
+		Vector<T, 2> swizzle(VectorFilterDimension2D d) const
 		{
 			assert(dimension >= 2 && "Vector dimension too small for 2D swizzle");
 			uint8_t idx = (uint8_t)d % 6;
@@ -145,11 +159,10 @@ namespace EM
 				case 5: assert(dimension >= 4); return { data[2], data[3] };  // zw
 				default: return { data[0], data[1] };
 			}
-
 		}
 
 		// 3D Swizzle
-		virtual Vector<T, 3> operator[](VectorFilterDimension3D d) const
+		Vector<T, 3> swizzle(VectorFilterDimension3D d) const
 		{
 			assert(dimension >= 3 && "Vector dimension too small for 3D swizzle");
 			uint8_t idx = static_cast<uint8_t>(d) % 3;
@@ -735,9 +748,9 @@ namespace EM
 	Vector<T, 3> cross(const Vector<T, 3>& a, const Vector<T, 3>& b)
 	{
 		return {
-			a[y] * b[z] - a[z] * b[y],
-			a[z] * b[x] - a[x] * b[z],
-			a[x] * b[y] - a[y] * b[x]
+			a.swizzle(y) * b.swizzle(z) - a.swizzle(z) * b.swizzle(y),
+			a.swizzle(z) * b.swizzle(x) - a.swizzle(x) * b.swizzle(z),
+			a.swizzle(x) * b.swizzle(y) - a.swizzle(y) * b.swizzle(x)
 		};
 	}
 
@@ -745,7 +758,7 @@ namespace EM
 	template<typename T>
 	T cross2D(const Vector<T, 2>& a, const Vector<T, 2>& b)
 	{
-		return a[x] * b[y] - a[y] * b[x];
+		return a.swizzle(x) * b.swizzle(y) - a.swizzle(y) * b.swizzle(x);
 	}
 
 	// 距离函数

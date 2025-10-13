@@ -52,7 +52,7 @@ Swizzle
 - `isNormalized(T epsilon = T{NEARZERO_THRESHOLD}, bool dimensionalityReduction = true) const`
   - 当 `dimensionalityReduction = true` 时，范数仅计算前三个分量；`normalized()` 会保持其余维度不变
 
-积、距离与角度
+向量间运算
 --------------
 - 点积：`dot(a, b)`
 - 叉积（3D）：`cross(a, b)`，返回 `Vector<T,3>`

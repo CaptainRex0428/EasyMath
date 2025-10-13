@@ -102,6 +102,7 @@ int main() {
 2. Enrich quaternion APIs
 3. Add Euler angles APIs
 4. Add conversions among Euler angles, quaternions and axis-angle
+5. Optimize algorithm of vector swizzle operation
 
 ### Version & Requirements
 - Compilers: MSVC v143+, Clang 12+, GCC 10+ (recommended)
@@ -208,6 +209,7 @@ int main() {
 2. 完善四元数计算API
 3. 添加欧拉角API
 4. 添加欧拉角、四元数、轴角转换方法
+5. 优化vector swizzle算法
 
 
 ### 版本与要求
@@ -218,4 +220,4 @@ int main() {
 - 欢迎 Issue 与 PR。请保持 API 命名与语义一致，优先清晰命名与早返回，避免深层嵌套。
 
 ### 许可协议
-请参阅英文许可 `LICENSE`；另提供中文参考译本 `LICENSE.zh-CN`（以英文原文为准）。
+请参阅英文许可 `LICENSE`
