@@ -7,9 +7,9 @@
 
 int main(int argc, char * argv[])
 {
-	EM::Vector<float,4> vector{ 1, 2, 3, 5};
+	EM::Vector<float,3> vector{ 1, 2, 3};
 	
-	PRINT(vector.xyw)
+	PRINT(vector.xz)
 	
 	return 0;
 }

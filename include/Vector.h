@@ -8,6 +8,7 @@
 #include <array>
 #include <cassert>
 #include <algorithm>
+#include <vector>
 
 namespace EM
 {
@@ -507,6 +508,17 @@ namespace EM
 		// 输出
 		virtual std::ostream& print(std::ostream& out) const
 		{
+			std::string mode = "";
+
+			switch (dimension)
+			{
+				case 1: mode = ": x"; break;
+				case 2: mode = ": xy"; break;
+				case 3: mode = ": xyz"; break;
+				case 4: mode = ": xyzw"; break;
+				default: break;
+			}
+			
 			out << "(";
 			for (size_t i = 0; i < dimension; ++i) 
 			{
@@ -515,7 +527,7 @@ namespace EM
 					out << ", ";
 				}
 			}
-			out << ") (V mode: xyzw)";
+			out << ") (V mode" << mode << ")";
 			return out;
 		}
 
@@ -977,7 +989,10 @@ namespace EM
 	template <typename T, size_t dimension, int E0, int E1, int E2>
 	struct Swizzle3D
 	{
-		Swizzle3D& operator=(const Vector<T,3>& vec)
+		template<bool Enable = (E0 < dimension && E1 < dimension && E2 < dimension)>
+		[[deprecated("Swizzle component access out of bounds! Check this line.")]]
+		typename std::enable_if_t<!Enable, Swizzle3D&>
+		operator=(const Vector<T,3>& vec)
 		{
 			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
 			"Swizzle index out of bounds! "
@@ -987,7 +1002,7 @@ namespace EM
 			elem(E2) = vec.z;
 			return *this;
 		}
-
+		
 		operator Vector<T,3>() const
 		{
 			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
@@ -995,9 +1010,12 @@ namespace EM
 			"You're trying to access a component that doesn't exist in this vector.");
 			return Vector<T,3>{elem(E0),elem(E1), elem(E2)};
 		}
-
+		
 		friend std::ostream& operator<<(std::ostream& out, const Swizzle3D& sw)
 		{
+			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
 			return out << Vector<T,3>(sw);
 		}
 
