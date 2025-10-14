@@ -36,8 +36,7 @@ namespace EM
 	public:
 		static_assert(std::is_arithmetic_v<T>, "Vector element type must be arithmetic");
 		static_assert(dimension > 0, "vector dimension must be positive.");
-
-#pragma region Constructors
+		
 		Vector()
 			:data({})
 		{
@@ -61,9 +60,10 @@ namespace EM
 
 		virtual ~Vector() = default;
 
-#pragma endregion
-
-#pragma region index
+/*
+* 数据访问
+*
+*/
 		virtual T& operator[](size_t idx)
 		{
 			assert(idx < dimension && "Index out of bounds");
@@ -75,11 +75,65 @@ namespace EM
 			assert(idx < dimension && "Index out of bounds");
 			return data[idx];
 		}
+		
+		virtual T* Data() noexcept { return data.data(); }
+		virtual const T* Data() const noexcept { return data.data(); }
 
-#pragma endregion
+		virtual T* begin() noexcept { return data.data(); }
+		virtual const T* begin() const noexcept { return data.data(); }
 
-#pragma region MatrixConversion
-		// 转换为矩阵
+		virtual T* end() noexcept { return data.data() + dimension; }
+		virtual const T* end() const noexcept { return data.data() + dimension; }
+		
+		static constexpr size_t size() noexcept { return dimension; }
+		virtual constexpr size_t getDimension() const noexcept { return dimension; }
+		static constexpr size_t Dimension() noexcept { return dimension; }
+
+		virtual T& at(size_t idx)
+		{
+			if (idx >= dimension) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
+		}
+
+		virtual const T& at(size_t idx) const
+		{
+			if (idx >= dimension) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
+		}
+		
+/*
+* 直接被operator<<调用
+*
+*/
+		virtual std::ostream& print(std::ostream& out) const
+		{
+			std::string mode = "";
+
+			switch (dimension)
+			{
+			case 1: mode = ": x"; break;
+			case 2: mode = ": xy"; break;
+			case 3: mode = ": xyz"; break;
+			case 4: mode = ": xyzw"; break;
+			default: break;
+			}
+			
+			out << "(";
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				out << (*this).data[i];
+				if (i < dimension - 1) {
+					out << ", ";
+				}
+			}
+			out << ") (V mode" << mode << ")";
+			return out;
+		}
+		
 		virtual Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> toColMatrix()
 		{
 			Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> result{};
@@ -100,101 +154,10 @@ namespace EM
 			return result;
 		}
 
-#pragma endregion
-
-#pragma region Operators
-		virtual Vector<T, dimension>& operator=(const Vector<T, dimension>& other)
-		{
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				this->data[idx] = other[idx];
-			}
-
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator=(Vector<T, dimension>&& other)
-		{
-			for (size_t idx = 0; idx < dimension; ++idx)
-			{
-				this->data[idx] = other[idx];
-			}
-
-			return *this;
-		}
-		
-		// 成员函数：复合赋值运算符
-		virtual Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] += other.data[i];
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator+=(const T& scalar)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] += scalar;
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator-=(const Vector<T, dimension>& other)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] -= other.data[i];
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator-=(const T& scalar)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] -= scalar;
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator*=(const Vector<T, dimension>& other)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] *= other.data[i];
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator*=(const T& scalar)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] *= scalar;
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator/=(const Vector<T, dimension>& other)
-		{
-			for (size_t i = 0; i < dimension; ++i) {
-				assert(other.data[i] != T{ 0 } && "Division by zero");
-				data[i] /= other.data[i];
-			}
-			return *this;
-		}
-
-		virtual Vector<T, dimension>& operator/=(const T& scalar)
-		{
-			assert(scalar != T{ 0 } && "Division by zero");
-			for (size_t i = 0; i < dimension; ++i) {
-				data[i] /= scalar;
-			}
-			return *this;
-		}
-#pragma endregion
-
-#pragma region vector methods
-		
-		// 向量运算成员函数
-
+/*
+* 成员函数：向量运算
+*
+*/
 		virtual T length(bool dimensionalityReduction = false) const noexcept
 		{
 			if (!dimensionalityReduction) {
@@ -274,8 +237,12 @@ namespace EM
 		{
 			*this = normalized(dimensionalityReduction);
 		}
+
+		virtual bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
+		{
+			return std::abs(length(dimensionalityReduction) - T{ 1 }) <= epsilon;
+		}
 		
-		// 图形渲染专用函数
 		virtual bool isZero(T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
 		{
 			for (size_t i = 0; i < dimension; ++i) 
@@ -287,12 +254,7 @@ namespace EM
 			}
 			return true;
 		}
-
-		virtual bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
-		{
-			return std::abs(length(dimensionalityReduction) - T{ 1 }) <= epsilon;
-		}
-
+		
 		// 线性插值
 		virtual Vector<T, dimension> lerp(const Vector<T, dimension>& other, T t) const noexcept
 		{
@@ -466,76 +428,103 @@ namespace EM
 			
 			
 		}
-
-#pragma endregion
-
-#pragma region data
-
-		// 数据访问
-		virtual T* Data() noexcept { return data.data(); }
-		virtual const T* Data() const noexcept { return data.data(); }
-
-		virtual T* begin() noexcept { return data.data(); }
-		virtual const T* begin() const noexcept { return data.data(); }
-
-		virtual T* end() noexcept { return data.data() + dimension; }
-		virtual const T* end() const noexcept { return data.data() + dimension; }
-
-		// 基础信息
-		static constexpr size_t size() noexcept { return dimension; }
-		virtual constexpr size_t getDimension() const noexcept { return dimension; }
-		static constexpr size_t Dimension() noexcept { return dimension; }
-
-		virtual T& at(size_t idx)
+		
+/*
+* 成员函数：复合赋值运算符
+*
+*/
+		virtual Vector<T, dimension>& operator=(const Vector<T, dimension>& other)
 		{
-			if (idx >= dimension) {
-				throw std::out_of_range("Vector index out of range");
-			}
-			return data[idx];
-		}
-
-		virtual const T& at(size_t idx) const
-		{
-			if (idx >= dimension) {
-				throw std::out_of_range("Vector index out of range");
-			}
-			return data[idx];
-		}
-
-#pragma endregion
-
-#pragma region print
-		// 输出
-		virtual std::ostream& print(std::ostream& out) const
-		{
-			std::string mode = "";
-
-			switch (dimension)
+			for (size_t idx = 0; idx < dimension; ++idx)
 			{
-				case 1: mode = ": x"; break;
-				case 2: mode = ": xy"; break;
-				case 3: mode = ": xyz"; break;
-				case 4: mode = ": xyzw"; break;
-				default: break;
+				this->data[idx] = other[idx];
 			}
-			
-			out << "(";
-			for (size_t i = 0; i < dimension; ++i) 
-			{
-				out << (*this).data[i];
-				if (i < dimension - 1) {
-					out << ", ";
-				}
-			}
-			out << ") (V mode" << mode << ")";
-			return out;
+
+			return *this;
 		}
 
-#pragma endregion
+		virtual Vector<T, dimension>& operator=(Vector<T, dimension>&& other)
+		{
+			for (size_t idx = 0; idx < dimension; ++idx)
+			{
+				this->data[idx] = other[idx];
+			}
+
+			return *this;
+		}
+		
+		virtual Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] += other.data[i];
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator+=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] += scalar;
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator-=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] -= other.data[i];
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator-=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] -= scalar;
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator*=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] *= other.data[i];
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator*=(const T& scalar)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] *= scalar;
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator/=(const Vector<T, dimension>& other)
+		{
+			for (size_t i = 0; i < dimension; ++i) {
+				assert(other.data[i] != T{ 0 } && "Division by zero");
+				data[i] /= other.data[i];
+			}
+			return *this;
+		}
+
+		virtual Vector<T, dimension>& operator/=(const T& scalar)
+		{
+			assert(scalar != T{ 0 } && "Division by zero");
+			for (size_t i = 0; i < dimension; ++i) {
+				data[i] /= scalar;
+			}
+			return *this;
+		}
 
 	private:
-		// 友元函数：二元运算符
-#pragma region Operators(friend)
+
+/*
+* 友元函数：二元运算符
+*
+*/
 		friend Vector<T, dimension> operator+(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
 		{
 			Vector result;
@@ -670,8 +659,6 @@ namespace EM
 		{
 			return !(lhs == rhs);
 		}
-
-#pragma endregion
 
 	public:
 		union
@@ -810,14 +797,21 @@ namespace EM
 		
 	};
 
+/*
+* 按照标准化的方式在控制台输出Vector
+* 其直接调用Vector中内置的print函数
+*/
 	template<typename T, size_t dimension>
 	std::ostream& operator<<(std::ostream& out, const Vector<T,dimension>& vec)
 	{
 		return vec.print(out);
 	}
-	
-#pragma region global function
-	// 全局向量函数
+
+/*
+ * 全局函数：向量运算
+ * 
+ */
+
 	template<typename T, size_t D>
 	T dot(const Vector<T, D>& a, const Vector<T, D>& b)
 	{
@@ -901,11 +895,11 @@ namespace EM
 		return factor_a * a + factor_b * b;
 	}
 
-#pragma endregion
-
-#pragma region Swizzle
 	
-	
+/*
+ * 这一部分内容为Swizzle的定义部分
+ * 
+ */
 	
 	template <typename T, size_t dimension, int idx>
 	struct Swizzle1D
@@ -1075,9 +1069,15 @@ namespace EM
 		}
 	};
 
-#pragma endregion
-	
-	// 常用的向量类型定义
+
+/*
+ * 常用的向量类型定义
+ * 
+ */
+
+	using Vector2 = Vector<float, 2>;
+	using Vector3 = Vector<float, 3>;
+	using Vector4 = Vector<float, 4>;
 	
 	using Vector2f = Vector<float, 2>;
 	using Vector3f = Vector<float, 3>;
