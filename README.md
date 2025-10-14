@@ -1,6 +1,6 @@
 EasyMath
 ========
-![Static Badge](https://img.shields.io/badge/version-1.0.7-orange)
+![Static Badge](https://img.shields.io/badge/version-1.0.8-orange)
 ![Static Badge](https://img.shields.io/badge/language->C%2B%2B17-red)
 ![Static Badge](https://img.shields.io/badge/export-dll-brightgreen)
 ![Static Badge](https://img.shields.io/badge/display-with%20console%20sandbox-purple)
@@ -98,11 +98,14 @@ int main() {
 
 ### Roadmap
 ![Static Badge](https://img.shields.io/badge/next_version-1.1-yellow)
-1. Optimize matrix and vector algorithms
-2. Enrich quaternion APIs
-3. Add Euler angles APIs
-4. Add conversions among Euler angles, quaternions and axis-angle
-5. Optimize algorithm of vector swizzle operation
+
+
+- [ ] Optimize matrix and vector algorithms
+- [ ] Enrich quaternion APIs
+- [ ] Add Euler angles APIs
+- [ ] Add conversions among Euler angles, quaternions and axis-angle
+- [x] Optimize algorithm of vector swizzle operation
+- [ ] Sync algorithms of vector to swizzle
 
 ### Version & Requirements
 - Compilers: MSVC v143+, Clang 12+, GCC 10+ (recommended)
@@ -205,11 +208,12 @@ int main() {
 
 ### 版本开发计划 
 ![Static Badge](https://img.shields.io/badge/next_version-1.1-yellow)
-1. 优化矩阵和向量算法
-2. 完善四元数计算API
-3. 添加欧拉角API
-4. 添加欧拉角、四元数、轴角转换方法
-5. 优化vector swizzle算法
+- [ ] 优化矩阵和向量算法
+- [ ] 完善四元数计算API
+- [ ] 添加欧拉角API
+- [ ] 添加欧拉角、四元数、轴角转换方法
+- [x] 优化vector swizzle算法
+- [ ] 为swizzle同步vector算法
 
 
 ### 版本与要求

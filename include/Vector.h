@@ -3,7 +3,6 @@
 #include "EasyMathAPI.h"
 #include "Common.h"
 
-#include <cstdint>
 #include <cmath>
 #include <iostream>
 #include <array>
@@ -12,35 +11,23 @@
 
 namespace EM
 {
-	enum VectorFilterDimension1D : uint8_t
-	{
-		x = 0, y, z, w,
-		r, g, b, a,
-		X, Y, Z, W,
-		R, G, B, A
-	};
-
-	enum VectorFilterDimension2D : uint8_t
-	{
-		xy = 0, xz, yz, xw, yw, zw,
-		rg, rb, gb, ra, ga, ba,
-		XY, XZ, YZ, XW, YW, ZW,
-		RG, RB, GB, RA, GA, BA
-	};
-
-	enum VectorFilterDimension3D : uint8_t
-	{
-		xyz = 0, xyw, yzw,
-		rgb, rga, gba,
-		XYZ, XYW, YZW,
-		RGB, RGA, GBA
-	};
-
 	template <typename T, size_t rows, size_t cols, typename>
 	class Matrix;
 
 	template<typename T, typename>
 	class Quaternion;
+
+	template <typename T, size_t dimension, int idx>
+	struct Swizzle1D;
+
+	template <typename T, size_t dimension, int E0, int E1>
+	struct Swizzle2D;
+	
+	template <typename T, size_t dimension, int E0, int E1, int E2>
+	struct Swizzle3D;
+
+	template <typename T, size_t dimension, int E0, int E1, int E2, int E3>
+	struct Swizzle4D;
 
 	template<typename T, size_t dimension, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	class Vector
@@ -49,6 +36,7 @@ namespace EM
 		static_assert(std::is_arithmetic_v<T>, "Vector element type must be arithmetic");
 		static_assert(dimension > 0, "vector dimension must be positive.");
 
+#pragma region Constructors
 		Vector()
 			:data({})
 		{
@@ -70,18 +58,50 @@ namespace EM
 
 		Vector(Vector&&) = default;
 
-		Vector(Quaternion<T, std::enable_if_t<std::is_arithmetic_v<T>>>&& Q)
-		{
-			static_assert(dimension == 4, "dimension must be 4 as a quaternion.");
-
-			this->data[x] = Q.swizzle(x);
-			this->data[y] = Q.swizzle(y);
-			this->data[z] = Q.swizzle(z);
-			this->data[w] = Q.swizzle(w);
-		}
-
 		virtual ~Vector() = default;
 
+#pragma endregion
+
+#pragma region index
+		virtual T& operator[](size_t idx)
+		{
+			assert(idx < dimension && "Index out of bounds");
+			return data[idx];
+		}
+
+		virtual const T& operator[](size_t idx) const
+		{
+			assert(idx < dimension && "Index out of bounds");
+			return data[idx];
+		}
+
+#pragma endregion
+
+#pragma region MatrixConversion
+		// 转换为矩阵
+		virtual Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> toColMatrix()
+		{
+			Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> result{};
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result(i, 0) = this->data[i];
+			}
+			return result;
+		}
+
+		virtual Matrix<T, 1, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> toRowMatrix()
+		{
+			Matrix<T, 1, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> result{};
+			for (size_t i = 0; i < dimension; ++i) 
+			{
+				result(0, i) = this->data[i];
+			}
+			return result;
+		}
+
+#pragma endregion
+
+#pragma region Operators
 		virtual Vector<T, dimension>& operator=(const Vector<T, dimension>& other)
 		{
 			for (size_t idx = 0; idx < dimension; ++idx)
@@ -101,101 +121,7 @@ namespace EM
 
 			return *this;
 		}
-
-		virtual T& operator[](size_t idx)
-		{
-			assert(idx < dimension && "Index out of bounds");
-			return data[idx];
-		}
-
-		virtual const T& operator[](size_t idx) const
-		{
-			assert(idx < dimension && "Index out of bounds");
-			return data[idx];
-		}
-
-		// Swizzle
-		virtual const T& operator[](VectorFilterDimension1D d) const
-		{
-			uint8_t idx = (uint8_t)d % 4;
-			assert(idx < dimension && "Swizzle index out of bounds");
-			return data[idx];
-		}
 		
-		virtual T& operator[](VectorFilterDimension1D d)
-		{
-			uint8_t idx = (uint8_t)d % 4;
-			assert(idx < dimension && "Swizzle index out of bounds");
-			return data[idx];
-		}
-		
-		const T& swizzle(VectorFilterDimension1D d) const
-		{
-			uint8_t idx = (uint8_t)d % 4;
-			assert(idx < dimension && "Swizzle index out of bounds");
-			return data[idx];
-		}
-
-		T& swizzle(VectorFilterDimension1D d)
-		{
-			uint8_t idx = (uint8_t)d % 4;
-			assert(idx < dimension && "Swizzle index out of bounds");
-			return data[idx];
-		}
-
-		// 2D Swizzle
-		Vector<T, 2> swizzle(VectorFilterDimension2D d) const
-		{
-			assert(dimension >= 2 && "Vector dimension too small for 2D swizzle");
-			uint8_t idx = (uint8_t)d % 6;
-
-			switch (idx) 
-			{
-				case 0: return { data[0], data[1] };  // xy
-				case 1: assert(dimension >= 3); return { data[0], data[2] };  // xz
-				case 2: assert(dimension >= 3); return { data[1], data[2] };  // yz
-				case 3: assert(dimension >= 4); return { data[0], data[3] };  // xw
-				case 4: assert(dimension >= 4); return { data[1], data[3] };  // yw
-				case 5: assert(dimension >= 4); return { data[2], data[3] };  // zw
-				default: return { data[0], data[1] };
-			}
-		}
-
-		// 3D Swizzle
-		Vector<T, 3> swizzle(VectorFilterDimension3D d) const
-		{
-			assert(dimension >= 3 && "Vector dimension too small for 3D swizzle");
-			uint8_t idx = static_cast<uint8_t>(d) % 3;
-
-			switch (idx) {
-			case 0: return { data[0], data[1], data[2] };  // xyz
-			case 1: assert(dimension >= 4); return { data[0], data[1], data[3] };  // xyw
-			case 2: assert(dimension >= 4); return { data[1], data[2], data[3] };  // yzw
-			default: return { data[0], data[1], data[2] };
-			}
-		}
-
-		// 转换为矩阵
-		virtual Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> toColMatrix()
-		{
-			Matrix<T, dimension, 1> result{};
-			for (size_t i = 0; i < dimension; ++i) 
-			{
-				result(i, 0) = this->data[i];
-			}
-			return result;
-		}
-
-		virtual Matrix<T, 1, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> toRowMatrix()
-		{
-			Matrix<T, 1, dimension> result{};
-			for (size_t i = 0; i < dimension; ++i) 
-			{
-				result(0, i) = this->data[i];
-			}
-			return result;
-		}
-
 		// 成员函数：复合赋值运算符
 		virtual Vector<T, dimension>& operator+=(const Vector<T, dimension>& other)
 		{
@@ -262,7 +188,10 @@ namespace EM
 			}
 			return *this;
 		}
+#pragma endregion
 
+#pragma region vector methods
+		
 		// 向量运算成员函数
 
 		virtual T length(bool dimensionalityReduction = false) const noexcept
@@ -344,7 +273,7 @@ namespace EM
 		{
 			*this = normalized(dimensionalityReduction);
 		}
-
+		
 		// 图形渲染专用函数
 		virtual bool isZero(T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
 		{
@@ -454,7 +383,7 @@ namespace EM
 		template<typename = std::enable_if_t<dimension == 3>>
 		Matrix<T, 4, 4, std::enable_if_t<std::is_arithmetic_v<T>>> toTranslationMatrix(bool usedWithOrient = false)
 		{
-			Matrix<T, 4, 4> result = MTXIdentity<T, 4>();
+			Matrix<T, 4, 4, std::enable_if_t<std::is_arithmetic_v<T>>> result = MTXIdentity<T, 4>();
 			result(0, 3) = data[0];
 			result(1, 3) = data[1];
 			result(2, 3) = data[2];
@@ -537,6 +466,10 @@ namespace EM
 			
 		}
 
+#pragma endregion
+
+#pragma region data
+
 		// 数据访问
 		virtual T* Data() noexcept { return data.data(); }
 		virtual const T* Data() const noexcept { return data.data(); }
@@ -568,6 +501,9 @@ namespace EM
 			return data[idx];
 		}
 
+#pragma endregion
+
+#pragma region print
 		// 输出
 		virtual std::ostream& print(std::ostream& out) const
 		{
@@ -583,8 +519,11 @@ namespace EM
 			return out;
 		}
 
+#pragma endregion
+
 	private:
 		// 友元函数：二元运算符
+#pragma region Operators(friend)
 		friend Vector<T, dimension> operator+(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)
 		{
 			Vector result;
@@ -720,9 +659,143 @@ namespace EM
 			return !(lhs == rhs);
 		}
 
-	protected:
-		std::array<T, dimension> data;
+#pragma endregion
 
+	public:
+		union
+		{
+			std::array<T, dimension> data;
+			Swizzle1D<T, dimension, 0> x;
+			Swizzle1D<T, dimension, 1> y;
+			Swizzle1D<T, dimension, 2> z;
+			Swizzle1D<T, dimension, 3> w;
+			Swizzle2D<T, dimension, 0, 1> xy;
+			Swizzle2D<T, dimension, 1, 0> yx;
+			Swizzle2D<T, dimension, 0, 2> xz;
+			Swizzle2D<T, dimension, 2, 0> zx;
+			Swizzle2D<T, dimension, 0, 3> xw;
+			Swizzle2D<T, dimension, 3, 0> wx;
+			Swizzle2D<T, dimension, 1, 2> yz;
+			Swizzle2D<T, dimension, 2, 1> zy;
+			Swizzle2D<T, dimension, 1, 3> yw;
+			Swizzle2D<T, dimension, 3, 1> wy;
+			Swizzle2D<T, dimension, 2, 3> zw;
+			Swizzle2D<T, dimension, 3, 2> wz;
+			Swizzle3D<T, dimension, 0, 1, 2> xyz;
+			Swizzle3D<T, dimension, 0, 2, 1> xzy;
+			Swizzle3D<T, dimension, 1, 0, 2> yxz;
+			Swizzle3D<T, dimension, 1, 2, 0> yzx;
+			Swizzle3D<T, dimension, 2, 0, 1> zxy;
+			Swizzle3D<T, dimension, 2, 1, 0> zyx;
+			Swizzle3D<T, dimension, 0, 1, 3> xyw;
+			Swizzle3D<T, dimension, 0, 3, 1> xwy;
+			Swizzle3D<T, dimension, 1, 0, 3> yxw;
+			Swizzle3D<T, dimension, 1, 3, 0> ywx;
+			Swizzle3D<T, dimension, 3, 0, 1> wxy;
+			Swizzle3D<T, dimension, 3, 1, 0> wyx;
+			Swizzle3D<T, dimension, 1, 2, 3> yzw;
+			Swizzle3D<T, dimension, 1, 3, 2> ywz;
+			Swizzle3D<T, dimension, 2, 1, 3> zyw;
+			Swizzle3D<T, dimension, 2, 3, 1> zwy;
+			Swizzle3D<T, dimension, 3, 1, 2> wyz;
+			Swizzle3D<T, dimension, 3, 2, 1> wzy;
+			Swizzle3D<T, dimension, 0, 2, 3> xzw;
+			Swizzle3D<T, dimension, 0, 3, 2> xwz;
+			Swizzle3D<T, dimension, 2, 0, 3> zxw;
+			Swizzle3D<T, dimension, 2, 3, 0> zwx;
+			Swizzle3D<T, dimension, 3, 0, 2> wxz;
+			Swizzle3D<T, dimension, 3, 2, 0> wzx;
+			Swizzle4D<T, dimension, 0, 1, 2, 3> xyzw;
+			Swizzle4D<T, dimension, 0, 1, 3, 2> xywz;
+			Swizzle4D<T, dimension, 0, 2, 1, 3> xzyw;
+			Swizzle4D<T, dimension, 0, 2, 3, 1> xzwy;
+			Swizzle4D<T, dimension, 0, 3, 1, 2> xwyz;
+			Swizzle4D<T, dimension, 0, 3, 2, 1> xwzy;
+			Swizzle4D<T, dimension, 1, 0, 2, 3> yxzw;
+			Swizzle4D<T, dimension, 1, 0, 3, 2> yxwz;
+			Swizzle4D<T, dimension, 1, 2, 0, 3> yzxw;
+			Swizzle4D<T, dimension, 1, 2, 3, 0> yzwx;
+			Swizzle4D<T, dimension, 1, 3, 0, 2> ywxz;
+			Swizzle4D<T, dimension, 1, 3, 2, 0> ywzx;
+			Swizzle4D<T, dimension, 2, 0, 1, 3> zxyw;
+			Swizzle4D<T, dimension, 2, 0, 3, 1> zxwy;
+			Swizzle4D<T, dimension, 2, 1, 0, 3> zyxw;
+			Swizzle4D<T, dimension, 2, 1, 3, 0> zywx;
+			Swizzle4D<T, dimension, 2, 3, 0, 1> zwxy;
+			Swizzle4D<T, dimension, 2, 3, 1, 0> zwyx;
+			Swizzle4D<T, dimension, 3, 0, 1, 2> wxyz;
+			Swizzle4D<T, dimension, 3, 0, 2, 1> wxzy;
+			Swizzle4D<T, dimension, 3, 1, 0, 2> wyxz;
+			Swizzle4D<T, dimension, 3, 1, 2, 0> wyzx;
+			Swizzle4D<T, dimension, 3, 2, 0, 1> wzxy;
+			Swizzle4D<T, dimension, 3, 2, 1, 0> wzyx;
+
+			Swizzle1D<T, dimension, 0> r;
+			Swizzle1D<T, dimension, 1> g;
+			Swizzle1D<T, dimension, 2> b;
+			Swizzle1D<T, dimension, 3> a;
+			Swizzle2D<T, dimension, 0, 1> rg;
+			Swizzle2D<T, dimension, 1, 0> gr;
+			Swizzle2D<T, dimension, 0, 2> rb;
+			Swizzle2D<T, dimension, 2, 0> br;
+			Swizzle2D<T, dimension, 0, 3> ra;
+			Swizzle2D<T, dimension, 3, 0> ar;
+			Swizzle2D<T, dimension, 1, 2> gb;
+			Swizzle2D<T, dimension, 2, 1> bg;
+			Swizzle2D<T, dimension, 1, 3> ga;
+			Swizzle2D<T, dimension, 3, 1> ag;
+			Swizzle2D<T, dimension, 2, 3> ba;
+			Swizzle2D<T, dimension, 3, 2> ab;
+			Swizzle3D<T, dimension, 0, 1, 2> rgb;
+			Swizzle3D<T, dimension, 0, 2, 1> rbg;
+			Swizzle3D<T, dimension, 1, 0, 2> grb;
+			Swizzle3D<T, dimension, 1, 2, 0> gbr;
+			Swizzle3D<T, dimension, 2, 0, 1> brg;
+			Swizzle3D<T, dimension, 2, 1, 0> bgr;
+			Swizzle3D<T, dimension, 0, 1, 3> rga;
+			Swizzle3D<T, dimension, 0, 3, 1> rag;
+			Swizzle3D<T, dimension, 1, 0, 3> gra;
+			Swizzle3D<T, dimension, 1, 3, 0> gar;
+			Swizzle3D<T, dimension, 3, 0, 1> arg;
+			Swizzle3D<T, dimension, 3, 1, 0> agr;
+			Swizzle3D<T, dimension, 1, 2, 3> gba;
+			Swizzle3D<T, dimension, 1, 3, 2> gab;
+			Swizzle3D<T, dimension, 2, 1, 3> bga;
+			Swizzle3D<T, dimension, 2, 3, 1> bag;
+			Swizzle3D<T, dimension, 3, 1, 2> agb;
+			Swizzle3D<T, dimension, 3, 2, 1> abg;
+			Swizzle3D<T, dimension, 0, 2, 3> rba;
+			Swizzle3D<T, dimension, 0, 3, 2> rab;
+			Swizzle3D<T, dimension, 2, 0, 3> bra;
+			Swizzle3D<T, dimension, 2, 3, 0> bar;
+			Swizzle3D<T, dimension, 3, 0, 2> arb;
+			Swizzle3D<T, dimension, 3, 2, 0> abr;
+			Swizzle4D<T, dimension, 0, 1, 2, 3> rgba;
+			Swizzle4D<T, dimension, 0, 1, 3, 2> rgab;
+			Swizzle4D<T, dimension, 0, 2, 1, 3> rbga;
+			Swizzle4D<T, dimension, 0, 2, 3, 1> rbag;
+			Swizzle4D<T, dimension, 0, 3, 1, 2> ragb;
+			Swizzle4D<T, dimension, 0, 3, 2, 1> rabg;
+			Swizzle4D<T, dimension, 1, 0, 2, 3> grba;
+			Swizzle4D<T, dimension, 1, 0, 3, 2> grab;
+			Swizzle4D<T, dimension, 1, 2, 0, 3> gbra;
+			Swizzle4D<T, dimension, 1, 2, 3, 0> gbar;
+			Swizzle4D<T, dimension, 1, 3, 0, 2> garb;
+			Swizzle4D<T, dimension, 1, 3, 2, 0> gabr;
+			Swizzle4D<T, dimension, 2, 0, 1, 3> brga;
+			Swizzle4D<T, dimension, 2, 0, 3, 1> brag;
+			Swizzle4D<T, dimension, 2, 1, 0, 3> bgra;
+			Swizzle4D<T, dimension, 2, 1, 3, 0> bgar;
+			Swizzle4D<T, dimension, 2, 3, 0, 1> barg;
+			Swizzle4D<T, dimension, 2, 3, 1, 0> bagr;
+			Swizzle4D<T, dimension, 3, 0, 1, 2> argb;
+			Swizzle4D<T, dimension, 3, 0, 2, 1> arbg;
+			Swizzle4D<T, dimension, 3, 1, 0, 2> agrb;
+			Swizzle4D<T, dimension, 3, 1, 2, 0> agbr;
+			Swizzle4D<T, dimension, 3, 2, 0, 1> abrg;
+			Swizzle4D<T, dimension, 3, 2, 1, 0> abgr;
+		};
+		
 	};
 
 	template<typename T, size_t dimension>
@@ -730,7 +803,8 @@ namespace EM
 	{
 		return vec.print(out);
 	}
-
+	
+#pragma region global function
 	// 全局向量函数
 	template<typename T, size_t D>
 	T dot(const Vector<T, D>& a, const Vector<T, D>& b)
@@ -748,9 +822,9 @@ namespace EM
 	Vector<T, 3> cross(const Vector<T, 3>& a, const Vector<T, 3>& b)
 	{
 		return {
-			a.swizzle(y) * b.swizzle(z) - a.swizzle(z) * b.swizzle(y),
-			a.swizzle(z) * b.swizzle(x) - a.swizzle(x) * b.swizzle(z),
-			a.swizzle(x) * b.swizzle(y) - a.swizzle(y) * b.swizzle(x)
+			a.y * b.z - a.z * b.y,
+			a.z * b.x - a.x * b.z,
+			a.x * b.y - a.y * b.x
 		};
 	}
 
@@ -758,7 +832,7 @@ namespace EM
 	template<typename T>
 	T cross2D(const Vector<T, 2>& a, const Vector<T, 2>& b)
 	{
-		return a.swizzle(x) * b.swizzle(y) - a.swizzle(y) * b.swizzle(x);
+		return a.x * b.y - a.y * b.x;
 	}
 
 	// 距离函数
@@ -815,10 +889,177 @@ namespace EM
 		return factor_a * a + factor_b * b;
 	}
 
+#pragma endregion
+
+#pragma region Swizzle
+	
+	
+	
+	template <typename T, size_t dimension, int idx>
+	struct Swizzle1D
+	{
+		Swizzle1D& operator=(const T& e)
+		{
+			static_assert(idx < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			elem(idx) = e;
+			return *this;
+		}
+
+		operator T() const
+		{
+			static_assert(idx < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			return T(elem(idx));
+		}
+		
+		friend std::ostream& operator<<(std::ostream& out, const Swizzle1D& sw)
+		{
+			return out << T(sw); 
+		}
+		
+	protected:
+		float elem(int i) const
+		{
+			// 注意，它存在于Union之中，尽管自身仅占1个字节，
+			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
+			return reinterpret_cast<const T*>(this)[i];
+		}
+
+		float& elem(int i)
+		{
+			return reinterpret_cast<T*>(this)[i];
+		}
+	};
+
+	template <typename T, size_t dimension, int E0, int E1>
+	struct Swizzle2D
+	{
+		Swizzle2D& operator=(const Vector<T,2>& vec)
+		{
+			static_assert(E0 < dimension && E1 < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			elem(E0) = vec.x;
+			elem(E1) = vec.y;
+			return *this;
+		}
+
+		operator Vector<T,2>() const
+		{
+			static_assert(E0 < dimension && E1 < dimension,  
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			return Vector<T,2>{elem(E0),elem(E1)};
+		}
+
+		friend std::ostream& operator<<(std::ostream& out, const Swizzle2D& sw)
+		{
+			return out << Vector<T,2>(sw);
+		}
+
+	protected:
+		float elem(int i) const
+		{
+			// 注意，它存在于Union之中，尽管自身仅占1个字节，
+			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
+			return reinterpret_cast<const T*>(this)[i];
+		}
+
+		float& elem(int i)
+		{
+			return reinterpret_cast<T*>(this)[i];
+		}
+	};
+
+	template <typename T, size_t dimension, int E0, int E1, int E2>
+	struct Swizzle3D
+	{
+		Swizzle3D& operator=(const Vector<T,3>& vec)
+		{
+			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			elem(E0) = vec.x;
+			elem(E1) = vec.y;
+			elem(E2) = vec.z;
+			return *this;
+		}
+
+		operator Vector<T,3>() const
+		{
+			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			return Vector<T,3>{elem(E0),elem(E1), elem(E2)};
+		}
+
+		friend std::ostream& operator<<(std::ostream& out, const Swizzle3D& sw)
+		{
+			return out << Vector<T,3>(sw);
+		}
+
+	protected:
+		float elem(int i) const
+		{
+			// 注意，它存在于Union之中，尽管自身仅占1个字节，
+			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
+			return reinterpret_cast<const T*>(this)[i];
+		}
+
+		float& elem(int i)
+		{
+			return reinterpret_cast<T*>(this)[i];
+		}
+	};
+
+	template <typename T, size_t dimension, int E0, int E1, int E2, int E3>
+	struct Swizzle4D
+	{
+		Swizzle4D& operator=(const Vector<T,4>& vec)
+		{
+			static_assert(E0 < dimension && E1 < dimension && E2 < dimension && E3 < dimension,
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			elem(E0) = vec.x;
+			elem(E1) = vec.y;
+			elem(E2) = vec.z;
+			elem(E3) = vec.w;
+			return *this;
+		}
+
+		operator Vector<T,4>() const
+		{
+			static_assert(E0 < dimension && E1 < dimension && E2 < dimension && E3 < dimension, 
+			"Swizzle index out of bounds! "
+			"You're trying to access a component that doesn't exist in this vector.");
+			return Vector<T,4>{elem(E0),elem(E1), elem(E2), elem(E3)};
+		}
+
+		friend std::ostream& operator<<(std::ostream& out, const Swizzle4D& sw)
+		{
+			return out << Vector<T,4>(sw);
+		}
+
+	protected:
+		float elem(int i) const
+		{
+			// 注意，它存在于Union之中，尽管自身仅占1个字节，
+			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
+			return reinterpret_cast<const T*>(this)[i];
+		}
+
+		float& elem(int i)
+		{
+			return reinterpret_cast<T*>(this)[i];
+		}
+	};
+
+#pragma endregion
+	
 	// 常用的向量类型定义
-	using Vector2 = Vector<float, 2>;
-	using Vector3 = Vector<float, 3>;
-	using Vector4 = Vector<float, 4>;
 	
 	using Vector2f = Vector<float, 2>;
 	using Vector3f = Vector<float, 3>;
