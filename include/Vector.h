@@ -223,9 +223,10 @@ namespace EM
 			return result;
 		}
 		
-		virtual void normalize(bool dimensionalityReduction = false)
+		virtual Vector<T, dimension> normalize(bool dimensionalityReduction = false)
 		{
 			*this = normalized(dimensionalityReduction);
+			return *this;
 		}
 
 		virtual bool isNormalized(bool dimensionalityReduction = true, T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept

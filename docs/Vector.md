@@ -5,7 +5,6 @@
 ---
 
 ![Static Badge](https://img.shields.io/badge/type-class-green)
-
 ![Static Badge](https://img.shields.io/badge/state-completed-blue)
 
 
@@ -103,6 +102,34 @@ std::cout << vectorA.xyz << std::endl;
 | `public` | `virtual` | `Vector<T, dimension>&` | `operator/=(const Vector<T, dimension>&)` | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
 | `public` | `virtual` | `Vector<T, dimension>&` | `operator/=(const T&)`                    | `const T& scalar`同类型的常量                               | -           |
 
+```C++
+EM::Vector<float,2> vectorA{ 1, 2};
+
+vectorA += 1;
+std::cout << vectorA << std::endl;
+
+vectorA += EM::Vector<float,2>{1,2};
+std::cout << vectorA << std::endl;
+
+vectorA -= 1;
+std::cout << vectorA << std::endl;
+	
+vectorA -= EM::Vector<float,2>{1,2};
+std::cout << vectorA << std::endl;
+
+vectorA *= 3;
+std::cout << vectorA << std::endl;
+	
+vectorA *= EM::Vector<float,2>{2,4};
+std::cout << vectorA << std::endl;
+
+vectorA /= 3;
+std::cout << vectorA << std::endl;
+	
+vectorA /= EM::Vector<float,2>{2,4};
+std::cout << vectorA << std::endl;
+```
+
 ### 二元运算
 | Access             | Modifier | Return                 | Name                                                                  | Parameter                                                                       | Description |
 | ------------------ | -------- | ---------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------- |
@@ -117,10 +144,26 @@ std::cout << vectorA.xyz << std::endl;
 | `private` `friend` | -        | `Vector<T, dimension>` | `operator/(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
 | `private` `friend` | -        | `Vector<T, dimension>` | `operator/(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`向量,<br>`const T& scalar`标量                 | -           |
 
+```C++
+EM::Vector<float,2> vectorA{ 1, 2};
+EM::Vector<float,2> vectorB{ 3, 4};
+
+std::cout << vectorA+vectorB << std::endl;
+std::cout << vectorA-vectorB << std::endl;
+std::cout << vectorA*vectorB << std::endl;
+std::cout << vectorA/vectorB << std::endl;
+```
+
+
 ### 取反
 | Access             | Modifier | Return                 | Name                                     | Parameter                             | Description      |
 | ------------------ | -------- | ---------------------- | ---------------------------------------- | ------------------------------------- | ---------------- |
 | `private` `friend` | -        | `Vector<T, dimension>` | `operator-(const Vector<T, dimension>&)` | `const Vector<T, dimension>& vec`向量 | 向量支持直接取反 |
+
+```C++
+EM::Vector<float,2> vectorA{ 1, 2};
+std::cout << -vectorA << std::endl;
+```
 
 ### 比较运算
 | Access             | Modifier | Return | Name                                                                   | Parameter                                                                       | Description |
@@ -148,7 +191,7 @@ std::cout << vectorA << std::endl;
 | `public` | `virtual` `constexpr`                                   | `T`                               | `lengthSquared(bool)`                  | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量长度的平方                                   |
 | `public` | `virtual` `const` `noexcept`                            | `T`                               | `length(bool)`                         | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量长度                                         |
 | `public` | `virtual` `const`                                       | `Vector<T, dimension>`            | `normalized(bool)`                     | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量归一化的结果                                 |
-| `public` | `virtual`                                               | `void`                            | `normalize(bool)`                      | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 向量归一化                                           |
+| `public` | `virtual`                                               | `Vector<T, dimension>`                            | `normalize(bool)`                      | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 向量归一化                                           |
 | `public` | `virtual` `const` `noexcept`                            | `bool`                            | `isNormalized(T,bool)`                 | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度<br>`T epsilon = T{NEARZERO_THRESHOLD}`浮点数判断精度 | 是否为单位向量                                       |
 | `public` | `virtual` `const` `noexcept`                            | `bool`                            | `isZero(T,bool)`                       | `T epsilon = T{NEARZERO_THRESHOLD}`浮点数判断精度                                                                                       | 是否为0向量                                          |
 | `public` | `virtual` `const` `noexcept`                            | `Vector<T, dimension>`            | `lerp(const Vector<T, dimension>&, T)` | `const Vector<T, dimension>& other`插值向量,<br> `T t`插值权重                                                                          | 插值函数                                             |
@@ -161,6 +204,27 @@ std::cout << vectorA << std::endl;
 | `public` | `const`                                                 | `Matrix<T, dimension, dimension>` | `skewSymmetric()`                      | -                                                                                                                                       | 获得当前向量的反对称矩阵                             |
 | `public` | `template<size_t D = dimension>` `const`                | `Matrix<T, 3, 3>`                 | `skewSymmetric_2D()`                   | -                                                                                                                                       | 获得当前2D向量的反对称矩阵(非2D向量不可访问这个函数) |
 
+```C++
+EM::Vector<float,2> vectorA{ 1, 2};
+EM::Vector<float,3> vectorB{ 3, 4, 5};
+EM::Vector<float,4> vectorC{ 6, 7, 8, 9};
+
+std::cout << vectorB.toColMatrix() << std::endl;
+std::cout << vectorB.toRowMatrix() << std::endl;
+std::cout << vectorB.length() << std::endl;
+std::cout << vectorB.normalized() << std::endl;
+std::cout << vectorB.isNormalized() << std::endl;
+std::cout << vectorB.isZero() << std::endl;
+std::cout << vectorB.lerp(EM::Vector<float,3>{1,1,1},0.5f) << std::endl;
+std::cout << vectorB.reflect(EM::Vector<float,3>{1,1,1}.normalize()) << std::endl;
+std::cout << vectorB.project(EM::Vector<float,3>{1,1,1}.normalize()) << std::endl;
+std::cout << vectorB.toHomogeneous(1) << std::endl;
+std::cout << vectorB.toTranslationMatrix() << std::endl;
+std::cout << vectorB.skewSymmetric() << std::endl;
+
+std::cout << vectorA.skewSymmetric_2D() << std::endl;
+std::cout << vectorC.fromHomogeneous() << std::endl;
+```
 
 
 ## 全局方法
@@ -173,6 +237,19 @@ std::cout << vectorA << std::endl;
 | -      | `template<typename T, size_t D>` | `T`            | `distanceSquared(const Vector<T, D>&, const Vector<T, D>&, bool)` | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `bool dimensionalityReduction=true`是否要进行降维运算<br>降维将只计算前3个维度 | 距离的平方   |
 | -      | `template<typename T, size_t D>` | `Vector<T, D>` | `lerp(const Vector<T, D>&, const Vector<T, D>&, T)`               | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `T t`插值权重                                                                  | 线性插值     |
 | -      | `template<typename T, size_t D>` | `Vector<T, D>` | `slerp(const Vector<T, D>&, const Vector<T, D>&, T)`              | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `T t`插值权重                                                                  | 球面线性插值 |
+
+```C++
+EM::Vector<float,3> vectorA{ 1, 2, 3};
+EM::Vector<float,3> vectorB{ 4, 5, 6};
+
+std::cout << dot(vectorA,vectorB) << std::endl;
+std::cout << cross(vectorA,vectorB) << std::endl;
+std::cout << distance(vectorA,vectorB) << std::endl;
+std::cout << lerp(vectorA,vectorB,0.5f) << std::endl;
+std::cout << slerp(vectorA,vectorB,0.5f) << std::endl;
+std::cout << lerp(vectorA.normalize(),vectorB.normalize(),0.5f) << std::endl;
+std::cout << slerp(vectorA.normalize(),vectorB.normalize(),0.5f) << std::endl;
+```
 
 --- 
 
