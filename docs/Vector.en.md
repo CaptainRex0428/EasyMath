@@ -1,11 +1,11 @@
 # Class `Vector`
 
-[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "Click to back to README") | [![Static Badge](https://img.shields.io/badge/language-en-red)](Vector.md "点击切换中文版")
+[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "Click to back to README") | [![Static Badge](https://img.shields.io/badge/Language-en-red)](Vector.md "点击切换中文版")
 
 --- 
 
-![Static Badge](https://img.shields.io/badge/type-class-green)
-![Static Badge](https://img.shields.io/badge/state-completed-blue)
+![Static Badge](https://img.shields.io/badge/Type-class-green)
+![Static Badge](https://img.shields.io/badge/State-completed-blue)
 
 
 `Vector` is a generic vector class with variable length and element type
@@ -15,7 +15,7 @@
 | **Namespace** | **`EM`**                                                                                                                               |
 | **File**      | [**`include\vector.h`**](../include/Vector.h)                                                                                          |
 | **Parent**    | -                                                                                                                                      |
-| **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-virtual-green) ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
+| **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
 
 ## Declaration
 

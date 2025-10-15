@@ -1,22 +1,22 @@
 # `Vector`类
 
-[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "点击返回README") | [![Static Badge](https://img.shields.io/badge/language-zh-red)](Vector.en.md "click to english version")
+[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "点击返回README") | [![Static Badge](https://img.shields.io/badge/Language-zh-red)](Vector.en.md "click to english version")
 
 ---
 
-![Static Badge](https://img.shields.io/badge/type-class-green)
-![Static Badge](https://img.shields.io/badge/state-completed-blue)
+![Static Badge](https://img.shields.io/badge/Type-class-green)
+![Static Badge](https://img.shields.io/badge/State-completed-blue)
 
 
 
-Vector是一个长度可变、类型可变的向量泛型类
+Vector是一个长度可变、类型可变的泛型向量
 
 | Attribute     | Value                                                                                                                                  |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | **Namespace** | **`EM`**                                                                                                                               |
-| **File**      | [**`include\vector.h`**](../include/Vector.h)                                                                                          |
+| **File**      | [**`include\Vector.h`**](../include/Vector.h)                                                                                          |
 | **Parent**    | -                                                                                                                                      |
-| **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-virtual-green) ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
+| **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
 
 ## 声明
 

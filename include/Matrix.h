@@ -38,6 +38,10 @@ namespace EM
 
 		virtual ~Matrix() = default;
 
+
+/*
+* 输出 
+*/
 		virtual std::ostream& print(std::ostream& out) const
 		{
 			out << std::fixed << std::setprecision(3);  // 设置小数精度为3，并使用固定点表示
@@ -83,7 +87,10 @@ namespace EM
 		
 		}
 
-		// 访问元素（行主序）
+/*
+* 访问元素（行主序）
+*/
+		
 		T& operator[](size_t idx)
 		{
 			assert(idx < rows * cols && idx >= 0 && "Element index out of bound exception.");
@@ -118,6 +125,10 @@ namespace EM
 		static constexpr size_t Rows() { return rows; }
 		static constexpr size_t Cols() { return cols; }
 
+
+/*
+* 成员函数
+*/
 		// 创建去掉指定行列的子矩阵
 		Matrix<T, rows - 1, cols - 1> submatrix(size_t row, size_t col) const
 		{
@@ -219,7 +230,7 @@ namespace EM
 			return cofMat.transpose();
 		}
 
-		// 可选：计算逆矩阵（使用伴随矩阵方法）
+		// 计算逆矩阵（使用伴随矩阵方法）
 		Matrix<T, rows, cols> inverse() const
 		{
 			static_assert(rows == cols, "Matrix must be square to compute inverse.");
@@ -231,7 +242,12 @@ namespace EM
 			return  (1.0 / det) * adj;
 		}
 
-		// 复合赋值运算符 +=
+
+/*
+* 成员函数：复合赋值运算符
+*
+*/
+		
 		Matrix<T, rows, cols>& operator+=(const Matrix<T, rows, cols>& other)
 		{
 			for (size_t i = 0; i < rows * cols; ++i)
@@ -240,8 +256,7 @@ namespace EM
 			}
 			return *this;
 		}
-
-		// 复合赋值运算符 -=
+		
 		Matrix<T, rows, cols>& operator-=(const Matrix<T, rows, cols>& other)
 		{
 			for (size_t i = 0; i < rows * cols; ++i)
@@ -250,8 +265,7 @@ namespace EM
 			}
 			return *this;
 		}
-
-		// 复合赋值运算符 *=（标量乘法）
+		
 		template<typename ScalarType,
 			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
 		Matrix<T, rows, cols>& operator*=(ScalarType scalar)
@@ -264,7 +278,6 @@ namespace EM
 		}
 
 	private:
-		std::array<T, rows* cols> data;
 		
 		template<typename ScalarType,
 			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
@@ -390,6 +403,9 @@ namespace EM
 
 			return result;
 		}
+
+	private:
+		std::array<T, rows* cols> data;
 
 	};
 
