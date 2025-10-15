@@ -1,125 +1,179 @@
-向量 API 说明
-============
+# `Vector`类
 
-概览
-----
-`EM::Vector<T, N>` 是维度泛化、定长的向量模板，`T` 必须为算术类型。支持元素访问、swizzle、算术运算、范数与归一化、投影与反射、插值、齐次坐标转换以及多种图形学实用函数；在 Debug 下通过 `assert` 做边界与前置条件检查。
+[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "点击返回README") | [![Static Badge](https://img.shields.io/badge/language-zh-red)](Vector.en.md "click to english version")
 
-模板参数
---------
-- `T`：元素类型（float/double/int 等）
-- `N`：维度（N > 0）
+---
 
-构造
-----
-- 默认零初始化：`Vector()`
-- 标量填充：`explicit Vector(const T& value)`
-- 列表构造：`Vector(std::initializer_list<T>)`（长度必须等于 `N`）
+![Static Badge](https://img.shields.io/badge/type-class-green)
+
+![Static Badge](https://img.shields.io/badge/state-completed-blue)
 
 
-元素访问
---------
-- `operator[](size_t)` 读写 / 常量访问
-- 边界检查：`at(size_t)` 读写 / 常量访问
-- 迭代器：`begin()/end()`（含常量版本）
-- 原始数据：`T* Data()` / `const T* Data() const`
-- 尺寸与维度：`static constexpr size_t size()`、`getDimension()`、`Dimension()`
 
-Swizzle
--------
-- 一维别名：`VectorFilterDimension1D`（x,y,z,w / r,g,b,a，含大小写）
-- 二维 swizzle：`operator[](VectorFilterDimension2D)`，返回 `Vector<T,2>`（xy, xz, yz, xw, yw, zw 等）
-- 三维 swizzle：`operator[](VectorFilterDimension3D)`，返回 `Vector<T,3>`（xyz, xyw, yzw 等）
+Vector是一个长度可变、类型可变的向量泛型类
 
-矩阵转换
---------
-- 列向量：`Matrix<T, N, 1> toColMatrix()`
-- 行向量：`Matrix<T, 1, N> toRowMatrix()`
+| Attribute     | Value                                                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Namespace** | **`EM`**                                                                                                                               |
+| **File**      | [**`include\vector.h`**](../include/Vector.h)                                                                                          |
+| **Parent**    | -                                                                                                                                      |
+| **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-virtual-green) ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
 
-算术运算（逐元素，除非特别说明）
-------------------------------
-- 原地：`+=`、`-=`、`*=`、`/=`（向量或标量）
-- 友元：`+`、一元 `-`、`-`、`*`、`/`（向量或标量）
-- 比较：`==`、`!=`（浮点类型使用 `NEARZERO_THRESHOLD` 作为 epsilon）
+## 声明
 
-范数与归一化
-------------
-- `length(bool dimensionalityReduction = false) const`
-- `constexpr lengthSquared(bool dimensionalityReduction = false) const`
-- `normalized(bool dimensionalityReduction = false) const`
-- `normalize(bool dimensionalityReduction = false)`
-- `isZero(T epsilon = T{NEARZERO_THRESHOLD}) const`
-- `isNormalized(T epsilon = T{NEARZERO_THRESHOLD}, bool dimensionalityReduction = true) const`
-  - 当 `dimensionalityReduction = true` 时，范数仅计算前三个分量；`normalized()` 会保持其余维度不变
-
-向量间运算
---------------
-- 点积：`dot(a, b)`
-- 叉积（3D）：`cross(a, b)`，返回 `Vector<T,3>`
-- 2D 叉积（标量）：`cross2D(a, b)`
-- 距离：`distance(a, b, bool dimensionalityReduction = true)`
-- 距离平方：`distanceSquared(a, b, bool dimensionalityReduction = true)`
-- 夹角：`angle(a, b, bool dimensionalityReduction = true)`（弧度）
-
-插值
-----
-- 线性插值：成员 `lerp(other, t)` 与自由函数 `lerp(a, b, t)`
-- 球面插值（单位向量）：`slerp(a, b, t)`
-
-投影与反射
-----------
-- `project(const Vector& onto)` / `project(const Vector& onto, bool dimensionalityReduction)`
-- `reflect(const Vector& normal)`（要求单位法向，N ≥ 2）
-
-齐次坐标
---------
-- 转齐次：`template<size_t newDim = N+1> toHomogeneous(T w = T{1}) const`
-- 还原齐次：`template<size_t newDim = N-1> fromHomogeneous() const`（`w==0` 视为方向向量，不做透视除法）
-
-图形学辅助
-----------
-- 平移矩阵（N==3）：`toTranslationMatrix(bool usedWithOrient=false)` -> `Matrix<T,4,4>`
-- 反对称矩阵：`skewSymmetric()`（N=2/3 有专门构造，N>3 提供通用构造）
-- 二维专用反对称矩阵：`skewSymmetric_2D()` -> `Matrix<T,3,3>`（仅 N==2）
-
-输出
-----
-- `print(std::ostream&) const`，形如 `(x, y, z, ...) (V mode: xyzw)`
-
-常用类型别名
-------------
-- `Vector2/3/4`（float）
-- `Vector2f/3f/4f`、`Vector2d/3d/4d`、`Vector2i/3i/4i`
-
-示例
-----
-```cpp
-using namespace EM;
-
-Vector3 a{1,2,3};
-Vector3 b{2,0,1};
-
-float d = dot(a,b);
-auto c = cross(a,b);
-auto an = a.normalized();
-
-auto mat = a.toColMatrix();
-auto angleRad = angle(a,b);
-auto r = a.reflect(Vector3{0,1,0});
-
-auto h = a.toHomogeneous();
-auto eu = h.fromHomogeneous();
+```C++
+template<typename T, size_t dimension, typename = std::enable_if_t[std::is_arithmetic_v](std::is_arithmetic_v%3CT)>>
+class Vector
 ```
 
-注意事项
---------
-- `dimensionalityReduction` 仅对前三个分量进行范数相关计算，`normalized()` 会保留其他维度
-- 反射需要单位法向量；不确定时先对法向做归一化
-- 浮点比较使用固定 epsilon（`NEARZERO_THRESHOLD`）
+### 模板
 
-扩展计划
---------
-- 更多 swizzle 组合、clamp/saturate、随机与单位向量生成
-- SIMD 专用化与小尺寸向量优化
+| Type     | Name        | Description                                                     |
+| -------- | ----------- | --------------------------------------------------------------- |
+| typename | `T`         | 元素类型，受到 `typename = std::enable_if_t>>` （算数类型）限制 |
+| size_t   | `dimension` | 向量维度/向量长度                                               |
+
+### 构建函数
+
+| Access   | Modifier   | Return | Name                                           | Parameter                                                 | Description                                                      |
+| -------- | ---------- | ------ | ---------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------- |
+| `public` | -          |        | `Vector()`                                     | -                                                         | 默认构建，全部元素初始化为0                                      |
+| `public` | `explicit` |        | `Vector(const T& value)`                       | `const T& value`类型为 `T`的单一值                        | 使用单一输入的值初始化向量的所有元素                             |
+| `public` | -          |        | `Vector(std::initializer_list InitializeList)` | `std::initializer_list InitializeList`类型为T的初始化数列 | 使用数列初始化向量元素如果数列元素数量不等于 `dimension`则会报错 |
+
+```C++
+EM::Vector<float,2> vectorA;
+EM::Vector<float,3> vectorB(1);
+EM::Vector<float,4> vectorC{ 1, 2, 3, 4};
+```
+
+## 数据访问
+
+### 一般数据访问
+
+| Access   | Modifier                                 | Return     | Name                 | Parameter                | Description                                  |
+| -------- | ---------------------------------------- | ---------- | -------------------- | ------------------------ | -------------------------------------------- |
+| `public` | `virtual`                                | `T&`       | `Operator[](size_t)` | `size_t idx`元素索引位置 | -                                            |
+| `public` | `virtual` `const`                        | `const T&` | `Operator[](size_t)` | `size_t idx`元素索引位置 | -                                            |
+| `public` | `virtual`                                | `T&`       | `at(size_t)`         | `size_t idx`元素索引位置 | -                                            |
+| `public` | `virtual` `const`                        | `const T&` | `at(size_t)`         | `size_t idx`元素索引位置 | -                                            |
+| `public` | `virtual` `noexcept`                     | `T*`       | `Data()`             | -                        | 直接返回data数列的指针                       |
+| `public` | `virtual` `const` `noexcept`             | `const T*` | `Data()`             | -                        | 直接返回data数列的指针                       |
+| `public` | `virtual` `noexcept`                     | `T*`       | `begin()`            | -                        | 返回data数列第一个元素的指针                 |
+| `public` | `virtual` `const` `noexcept`             | `const T*` | `begin()`            | -                        | 返回data数列第一个元素的指针                 |
+| `public` | `virtual` `noexcept`                     | `T*`       | `end()`              | -                        | 返回data数列的末尾指针（最后一个元素索引+1） |
+| `public` | `virtual` `const` `noexcept`             | `const T*` | `end()`              | -                        | 返回data数列的末尾指针（最后一个元素索引+1） |
+| `public` | `virtual` `constexpr` `const` `noexcept` | `size_t`   | `getDimension()`     | -                        | 返回向量的维度（数组的维度）                 |
+| `public` | `static` `constexpr` `noexcept`          | `size_t`   | `Size()`             | -                        | 返回向量的维度（数组的维度）                 |
+| `public` | `static` `constexpr` `noexcept`          | `size_t`   | `Dimension()`        | -                        | 返回向量的维度（数组的维度）                 |
 
 
+### Swizzle
+向量元素的访问支持像glsl、hlsl等语言中使用xyzw或者rgba访问和修改元素
+```C++
+EM::Vector<float,4> vectorA{1,2,3,4};
+std::cout << vectorA << std::endl;
+
+vectorA.x = 5;
+vectorA.zy = EM::Vector<float,2> {6,7};
+std::cout << vectorA << std::endl;
+
+std::cout << vectorA.xyz << std::endl;
+```
+```
+// 输出结果
+(1, 2, 3, 4) (V mode: xyzw)
+(5, 7, 6, 4) (V mode: xyzw)
+(5, 7, 6) (V mode: xyz)
+```
+
+## 运算支持
+
+### 复合赋值运算
+| Access   | Modifier  | Return                  | Name                                      | Parameter                                                   | Description |
+| -------- | --------- | ----------------------- | ----------------------------------------- | ----------------------------------------------------------- | ----------- |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator=(const Vector<T, dimension>&)`  | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator=(Vector<T, dimension>&)`        | `Vector<T, dimension>& other`同类型和同维度的另一向量       | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator+=(const Vector<T, dimension>&)` | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator+=(const T&)`                    | `const T& scalar`同类型的常量                               | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator-=(const Vector<T, dimension>&)` | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator-=(const T&)`                    | `const T& scalar`同类型的常量                               | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator*=(const Vector<T, dimension>&)` | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator*=(const T&)`                    | `const T& scalar`同类型的常量                               | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator/=(const Vector<T, dimension>&)` | `const Vector<T, dimension>& other`同类型和同维度的另一向量 | -           |
+| `public` | `virtual` | `Vector<T, dimension>&` | `operator/=(const T&)`                    | `const T& scalar`同类型的常量                               | -           |
+
+### 二元运算
+| Access             | Modifier | Return                 | Name                                                                  | Parameter                                                                       | Description |
+| ------------------ | -------- | ---------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------- |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator+(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator+(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`向量,<br>`const T& scalar`标量                 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator+(const T&，const Vector<T, dimension>&)`                    | `const T& scalar`标量，<br>`const Vector<T, dimension>& vec`向量                | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator-(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator-(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`向量,<br>`const T& scalar`标量                 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator*(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator*(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`向量,<br>`const T& scalar`标量                 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator*(const T&, const Vector<T, dimension>&)`                    | `const T& scalar`标量,<br>`const Vector<T, dimension>& vec`向量                 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator/(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator/(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`向量,<br>`const T& scalar`标量                 | -           |
+
+### 取反
+| Access             | Modifier | Return                 | Name                                     | Parameter                             | Description      |
+| ------------------ | -------- | ---------------------- | ---------------------------------------- | ------------------------------------- | ---------------- |
+| `private` `friend` | -        | `Vector<T, dimension>` | `operator-(const Vector<T, dimension>&)` | `const Vector<T, dimension>& vec`向量 | 向量支持直接取反 |
+
+### 比较运算
+| Access             | Modifier | Return | Name                                                                   | Parameter                                                                       | Description |
+| ------------------ | -------- | ------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------- |
+| `private` `friend` | -        | `bool` | `operator==(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+| `private` `friend` | -        | `bool` | `operator!=(const Vector<T, dimension>&, const Vector<T, dimension>&)` | `const Vector<T, dimension>& lhs`向量,<br>`const Vector<T, dimension>& rhs`向量 | -           |
+
+
+## 输出
+| Access   | Modifier                                 | Return          | Name                                                     | Parameter                 | Description                        |
+| -------- | ---------------------------------------- | --------------- | -------------------------------------------------------- | ------------------------- | ---------------------------------- |
+| `public` | `virtual`                                | `std::ostream&` | `print(std::ostream&)`                                   | `std::ostream& out`输出流 | 在控制台输出（这个函数为成员函数） |
+| -        | `template<typename T, size_t dimension>` | `std::ostream&` | `operator<<(std::ostream&, const Vector<T,dimension>&)<` | `std::ostream& out`输出流 | 在控制台输出（这个函数为全局函数） |
+
+```C++
+EM::Vector<float,2> vectorA{8,9};
+std::cout << vectorA << std::endl;
+```
+
+## 成员方法
+| Access   | Modifier                                                | Return                            | Name                                   | Parameter                                                                                                                               | Description                                          |
+| -------- | ------------------------------------------------------- | --------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `public` | `virtual`                                               | `Matrix<T, dimension, 1>`         | `toColMatrix()`                        | -                                                                                                                                       | 用列矩阵表示向量                                     |
+| `public` | `virtual`                                               | `Matrix<T, 1, dimension>`         | `toRowMatrix()`                        | -                                                                                                                                       | 用行矩阵表示向量                                     |
+| `public` | `virtual` `constexpr`                                   | `T`                               | `lengthSquared(bool)`                  | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量长度的平方                                   |
+| `public` | `virtual` `const` `noexcept`                            | `T`                               | `length(bool)`                         | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量长度                                         |
+| `public` | `virtual` `const`                                       | `Vector<T, dimension>`            | `normalized(bool)`                     | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 计算向量归一化的结果                                 |
+| `public` | `virtual`                                               | `void`                            | `normalize(bool)`                      | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度                                                      | 向量归一化                                           |
+| `public` | `virtual` `const` `noexcept`                            | `bool`                            | `isNormalized(T,bool)`                 | `bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度<br>`T epsilon = T{NEARZERO_THRESHOLD}`浮点数判断精度 | 是否为单位向量                                       |
+| `public` | `virtual` `const` `noexcept`                            | `bool`                            | `isZero(T,bool)`                       | `T epsilon = T{NEARZERO_THRESHOLD}`浮点数判断精度                                                                                       | 是否为0向量                                          |
+| `public` | `virtual` `const` `noexcept`                            | `Vector<T, dimension>`            | `lerp(const Vector<T, dimension>&, T)` | `const Vector<T, dimension>& other`插值向量,<br> `T t`插值权重                                                                          | 插值函数                                             |
+| `public` | `virtual` `const`                                       | `Vector<T, dimension>`            | `reflect(const Vector<T, dimension>&)` | `const Vector<T, dimension>& normal`法向量（必须归一化）                                                                                | 基于法线的反射向量                                   |
+| `public` | `virtual` `const`                                       | `Vector`                          | `project(const Vector&)`               | `const Vector& onto`投影向量                                                                                                            | 在某一向量上的投影向量                               |
+| `public` | `virtual` `const`                                       | `Vector`                          | `project(const Vector&, bool)`         | `const Vector& onto`投影向量,<br>`bool dimensionalityReduction = false` 是否要进行降维运算<br>降维将只计算前3个维度<br>                 | 在某一向量上的投影向量                               |
+| `public` | `template<size_t newDim = dimension + 1>` `const`       | `Vector<T, newDim>`               | `toHomogeneous(T)`                     | `T w = T{ 1 }`齐次坐标的w分量（点向量 w=1, 方向向量w=0）                                                                                | 转换当前坐标为齐次坐标                               |
+| `public` | `template<size_t newDim = dimension - 1>` `const`       | `Vector<T, newDim>`               | `fromHomogeneous()`                    | -                                                                                                                                       | 将当前向量作为齐次坐标转换为对应的向量               |
+| `public` | `template<typename = std::enable_if_t<dimension == 3>>` | `Matrix<T, 4, 4>`                 | `toTranslationMatrix(bool)`            | `bool usedWithOrient = false` 是否用于移动方向向量（这个条件可以被优化掉）                                                              | 将当前向量转换为平移矩阵                             |
+| `public` | `const`                                                 | `Matrix<T, dimension, dimension>` | `skewSymmetric()`                      | -                                                                                                                                       | 获得当前向量的反对称矩阵                             |
+| `public` | `template<size_t D = dimension>` `const`                | `Matrix<T, 3, 3>`                 | `skewSymmetric_2D()`                   | -                                                                                                                                       | 获得当前2D向量的反对称矩阵(非2D向量不可访问这个函数) |
+
+
+
+## 全局方法
+| Access | Modifier                         | Return         | Name                                                              | Parameter                                                                                                                                          | Description  |
+| ------ | -------------------------------- | -------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| -      | `template<typename T, size_t D>` | `T`            | `dot(const Vector<T, D>&, const Vector<T, D>&)`                   | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B                                                                                     | 点乘         |
+| -      | `template<typename T>`           | `T`            | `cross(const Vector<T, 3>&, const Vector<T, 3>&)`                 | `const Vector<T, 3>& a`3D向量A,<br> `const Vector<T, 3>& b`3D向量B                                                                                 | 3D叉乘       |
+| -      | `template<typename T>`           | `T`            | `cross(const Vector<T, 2>&, const Vector<T, 2>&)`                 | `const Vector<T, 2>& a`2D向量A,<br> `const Vector<T, 2>& b`2D向量B                                                                                 | 2D叉乘       |
+| -      | `template<typename T, size_t D>` | `T`            | `distance(const Vector<T, D>&, const Vector<T, D>&, bool)`        | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `bool dimensionalityReduction=true`是否要进行降维运算<br>降维将只计算前3个维度 | 距离         |
+| -      | `template<typename T, size_t D>` | `T`            | `distanceSquared(const Vector<T, D>&, const Vector<T, D>&, bool)` | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `bool dimensionalityReduction=true`是否要进行降维运算<br>降维将只计算前3个维度 | 距离的平方   |
+| -      | `template<typename T, size_t D>` | `Vector<T, D>` | `lerp(const Vector<T, D>&, const Vector<T, D>&, T)`               | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `T t`插值权重                                                                  | 线性插值     |
+| -      | `template<typename T, size_t D>` | `Vector<T, D>` | `slerp(const Vector<T, D>&, const Vector<T, D>&, T)`              | `const Vector<T, D>& a`向量A,<br> `const Vector<T, D>& b`向量B,<br> `T t`插值权重                                                                  | 球面线性插值 |
+
+--- 
+
+[![Static Badge](https://img.shields.io/badge/Back_to_Top-gray)](#vector类 "点击返回顶部") | [![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "点击返回README")

@@ -85,7 +85,7 @@ namespace EM
 		virtual T* end() noexcept { return data.data() + dimension; }
 		virtual const T* end() const noexcept { return data.data() + dimension; }
 		
-		static constexpr size_t size() noexcept { return dimension; }
+		static constexpr size_t Size() noexcept { return dimension; }
 		virtual constexpr size_t getDimension() const noexcept { return dimension; }
 		static constexpr size_t Dimension() noexcept { return dimension; }
 
@@ -133,6 +133,11 @@ namespace EM
 			out << ") (V mode" << mode << ")";
 			return out;
 		}
+
+/*
+* 成员函数：矩阵形式
+*
+*/
 		
 		virtual Matrix<T, dimension, 1, std::enable_if_t<std::is_arithmetic_v<T>>> toColMatrix()
 		{
@@ -158,26 +163,6 @@ namespace EM
 * 成员函数：向量运算
 *
 */
-		virtual T length(bool dimensionalityReduction = false) const noexcept
-		{
-			if (!dimensionalityReduction) {
-				T sum = T(0);
-				for (size_t idx = 0; idx < dimension; ++idx)
-				{
-					sum += data[idx] * data[idx];
-				}
-				return std::sqrt(sum);
-			}
-
-			T sum = T(0);
-			size_t maxDim = std::min(dimension, size_t(3));  // 只计算前3个维度
-			for (size_t idx = 0; idx < maxDim; ++idx)
-			{
-				sum += data[idx] * data[idx];
-			}
-			return std::sqrt(sum);
-		}
-
 		virtual constexpr T lengthSquared(bool dimensionalityReduction = false) const noexcept
 		{
 			if (!dimensionalityReduction) {
@@ -196,6 +181,11 @@ namespace EM
 				sum += data[idx] * data[idx];
 			}
 			return sum;
+		}
+
+		virtual T length(bool dimensionalityReduction = false) const noexcept
+		{
+			return std::sqrt(lengthSquared(dimensionalityReduction));
 		}
 
 		virtual Vector<T, dimension> normalized(bool dimensionalityReduction = false) const
@@ -238,7 +228,7 @@ namespace EM
 			*this = normalized(dimensionalityReduction);
 		}
 
-		virtual bool isNormalized(T epsilon = T{ NEARZERO_THRESHOLD }, bool dimensionalityReduction = true) const noexcept
+		virtual bool isNormalized(bool dimensionalityReduction = true, T epsilon = T{ NEARZERO_THRESHOLD }) const noexcept
 		{
 			return std::abs(length(dimensionalityReduction) - T{ 1 }) <= epsilon;
 		}
@@ -320,12 +310,12 @@ namespace EM
 		Vector<T, newDim> fromHomogeneous() const
 		{
 			static_assert(newDim < dimension, "New dimension must be smaller");
-			static_assert(dimension > 0, "Cannot reduce dimension of empty vector");
+			static_assert(dimension > 1, "Cannot reduce dimension of vector less than 2 dimensions");
 
 			Vector<T, newDim> result;
 			T w = data[dimension - 1];
 
-			// 处理w=0的情况（无穷远点）
+			// 处理w=0的情况（无穷远点或者方向向量）
 			if (std::abs(w) < T{ NEARZERO_THRESHOLD }) {
 				// 返回方向向量（不进行透视除法）
 				for (size_t i = 0; i < newDim; ++i) {
@@ -359,7 +349,7 @@ namespace EM
 			return result;
 		}
 
-		virtual Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> skewSymmetric() const
+		Matrix<T, dimension, dimension, std::enable_if_t<std::is_arithmetic_v<T>>> skewSymmetric() const
 		{
 
 			static_assert(dimension > 1, "dimension must greater than 1");
@@ -843,7 +833,7 @@ namespace EM
 
 	// 距离函数
 	template<typename T, size_t D>
-	T distance(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction = true)
+	T distance(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction  = true)
 	{
 		return (b - a).length(dimensionalityReduction);
 	}

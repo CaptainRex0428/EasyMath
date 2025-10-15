@@ -1,13 +1,12 @@
-EasyMath
-========
-![Static Badge](https://img.shields.io/badge/version-1.0.8-orange)
-![Static Badge](https://img.shields.io/badge/language->C%2B%2B17-red)
-![Static Badge](https://img.shields.io/badge/export-dll-brightgreen)
-![Static Badge](https://img.shields.io/badge/display-with%20console%20sandbox-purple)
-![Static Badge](https://img.shields.io/badge/state-under%20development-blue)
+# EasyMath
 
+[![Static Badge](https://img.shields.io/badge/language-English-purple)](#english) | [![Static Badge](https://img.shields.io/badge/language-中文-red)](#中文)
 
-[English](#english) | [中文](#中文)
+---
+
+![Static Badge](https://img.shields.io/badge/version-1__0__8-orange) ![Static Badge](https://img.shields.io/badge/code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/display-with%20console%20sandbox-brown) ![Static Badge](https://img.shields.io/badge/state-under%20development-blue)
+
+--- 
 
 ## English
 
@@ -95,6 +94,9 @@ int main() {
     std::cout << "dot=" << d << " cross=" << c << " L=" << L << "\n";
 }
 ```
+
+### Documentaion
+- [Vector](/docs/Vector.en.md)
 
 ### Roadmap
 ![Static Badge](https://img.shields.io/badge/next_version-1.1-yellow)
@@ -205,13 +207,15 @@ int main() {
     std::cout << "dot=" << d << " cross=" << c << " L=" << L << "\n";
 }
 ```
+### 文档
+- [Vector](/docs/Vector.md)
 
 ### 版本开发计划 
-![Static Badge](https://img.shields.io/badge/next_version-1.1-yellow)
+![Static Badge](https://img.shields.io/badge/next_version-1__1__0-yellow)
 - [ ] 优化矩阵和向量算法
 - [ ] 完善四元数计算API
 - [ ] 添加欧拉角API
-- [ ] 添加欧拉角、四元数、轴角转换方法
+- [x] 添加欧拉角、四元数、轴角转换方法
 - [x] 优化vector swizzle算法
 - [ ] 为swizzle同步vector算法
 

@@ -1,5 +1,15 @@
-Vector API Reference
-====================
+# Class `Vector`
+
+
+[![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "Click to back to README") | [![Static Badge](https://img.shields.io/badge/language-en-red)](Vector.md "点击切换中文版")
+
+--- 
+
+![Static Badge](https://img.shields.io/badge/type-class-green)
+
+![Static Badge](https://img.shields.io/badge/state-completed-blue)
+
+
 
 Overview
 --------
@@ -126,3 +136,8 @@ Planned extensions
 - SIMD specializations and small‑vector optimizations
 
 
+ 
+
+--- 
+
+[![Static Badge](https://img.shields.io/badge/Back_to_Top-gray)](#vector类 "点击返回顶部") | [![Static Badge](https://img.shields.io/badge/Back_to_README-gray)](../README.md "点击返回README")
