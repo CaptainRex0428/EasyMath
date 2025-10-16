@@ -27,3 +27,50 @@ function add_rider_refreshconfig()
     file:write(xml)
     file:close()
 end
+
+function add_fork_custom_commands()
+  local fork_dir = ".fork"
+  os.mkdir(fork_dir)
+  
+  local json = [[
+[
+  {
+    "version" : 2
+  },
+  {
+    "action" : {
+      "script" : "echo ${repo:name} status:\n\ncursor .",
+      "showOutput" : true,
+      "type" : "sh",
+      "waitForExit" : true
+    },
+    "name" : "Open With Cursor",
+    "target" : "repository"
+  },
+  {
+    "action" : {
+      "script" : "echo ${repo:name} status:\n\ncode .",
+      "showOutput" : true,
+      "type" : "sh",
+      "waitForExit" : true
+    },
+    "name" : "Open With VSCode",
+    "target" : "repository"
+  },
+  {
+    "action" : {
+      "script" : "echo ${repo:name} status:\n\nScripts/Premake/premake5.exe --file=Build.lua vs2022",
+      "showOutput" : true,
+      "type" : "sh",
+      "waitForExit" : true
+    },
+    "name" : "Refresh Solution Settings",
+    "target" : "repository"
+  }
+]
+  ]]
+
+  local file = io.open(fork_dir .. "/custom-commands.json", "w")
+  file:write(json)
+  file:close()
+end

@@ -16,6 +16,7 @@ workspace "EasyMath"
     buildoptions { "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus","/utf-8" }
 	
 	add_rider_refreshconfig()
+	add_fork_custom_commands()
 
 group ""
 	include "EasyMath.lua"
