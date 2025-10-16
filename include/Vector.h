@@ -54,6 +54,15 @@ namespace EM
 			std::copy(InitializeList.begin(), InitializeList.end(), data.begin());
 		}
 
+		template<typename T2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>
+		Vector(const Vector<T2, dimension>& other):data({})
+		{
+			for (size_t i = 0; i < dimension; ++i)
+			{
+				data[i] = static_cast<T>(other[i]);
+			}
+		}
+
 		Vector(const Vector&) = default;
 
 		Vector(Vector&&) = default;
@@ -259,8 +268,6 @@ namespace EM
 		// 反射（需要基础单位法向量）
 		virtual Vector<T, dimension> reflect(const Vector<T, dimension>& normal) const
 		{
-			static_assert(dimension >= 2, "Reflection requires at least 2D vector");
-
 			T dot_product = dot(*this, normal.normalized());
 			return T{ 2 } *dot_product * normal - * this;
 		}
@@ -630,7 +637,6 @@ namespace EM
 						return false;
 					}
 				}
-				return true;
 			}
 			else 
 			{
@@ -642,8 +648,9 @@ namespace EM
 						return false;
 					}
 				}
-				return true;
 			}
+
+			return true;
 		}
 
 		friend bool operator!=(const Vector<T, dimension>& lhs, const Vector<T, dimension>& rhs)

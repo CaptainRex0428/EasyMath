@@ -36,6 +36,30 @@ namespace EM
 			std::copy(InitializeList.begin(), InitializeList.end(), data.begin());
 		}
 
+		Matrix(std::initializer_list<Vector<T,cols>> InitializeList)
+		{
+			assert(InitializeList.size() == rows && "Invalid initializer list size.");
+    
+			size_t row_idx = 0;
+			for (const auto& vec : InitializeList)
+			{
+				for (size_t col = 0; col < cols; ++col)
+				{
+					data[row_idx * cols + col] = vec[col];
+				}
+				row_idx++;
+			}
+		}
+
+		template<typename T2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>
+		Matrix(const Matrix<T2,rows,cols>& other):data({})
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] = static_cast<T>(other[i]);
+			}
+		}
+
 		virtual ~Matrix() = default;
 
 
@@ -91,21 +115,21 @@ namespace EM
 * 访问元素（行主序）
 */
 		
-		T& operator[](size_t idx)
+		virtual T& operator[](size_t idx)
 		{
 			assert(idx < rows * cols && idx >= 0 && "Element index out of bound exception.");
 
 			return data[idx];
 		}
 
-		const T& operator[](size_t idx) const
+		virtual const T& operator[](size_t idx) const
 		{
 			assert(idx < rows * cols && idx >= 0 && "Element index out of bound exception.");
 			
 			return data[idx];
 		}
 
-		T& operator()(size_t row, size_t col)
+		virtual T& operator()(size_t row, size_t col)
 		{
 			assert(row < rows && row >= 0 && "Element index out of bound exception.");
 			assert(col < cols && col >= 0 && "Element index out of bound exception.");
@@ -113,12 +137,39 @@ namespace EM
 			return data[row * cols + col];
 		}
 
-		const T& operator()(size_t row, size_t col) const
+		virtual const T& operator()(size_t row, size_t col) const
 		{
 			assert(row < rows && row >= 0 && "Element index out of bound exception.");
 			assert(col < cols && col >= 0 && "Element index out of bound exception.");
 
 			return data[row * cols + col];
+		}
+
+		virtual T* Data() noexcept { return data.data(); }
+		virtual const T* Data() const noexcept { return data.data(); }
+
+		virtual T* begin() noexcept { return data.data(); }
+		virtual const T* begin() const noexcept { return data.data(); }
+
+		virtual T* end() noexcept { return data.data() + Size(); }
+		virtual const T* end() const noexcept { return data.data() + Size(); }
+		
+		static constexpr size_t Size() noexcept { return rows*cols; }
+
+		virtual T& at(size_t idx)
+		{
+			if (idx >= rows*cols) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
+		}
+
+		virtual const T& at(size_t idx) const
+		{
+			if (idx >= rows*cols) {
+				throw std::out_of_range("Vector index out of range");
+			}
+			return data[idx];
 		}
 
 		// 获取矩阵维度
@@ -148,12 +199,25 @@ namespace EM
 			}
 			return submat;
 		}
+
+		// 计算矩阵转置
+		Matrix<T, cols, rows> transpose() const
+		{
+			Matrix<T, cols, rows> result{};
+
+			for (size_t i = 0; i < rows; ++i) {
+				for (size_t j = 0; j < cols; ++j) {
+					result(j, i) = (*this)(i, j);
+				}
+			}
+			return result;
+		}
+
 		
 		// 计算行列式
-		T determinant() const 
+		template<size_t R = rows, size_t C = cols>
+		typename std::enable_if_t<R == C, T> determinant() const 
 		{
-			static_assert(rows == cols, "Matrix must be square to compute determinant.");
-
 			if constexpr (rows == 1) {
 				// 1x1矩阵的行列式就是它的唯一元素
 				return data[0];
@@ -175,13 +239,12 @@ namespace EM
 			}
 		}
 
+		
 		// 计算指定位置的代数余子式
-		T cofactor(size_t row, size_t col) const
+		template<size_t R = rows, size_t C = cols>
+		typename std::enable_if_t<R == C && R >= 2, T> cofactor(size_t row, size_t col) const
 		{
-			static_assert(rows == cols, "Matrix must be square to compute cofactor.");
-			static_assert(rows > 1, "Matrix must be at least 2x2 to compute cofactor.");
-
-			// 代数余子式 = (-1)^(i+j) * M_ij
+			// 代数余子式 = (-1)^(i+j) * det(M_ij)
 			// 其中 M_ij 是去掉第i行第j列后的子矩阵的行列式
 			auto submat = submatrix(row, col);
 			T minor = submat.determinant();
@@ -193,7 +256,8 @@ namespace EM
 		}
 
 		// 计算代数余子式矩阵（伴随矩阵的转置）
-		Matrix<T, rows, cols> cofactorMatrix() const
+		template<size_t R = rows, size_t C = cols>
+		typename std::enable_if_t<R == C, Matrix<T, rows, cols>> cofactorMatrix() const
 		{
 			static_assert(rows == cols, "Matrix must be square to compute cofactor matrix.");
 
@@ -208,30 +272,19 @@ namespace EM
 			return result;
 		}
 
-		// 计算矩阵转置
-		Matrix<T, cols, rows> transpose() const
-		{
-			Matrix<T, cols, rows> result{};
-
-			for (size_t i = 0; i < rows; ++i) {
-				for (size_t j = 0; j < cols; ++j) {
-					result(j, i) = (*this)(i, j);
-				}
-			}
-			return result;
-		}
-
-		// 可选：计算伴随矩阵（代数余子式矩阵的转置）
-		Matrix<T, rows, cols> adjugate() const
+		// 计算伴随矩阵（代数余子式矩阵的转置）
+		template<size_t R = rows, size_t C = cols>
+		typename std::enable_if_t<R == C, Matrix<T, rows, cols>> adjugate() const
 		{
 			static_assert(rows == cols, "Matrix must be square to compute adjugate matrix.");
 
 			auto cofMat = cofactorMatrix();
 			return cofMat.transpose();
 		}
-
+		
 		// 计算逆矩阵（使用伴随矩阵方法）
-		Matrix<T, rows, cols> inverse() const
+		template<size_t R = rows, size_t C = cols>
+		typename std::enable_if_t<R == C, Matrix<T, rows, cols>> inverse() const
 		{
 			static_assert(rows == cols, "Matrix must be square to compute inverse.");
 
@@ -248,43 +301,72 @@ namespace EM
 *
 */
 		
-		Matrix<T, rows, cols>& operator+=(const Matrix<T, rows, cols>& other)
+		virtual Matrix<T, rows, cols>& operator+=(const Matrix<T, rows, cols>& matrix)
 		{
 			for (size_t i = 0; i < rows * cols; ++i)
 			{
-				data[i] += other.data[i];
-			}
-			return *this;
-		}
-		
-		Matrix<T, rows, cols>& operator-=(const Matrix<T, rows, cols>& other)
-		{
-			for (size_t i = 0; i < rows * cols; ++i)
-			{
-				data[i] -= other.data[i];
-			}
-			return *this;
-		}
-		
-		template<typename ScalarType,
-			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
-		Matrix<T, rows, cols>& operator*=(ScalarType scalar)
-		{
-			for (size_t i = 0; i < rows * cols; ++i)
-			{
-				data[i] *= static_cast<T>(scalar);
+				data[i] += matrix.data[i];
 			}
 			return *this;
 		}
 
+		virtual Matrix<T, rows, cols>& operator+=(const T& scalar)
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] += scalar;
+			}
+			return *this;
+		}
+		
+		virtual Matrix<T, rows, cols>& operator-=(const Matrix<T, rows, cols>& matrix)
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] -= matrix.data[i];
+			}
+			return *this;
+		}
+
+		virtual Matrix<T, rows, cols>& operator-=(const T& scalar)
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] -= scalar;
+			}
+			return *this;
+		}
+
+		virtual Matrix<T, rows, cols>& operator*=(const Matrix<T, cols, cols>& matrix)
+		{
+			*this = *this * matrix;
+			return *this;
+		}
+		
+		virtual Matrix<T, rows, cols>& operator*=(const T& scalar)
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] *= scalar;
+			}
+			return *this;
+		}
+
+		virtual Matrix<T, rows, cols>& operator/=(const T& scalar)
+		{
+			for (size_t i = 0; i < rows * cols; ++i)
+			{
+				data[i] /= scalar;
+			}
+			return *this;
+		}
 	private:
 		
-		template<typename ScalarType,
-			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
-		friend Matrix<T, rows, cols> operator*(const Matrix<T, rows, cols>& matrix, ScalarType scalar)
+
+		friend Matrix<T, rows, cols> operator*(const Matrix<T, rows, cols>& matrix, const T& scalar)
 		{
 			Matrix<T, rows, cols> result;
-
+			
 			for (size_t i = 0; i < rows * cols; ++i) {
 				result.data[i] = matrix.data[i] * static_cast<T>(scalar);
 			}
@@ -292,15 +374,13 @@ namespace EM
 			return result;
 		}
 
-		template<typename ScalarType,
-			typename = std::enable_if_t<std::is_arithmetic_v<ScalarType>>>
-		friend Matrix<T, rows, cols> operator*(ScalarType scalar, const Matrix<T, rows, cols>& matrix)
+		friend Matrix<T, rows, cols> operator*(const T& scalar, const Matrix<T, rows, cols>& matrix)
 		{
 			return matrix * scalar;
 		}
 
 		// 矩阵乘法运算符
-		template<typename T, size_t cols2>
+		template<size_t cols2>
 		friend Matrix<T, rows, cols2> operator*(const Matrix<T, rows, cols>& lhs, const Matrix<T, cols, cols2>& rhs)
 		{
 			Matrix<T, rows, cols2> result;
@@ -323,12 +403,10 @@ namespace EM
 
 		// 向量矩阵乘法运算
 		// 矩阵 × 向量（列向量）: Matrix<T, rows, cols> × Vector<T, cols> -> Vector<T, rows>
-		template<size_t dimension>
-		friend Vector<T, rows> operator*(const Matrix<T, rows, cols>& matrix, const Vector<T, dimension>& vec)
-		{
-			static_assert(cols == dimension, "Matrix columns must match vector dimension for multiplication");
 
-			Vector<T, rows> result;
+		friend Matrix<T, rows, 1> operator*(const Matrix<T, rows, cols>&  matrix, const Vector<T, cols>& vec)
+		{
+			Matrix<T, rows, 1> result;
 
 			for (size_t i = 0; i < rows; ++i)
 			{
@@ -344,12 +422,10 @@ namespace EM
 		}
 
 		// 向量（行向量）× 矩阵: Vector<T, rows> × Matrix<T, rows, cols> -> Vector<T, cols>
-		template<size_t dimension>
-		friend Vector<T, cols> operator*(const Vector<T, dimension>& vec, const Matrix<T, rows, cols>& matrix)
-		{
-			static_assert(dimension == rows, "Vector dimension must match matrix rows for multiplication");
 
-			Vector<T, cols> result;
+		friend Matrix<T, 1, cols> operator*(const Vector<T, cols>& vec, const Matrix<T, rows, cols>& matrix)
+		{
+			Matrix<T, 1, cols> result;
 
 			for (size_t j = 0; j < cols; ++j)
 			{
@@ -377,6 +453,18 @@ namespace EM
 			return result;
 		}
 
+		friend Matrix<T, rows, cols> operator+(const Matrix<T, rows, cols>& lhs, const T& scalar)
+		{
+			Matrix<T, rows, cols> result;
+
+			// 逐元素相加
+			for (size_t i = 0; i < rows * cols; ++i) {
+				result.data[i] = lhs.data[i] + scalar;
+			}
+
+			return result;
+		}
+
 		// 矩阵减法运算符
 		friend Matrix<T, rows, cols> operator-(const Matrix<T, rows, cols>& lhs, const Matrix<T, rows, cols>& rhs)
 		{
@@ -390,6 +478,19 @@ namespace EM
 			return result;
 		}
 
+		friend Matrix<T, rows, cols> operator-(const Matrix<T, rows, cols>& lhs, const T& scalar)
+		{
+			Matrix<T, rows, cols> result;
+
+			// 逐元素相加
+			for (size_t i = 0; i < rows * cols; ++i) {
+				result.data[i] = lhs.data[i] - scalar;
+			}
+
+			return result;
+		}
+
+
 		// 矩阵取负运算符（一元减号）
 		friend Matrix<T, rows, cols> operator-(const Matrix<T, rows, cols>& matrix)
 		{
@@ -402,6 +503,51 @@ namespace EM
 			}
 
 			return result;
+		}
+
+		template<typename T2, size_t rows2, size_t cols2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>
+		friend bool operator==(const Matrix<T,rows,cols>& matrixA, const Matrix<T2,rows2,cols2>& matrixB)
+		{
+			if (matrixA.Rows()!= matrixB.Rows() || matrixA.Cols() != matrixB.Cols())
+			{
+				return false;
+			}
+
+			if constexpr (std::is_floating_point_v<T>)
+			{
+				for (size_t i = 0; i < matrixA.Rows(); ++i)
+				{
+					for (size_t j = 0; j < matrixA.Cols(); ++j)
+					{
+						if (std::abs(matrixA(i, j) - matrixB(i, j)) > T{ NEARZERO_THRESHOLD })
+						{
+							return false;
+						}
+					}
+				}
+			}
+			else
+			{
+				for (size_t i = 0; i < matrixA.Rows(); ++i)
+				{
+					for (size_t j = 0; j < matrixA.Cols(); ++j)
+					{
+						if (matrixA(i, j) != matrixB(i, j))
+						{
+							return false;
+						}
+					}
+				}
+			}
+
+			return true;
+			
+		}
+		
+		template<typename T2, size_t rows2, size_t cols2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>
+		friend bool operator!=(const Matrix<T,rows,cols>& matrixA, const Matrix<T2,rows2,cols2>& matrixB)
+		{
+			return !(matrixA == matrixB);
 		}
 
 	private:
@@ -432,7 +578,7 @@ namespace EM
 	// 3D旋转矩阵
 	template<typename T, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXRotationX(T radians) {
+	Matrix<T, 4, 4> MTXRotationX(const T& radians) {
 		T cos = std::cos(radians);
 		T sin = std::sin(radians);
 		return {
@@ -445,7 +591,7 @@ namespace EM
 
 	template<typename T, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXRotationY(T radians) {
+	Matrix<T, 4, 4> MTXRotationY(const T& radians) {
 		T cos = std::cos(radians);
 		T sin = std::sin(radians);
 		return {
@@ -458,7 +604,7 @@ namespace EM
 
 	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXRotationZ(T radians) {
+	Matrix<T, 4, 4> MTXRotationZ(const T& radians) {
 		T cos = std::cos(radians);
 		T sin = std::sin(radians);
 		return {
@@ -472,7 +618,7 @@ namespace EM
 	// 3D平移矩阵
 	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXTranslation(T x, T y, T z, bool usedWithOrient = false)
+	Matrix<T, 4, 4> MTXTranslation(const T& x, const T& y, const T& z, bool usedWithOrient = false)
 	{
 		Matrix<T, 4, 4> mat = MTXIdentity<T, 4>();
 		mat(0, 3) = x;
@@ -490,7 +636,7 @@ namespace EM
 	// 3D缩放矩阵
 	template<typename T,
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	Matrix<T, 4, 4> MTXScale(T x, T y, T z)
+	Matrix<T, 4, 4> MTXScale(const T& x, const T& y, const T& z)
 	{
 		Matrix<T, 4, 4> mat = MTXIdentity<T, 4>();
 		mat(0, 0) = x;
