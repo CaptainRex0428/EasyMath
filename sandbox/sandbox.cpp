@@ -9,7 +9,8 @@ int main(int argc, char * argv[])
 {
 	EM::Vector<float, 3> vectorA{1,2,3};
 	EM::Vector<float, 4> vectorB{4,5,6,7};
-
-	std::cout << vectorA.xy << std::endl;
+	
+	vectorB.wxz = vectorA;
+	std::cout << vectorB  << std::endl;
 	return 0;
 }

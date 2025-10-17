@@ -18,17 +18,8 @@ namespace EM
 	template<typename T, typename>
 	class Quaternion;
 
-	template <typename T, size_t dimension, int idx>
-	struct Swizzle1D;
-
-	template <typename T, size_t dimension, int E0, int E1>
-	struct Swizzle2D;
-	
-	template <typename T, size_t dimension, int E0, int E1, int E2>
-	struct Swizzle3D;
-
-	template <typename T, size_t dimension, int E0, int E1, int E2, int E3>
-	struct Swizzle4D;
+	template <typename T, size_t dimension, int... Indices>
+	struct Swizzle;
 
 	template<typename T, size_t dimension, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	class Vector
@@ -662,135 +653,135 @@ namespace EM
 		union
 		{
 			std::array<T, dimension> data;
-			Swizzle1D<T, dimension, 0> x;
-			Swizzle1D<T, dimension, 1> y;
-			Swizzle1D<T, dimension, 2> z;
-			Swizzle1D<T, dimension, 3> w;
-			Swizzle2D<T, dimension, 0, 1> xy;
-			Swizzle2D<T, dimension, 1, 0> yx;
-			Swizzle2D<T, dimension, 0, 2> xz;
-			Swizzle2D<T, dimension, 2, 0> zx;
-			Swizzle2D<T, dimension, 0, 3> xw;
-			Swizzle2D<T, dimension, 3, 0> wx;
-			Swizzle2D<T, dimension, 1, 2> yz;
-			Swizzle2D<T, dimension, 2, 1> zy;
-			Swizzle2D<T, dimension, 1, 3> yw;
-			Swizzle2D<T, dimension, 3, 1> wy;
-			Swizzle2D<T, dimension, 2, 3> zw;
-			Swizzle2D<T, dimension, 3, 2> wz;
-			Swizzle3D<T, dimension, 0, 1, 2> xyz;
-			Swizzle3D<T, dimension, 0, 2, 1> xzy;
-			Swizzle3D<T, dimension, 1, 0, 2> yxz;
-			Swizzle3D<T, dimension, 1, 2, 0> yzx;
-			Swizzle3D<T, dimension, 2, 0, 1> zxy;
-			Swizzle3D<T, dimension, 2, 1, 0> zyx;
-			Swizzle3D<T, dimension, 0, 1, 3> xyw;
-			Swizzle3D<T, dimension, 0, 3, 1> xwy;
-			Swizzle3D<T, dimension, 1, 0, 3> yxw;
-			Swizzle3D<T, dimension, 1, 3, 0> ywx;
-			Swizzle3D<T, dimension, 3, 0, 1> wxy;
-			Swizzle3D<T, dimension, 3, 1, 0> wyx;
-			Swizzle3D<T, dimension, 1, 2, 3> yzw;
-			Swizzle3D<T, dimension, 1, 3, 2> ywz;
-			Swizzle3D<T, dimension, 2, 1, 3> zyw;
-			Swizzle3D<T, dimension, 2, 3, 1> zwy;
-			Swizzle3D<T, dimension, 3, 1, 2> wyz;
-			Swizzle3D<T, dimension, 3, 2, 1> wzy;
-			Swizzle3D<T, dimension, 0, 2, 3> xzw;
-			Swizzle3D<T, dimension, 0, 3, 2> xwz;
-			Swizzle3D<T, dimension, 2, 0, 3> zxw;
-			Swizzle3D<T, dimension, 2, 3, 0> zwx;
-			Swizzle3D<T, dimension, 3, 0, 2> wxz;
-			Swizzle3D<T, dimension, 3, 2, 0> wzx;
-			Swizzle4D<T, dimension, 0, 1, 2, 3> xyzw;
-			Swizzle4D<T, dimension, 0, 1, 3, 2> xywz;
-			Swizzle4D<T, dimension, 0, 2, 1, 3> xzyw;
-			Swizzle4D<T, dimension, 0, 2, 3, 1> xzwy;
-			Swizzle4D<T, dimension, 0, 3, 1, 2> xwyz;
-			Swizzle4D<T, dimension, 0, 3, 2, 1> xwzy;
-			Swizzle4D<T, dimension, 1, 0, 2, 3> yxzw;
-			Swizzle4D<T, dimension, 1, 0, 3, 2> yxwz;
-			Swizzle4D<T, dimension, 1, 2, 0, 3> yzxw;
-			Swizzle4D<T, dimension, 1, 2, 3, 0> yzwx;
-			Swizzle4D<T, dimension, 1, 3, 0, 2> ywxz;
-			Swizzle4D<T, dimension, 1, 3, 2, 0> ywzx;
-			Swizzle4D<T, dimension, 2, 0, 1, 3> zxyw;
-			Swizzle4D<T, dimension, 2, 0, 3, 1> zxwy;
-			Swizzle4D<T, dimension, 2, 1, 0, 3> zyxw;
-			Swizzle4D<T, dimension, 2, 1, 3, 0> zywx;
-			Swizzle4D<T, dimension, 2, 3, 0, 1> zwxy;
-			Swizzle4D<T, dimension, 2, 3, 1, 0> zwyx;
-			Swizzle4D<T, dimension, 3, 0, 1, 2> wxyz;
-			Swizzle4D<T, dimension, 3, 0, 2, 1> wxzy;
-			Swizzle4D<T, dimension, 3, 1, 0, 2> wyxz;
-			Swizzle4D<T, dimension, 3, 1, 2, 0> wyzx;
-			Swizzle4D<T, dimension, 3, 2, 0, 1> wzxy;
-			Swizzle4D<T, dimension, 3, 2, 1, 0> wzyx;
+			Swizzle<T, dimension, 0> x;
+			Swizzle<T, dimension, 1> y;
+			Swizzle<T, dimension, 2> z;
+			Swizzle<T, dimension, 3> w;
+			Swizzle<T, dimension, 0, 1> xy;
+			Swizzle<T, dimension, 1, 0> yx;
+			Swizzle<T, dimension, 0, 2> xz;
+			Swizzle<T, dimension, 2, 0> zx;
+			Swizzle<T, dimension, 0, 3> xw;
+			Swizzle<T, dimension, 3, 0> wx;
+			Swizzle<T, dimension, 1, 2> yz;
+			Swizzle<T, dimension, 2, 1> zy;
+			Swizzle<T, dimension, 1, 3> yw;
+			Swizzle<T, dimension, 3, 1> wy;
+			Swizzle<T, dimension, 2, 3> zw;
+			Swizzle<T, dimension, 3, 2> wz;
+			Swizzle<T, dimension, 0, 1, 2> xyz;
+			Swizzle<T, dimension, 0, 2, 1> xzy;
+			Swizzle<T, dimension, 1, 0, 2> yxz;
+			Swizzle<T, dimension, 1, 2, 0> yzx;
+			Swizzle<T, dimension, 2, 0, 1> zxy;
+			Swizzle<T, dimension, 2, 1, 0> zyx;
+			Swizzle<T, dimension, 0, 1, 3> xyw;
+			Swizzle<T, dimension, 0, 3, 1> xwy;
+			Swizzle<T, dimension, 1, 0, 3> yxw;
+			Swizzle<T, dimension, 1, 3, 0> ywx;
+			Swizzle<T, dimension, 3, 0, 1> wxy;
+			Swizzle<T, dimension, 3, 1, 0> wyx;
+			Swizzle<T, dimension, 1, 2, 3> yzw;
+			Swizzle<T, dimension, 1, 3, 2> ywz;
+			Swizzle<T, dimension, 2, 1, 3> zyw;
+			Swizzle<T, dimension, 2, 3, 1> zwy;
+			Swizzle<T, dimension, 3, 1, 2> wyz;
+			Swizzle<T, dimension, 3, 2, 1> wzy;
+			Swizzle<T, dimension, 0, 2, 3> xzw;
+			Swizzle<T, dimension, 0, 3, 2> xwz;
+			Swizzle<T, dimension, 2, 0, 3> zxw;
+			Swizzle<T, dimension, 2, 3, 0> zwx;
+			Swizzle<T, dimension, 3, 0, 2> wxz;
+			Swizzle<T, dimension, 3, 2, 0> wzx;
+			Swizzle<T, dimension, 0, 1, 2, 3> xyzw;
+			Swizzle<T, dimension, 0, 1, 3, 2> xywz;
+			Swizzle<T, dimension, 0, 2, 1, 3> xzyw;
+			Swizzle<T, dimension, 0, 2, 3, 1> xzwy;
+			Swizzle<T, dimension, 0, 3, 1, 2> xwyz;
+			Swizzle<T, dimension, 0, 3, 2, 1> xwzy;
+			Swizzle<T, dimension, 1, 0, 2, 3> yxzw;
+			Swizzle<T, dimension, 1, 0, 3, 2> yxwz;
+			Swizzle<T, dimension, 1, 2, 0, 3> yzxw;
+			Swizzle<T, dimension, 1, 2, 3, 0> yzwx;
+			Swizzle<T, dimension, 1, 3, 0, 2> ywxz;
+			Swizzle<T, dimension, 1, 3, 2, 0> ywzx;
+			Swizzle<T, dimension, 2, 0, 1, 3> zxyw;
+			Swizzle<T, dimension, 2, 0, 3, 1> zxwy;
+			Swizzle<T, dimension, 2, 1, 0, 3> zyxw;
+			Swizzle<T, dimension, 2, 1, 3, 0> zywx;
+			Swizzle<T, dimension, 2, 3, 0, 1> zwxy;
+			Swizzle<T, dimension, 2, 3, 1, 0> zwyx;
+			Swizzle<T, dimension, 3, 0, 1, 2> wxyz;
+			Swizzle<T, dimension, 3, 0, 2, 1> wxzy;
+			Swizzle<T, dimension, 3, 1, 0, 2> wyxz;
+			Swizzle<T, dimension, 3, 1, 2, 0> wyzx;
+			Swizzle<T, dimension, 3, 2, 0, 1> wzxy;
+			Swizzle<T, dimension, 3, 2, 1, 0> wzyx;
 
-			Swizzle1D<T, dimension, 0> r;
-			Swizzle1D<T, dimension, 1> g;
-			Swizzle1D<T, dimension, 2> b;
-			Swizzle1D<T, dimension, 3> a;
-			Swizzle2D<T, dimension, 0, 1> rg;
-			Swizzle2D<T, dimension, 1, 0> gr;
-			Swizzle2D<T, dimension, 0, 2> rb;
-			Swizzle2D<T, dimension, 2, 0> br;
-			Swizzle2D<T, dimension, 0, 3> ra;
-			Swizzle2D<T, dimension, 3, 0> ar;
-			Swizzle2D<T, dimension, 1, 2> gb;
-			Swizzle2D<T, dimension, 2, 1> bg;
-			Swizzle2D<T, dimension, 1, 3> ga;
-			Swizzle2D<T, dimension, 3, 1> ag;
-			Swizzle2D<T, dimension, 2, 3> ba;
-			Swizzle2D<T, dimension, 3, 2> ab;
-			Swizzle3D<T, dimension, 0, 1, 2> rgb;
-			Swizzle3D<T, dimension, 0, 2, 1> rbg;
-			Swizzle3D<T, dimension, 1, 0, 2> grb;
-			Swizzle3D<T, dimension, 1, 2, 0> gbr;
-			Swizzle3D<T, dimension, 2, 0, 1> brg;
-			Swizzle3D<T, dimension, 2, 1, 0> bgr;
-			Swizzle3D<T, dimension, 0, 1, 3> rga;
-			Swizzle3D<T, dimension, 0, 3, 1> rag;
-			Swizzle3D<T, dimension, 1, 0, 3> gra;
-			Swizzle3D<T, dimension, 1, 3, 0> gar;
-			Swizzle3D<T, dimension, 3, 0, 1> arg;
-			Swizzle3D<T, dimension, 3, 1, 0> agr;
-			Swizzle3D<T, dimension, 1, 2, 3> gba;
-			Swizzle3D<T, dimension, 1, 3, 2> gab;
-			Swizzle3D<T, dimension, 2, 1, 3> bga;
-			Swizzle3D<T, dimension, 2, 3, 1> bag;
-			Swizzle3D<T, dimension, 3, 1, 2> agb;
-			Swizzle3D<T, dimension, 3, 2, 1> abg;
-			Swizzle3D<T, dimension, 0, 2, 3> rba;
-			Swizzle3D<T, dimension, 0, 3, 2> rab;
-			Swizzle3D<T, dimension, 2, 0, 3> bra;
-			Swizzle3D<T, dimension, 2, 3, 0> bar;
-			Swizzle3D<T, dimension, 3, 0, 2> arb;
-			Swizzle3D<T, dimension, 3, 2, 0> abr;
-			Swizzle4D<T, dimension, 0, 1, 2, 3> rgba;
-			Swizzle4D<T, dimension, 0, 1, 3, 2> rgab;
-			Swizzle4D<T, dimension, 0, 2, 1, 3> rbga;
-			Swizzle4D<T, dimension, 0, 2, 3, 1> rbag;
-			Swizzle4D<T, dimension, 0, 3, 1, 2> ragb;
-			Swizzle4D<T, dimension, 0, 3, 2, 1> rabg;
-			Swizzle4D<T, dimension, 1, 0, 2, 3> grba;
-			Swizzle4D<T, dimension, 1, 0, 3, 2> grab;
-			Swizzle4D<T, dimension, 1, 2, 0, 3> gbra;
-			Swizzle4D<T, dimension, 1, 2, 3, 0> gbar;
-			Swizzle4D<T, dimension, 1, 3, 0, 2> garb;
-			Swizzle4D<T, dimension, 1, 3, 2, 0> gabr;
-			Swizzle4D<T, dimension, 2, 0, 1, 3> brga;
-			Swizzle4D<T, dimension, 2, 0, 3, 1> brag;
-			Swizzle4D<T, dimension, 2, 1, 0, 3> bgra;
-			Swizzle4D<T, dimension, 2, 1, 3, 0> bgar;
-			Swizzle4D<T, dimension, 2, 3, 0, 1> barg;
-			Swizzle4D<T, dimension, 2, 3, 1, 0> bagr;
-			Swizzle4D<T, dimension, 3, 0, 1, 2> argb;
-			Swizzle4D<T, dimension, 3, 0, 2, 1> arbg;
-			Swizzle4D<T, dimension, 3, 1, 0, 2> agrb;
-			Swizzle4D<T, dimension, 3, 1, 2, 0> agbr;
-			Swizzle4D<T, dimension, 3, 2, 0, 1> abrg;
-			Swizzle4D<T, dimension, 3, 2, 1, 0> abgr;
+			Swizzle<T, dimension, 0> r;
+			Swizzle<T, dimension, 1> g;
+			Swizzle<T, dimension, 2> b;
+			Swizzle<T, dimension, 3> a;
+			Swizzle<T, dimension, 0, 1> rg;
+			Swizzle<T, dimension, 1, 0> gr;
+			Swizzle<T, dimension, 0, 2> rb;
+			Swizzle<T, dimension, 2, 0> br;
+			Swizzle<T, dimension, 0, 3> ra;
+			Swizzle<T, dimension, 3, 0> ar;
+			Swizzle<T, dimension, 1, 2> gb;
+			Swizzle<T, dimension, 2, 1> bg;
+			Swizzle<T, dimension, 1, 3> ga;
+			Swizzle<T, dimension, 3, 1> ag;
+			Swizzle<T, dimension, 2, 3> ba;
+			Swizzle<T, dimension, 3, 2> ab;
+			Swizzle<T, dimension, 0, 1, 2> rgb;
+			Swizzle<T, dimension, 0, 2, 1> rbg;
+			Swizzle<T, dimension, 1, 0, 2> grb;
+			Swizzle<T, dimension, 1, 2, 0> gbr;
+			Swizzle<T, dimension, 2, 0, 1> brg;
+			Swizzle<T, dimension, 2, 1, 0> bgr;
+			Swizzle<T, dimension, 0, 1, 3> rga;
+			Swizzle<T, dimension, 0, 3, 1> rag;
+			Swizzle<T, dimension, 1, 0, 3> gra;
+			Swizzle<T, dimension, 1, 3, 0> gar;
+			Swizzle<T, dimension, 3, 0, 1> arg;
+			Swizzle<T, dimension, 3, 1, 0> agr;
+			Swizzle<T, dimension, 1, 2, 3> gba;
+			Swizzle<T, dimension, 1, 3, 2> gab;
+			Swizzle<T, dimension, 2, 1, 3> bga;
+			Swizzle<T, dimension, 2, 3, 1> bag;
+			Swizzle<T, dimension, 3, 1, 2> agb;
+			Swizzle<T, dimension, 3, 2, 1> abg;
+			Swizzle<T, dimension, 0, 2, 3> rba;
+			Swizzle<T, dimension, 0, 3, 2> rab;
+			Swizzle<T, dimension, 2, 0, 3> bra;
+			Swizzle<T, dimension, 2, 3, 0> bar;
+			Swizzle<T, dimension, 3, 0, 2> arb;
+			Swizzle<T, dimension, 3, 2, 0> abr;
+			Swizzle<T, dimension, 0, 1, 2, 3> rgba;
+			Swizzle<T, dimension, 0, 1, 3, 2> rgab;
+			Swizzle<T, dimension, 0, 2, 1, 3> rbga;
+			Swizzle<T, dimension, 0, 2, 3, 1> rbag;
+			Swizzle<T, dimension, 0, 3, 1, 2> ragb;
+			Swizzle<T, dimension, 0, 3, 2, 1> rabg;
+			Swizzle<T, dimension, 1, 0, 2, 3> grba;
+			Swizzle<T, dimension, 1, 0, 3, 2> grab;
+			Swizzle<T, dimension, 1, 2, 0, 3> gbra;
+			Swizzle<T, dimension, 1, 2, 3, 0> gbar;
+			Swizzle<T, dimension, 1, 3, 0, 2> garb;
+			Swizzle<T, dimension, 1, 3, 2, 0> gabr;
+			Swizzle<T, dimension, 2, 0, 1, 3> brga;
+			Swizzle<T, dimension, 2, 0, 3, 1> brag;
+			Swizzle<T, dimension, 2, 1, 0, 3> bgra;
+			Swizzle<T, dimension, 2, 1, 3, 0> bgar;
+			Swizzle<T, dimension, 2, 3, 0, 1> barg;
+			Swizzle<T, dimension, 2, 3, 1, 0> bagr;
+			Swizzle<T, dimension, 3, 0, 1, 2> argb;
+			Swizzle<T, dimension, 3, 0, 2, 1> arbg;
+			Swizzle<T, dimension, 3, 1, 0, 2> agrb;
+			Swizzle<T, dimension, 3, 1, 2, 0> agbr;
+			Swizzle<T, dimension, 3, 2, 0, 1> abrg;
+			Swizzle<T, dimension, 3, 2, 1, 0> abgr;
 		};
 		
 	};
@@ -895,177 +886,122 @@ namespace EM
 
 	
 /*
- * 这一部分内容为Swizzle的定义部分
+ * Swizzle
  * 
  */
 	
-	template <typename T, size_t dimension, int idx>
-	struct Swizzle1D
+	template <typename T, size_t dimension, int... Indices>
+	struct Swizzle
 	{
-		Swizzle1D& operator=(const T& e)
-		{
-			static_assert(idx < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			elem(idx) = e;
-			return *this;
-		}
-
-		operator T() const
-		{
-			static_assert(idx < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			return T(elem(idx));
-		}
-		
-		friend std::ostream& operator<<(std::ostream& out, const Swizzle1D& sw)
-		{
-			return out << T(sw); 
-		}
-		
+	    // 编译期计算 swizzle 的维度
+	    static constexpr size_t swizzle_dim = sizeof...(Indices);
+	    
+	    // 编译期检查所有索引是否在范围内
+	    static constexpr bool check_indices()
+	    {
+	        return ((Indices < static_cast<int>(dimension)) && ...);
+	    }
+	    
 	protected:
-		T elem(int i) const
-		{
-			// 注意，它存在于Union之中，尽管自身仅占1个字节，
-			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
-			return reinterpret_cast<const T*>(this)[i];
-		}
-
-		T& elem(int i)
-		{
-			return reinterpret_cast<T*>(this)[i];
-		}
+	    // 访问底层数据的辅助函数
+	    // 注意：这些函数不能是 static 的，因为需要通过 this 指针访问 union 中的数据
+	    T elem(int i) const
+	    {
+	        // 通过 reinterpret_cast 将 this 指针转换为 T* 来访问 union 中的 data 数组
+	        return reinterpret_cast<const T*>(this)[i];
+	    }
+	    
+	    T& elem(int i)
+	    {
+	        return reinterpret_cast<T*>(this)[i];
+	    }
+	    
+	    // 辅助：使用索引序列创建 Vector
+	    template<size_t... Is>
+	    Vector<T, swizzle_dim> make_vector_impl(std::index_sequence<Is...>) const
+	    {
+	        // 将 Indices... 展开为数组，然后用索引序列访问
+	        constexpr int idx_array[] = {Indices...};
+	        return Vector<T, swizzle_dim>{elem(idx_array[Is])...};
+	    }
+	    
+	    // 辅助：使用索引序列赋值
+	    template<size_t... Is>
+	    void assign_vector_impl(const Vector<T, swizzle_dim>& vec, std::index_sequence<Is...>)
+	    {
+	        constexpr int idx_array[] = {Indices...};
+	        ((elem(idx_array[Is]) = vec[Is]), ...);
+	    }
+	    
+	public:
+	    // ==================== 1D Swizzle 特化功能 ====================
+	    
+	    // 1D: 支持赋值单个标量
+	    template<size_t D = swizzle_dim>
+	    std::enable_if_t<D == 1, Swizzle&> operator=(const T& value)
+	    {
+	        static_assert(check_indices(), 
+	            "Swizzle index out of bounds! "
+	            "You're trying to access a component that doesn't exist in this vector.");
+	        
+	        constexpr int idx_array[] = {Indices...};
+	        elem(idx_array[0]) = value;
+	        return *this;
+	    }
+	    
+	    // 1D: 隐式转换为 T
+	    template<size_t D = swizzle_dim>
+	    operator std::enable_if_t<D == 1, T>() const
+	    {
+	        static_assert(check_indices(), 
+	            "Swizzle index out of bounds! "
+	            "You're trying to access a component that doesn't exist in this vector.");
+	        
+	        constexpr int idx_array[] = {Indices...};
+	        return elem(idx_array[0]);
+	    }
+	    
+	    // ==================== 通用功能（所有维度）====================
+	    
+	    // 赋值操作符：从 Vector 赋值
+	    Swizzle& operator=(const Vector<T, swizzle_dim>& vec)
+	    {
+	        static_assert(check_indices(),
+	            "Swizzle index out of bounds! "
+	            "You're trying to access a component that doesn't exist in this vector.");
+	        
+	        assign_vector_impl(vec, std::make_index_sequence<swizzle_dim>{});
+	        return *this;
+	    }
+	    
+	    // 转换为 Vector
+	    operator Vector<T, swizzle_dim>() const
+	    {
+	        static_assert(check_indices(), 
+	            "Swizzle index out of bounds! "
+	            "You're trying to access a component that doesn't exist in this vector.");
+	        
+	        return make_vector_impl(std::make_index_sequence<swizzle_dim>{});
+	    }
+	    
+	    // 输出操作符
+	    friend std::ostream& operator<<(std::ostream& out, const Swizzle& sw)
+	    {
+	        static_assert(check_indices(), 
+	            "Swizzle index out of bounds! "
+	            "You're trying to access a component that doesn't exist in this vector.");
+	        
+	        if constexpr (swizzle_dim == 1)
+	        {
+	            return out << T(sw);
+	        }
+	        else
+	        {
+	            return out << Vector<T, swizzle_dim>(sw);
+	        }
+	    }
 	};
 
-	template <typename T, size_t dimension, int E0, int E1>
-	struct Swizzle2D
-	{
-		Swizzle2D& operator=(const Vector<T,2>& vec)
-		{
-			static_assert(E0 < dimension && E1 < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			elem(E0) = vec.x;
-			elem(E1) = vec.y;
-			return *this;
-		}
-
-		operator Vector<T,2>() const
-		{
-			static_assert(E0 < dimension && E1 < dimension,  
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			return Vector<T,2>{elem(E0),elem(E1)};
-		}
-
-		friend std::ostream& operator<<(std::ostream& out, const Swizzle2D& sw)
-		{
-			return out << Vector<T,2>(sw);
-		}
-
-	protected:
-		T elem(int i) const
-		{
-			// 注意，它存在于Union之中，尽管自身仅占1个字节，
-			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
-			return reinterpret_cast<const T*>(this)[i];
-		}
-
-		T& elem(int i)
-		{
-			return reinterpret_cast<T*>(this)[i];
-		}
-	};
-
-	template <typename T, size_t dimension, int E0, int E1, int E2>
-	struct Swizzle3D
-	{
-		template<bool Enable = (E0 < dimension && E1 < dimension && E2 < dimension)>
-		[[deprecated("Swizzle component access out of bounds! Check this line.")]]
-		typename std::enable_if_t<!Enable, Swizzle3D&>
-		operator=(const Vector<T,3>& vec)
-		{
-			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			elem(E0) = vec.x;
-			elem(E1) = vec.y;
-			elem(E2) = vec.z;
-			return *this;
-		}
-		
-		operator Vector<T,3>() const
-		{
-			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			return Vector<T,3>{elem(E0),elem(E1), elem(E2)};
-		}
-		
-		friend std::ostream& operator<<(std::ostream& out, const Swizzle3D& sw)
-		{
-			static_assert(E0 < dimension && E1 < dimension && E2 < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			return out << Vector<T,3>(sw);
-		}
-
-	protected:
-		T elem(int i) const
-		{
-			// 注意，它存在于Union之中，尽管自身仅占1个字节，
-			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
-			return reinterpret_cast<const T*>(this)[i];
-		}
-
-		T& elem(int i)
-		{
-			return reinterpret_cast<T*>(this)[i];
-		}
-	};
-
-	template <typename T, size_t dimension, int E0, int E1, int E2, int E3>
-	struct Swizzle4D
-	{
-		Swizzle4D& operator=(const Vector<T,4>& vec)
-		{
-			static_assert(E0 < dimension && E1 < dimension && E2 < dimension && E3 < dimension,
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			elem(E0) = vec.x;
-			elem(E1) = vec.y;
-			elem(E2) = vec.z;
-			elem(E3) = vec.w;
-			return *this;
-		}
-
-		operator Vector<T,4>() const
-		{
-			static_assert(E0 < dimension && E1 < dimension && E2 < dimension && E3 < dimension, 
-			"Swizzle index out of bounds! "
-			"You're trying to access a component that doesn't exist in this vector.");
-			return Vector<T,4>{elem(E0),elem(E1), elem(E2), elem(E3)};
-		}
-
-		friend std::ostream& operator<<(std::ostream& out, const Swizzle4D& sw)
-		{
-			return out << Vector<T,4>(sw);
-		}
-
-	protected:
-		T elem(int i) const
-		{
-			// 注意，它存在于Union之中，尽管自身仅占1个字节，
-			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
-			return reinterpret_cast<const T*>(this)[i];
-		}
-
-		T& elem(int i)
-		{
-			return reinterpret_cast<T*>(this)[i];
-		}
-	};
 
 
 /*
