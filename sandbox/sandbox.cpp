@@ -29,6 +29,12 @@ int main(int argc, char * argv[])
 	std::cout << vectorB.w << std::endl;
 	std::cout << vectorB.y * vectorB << std::endl;
 	std::cout << vectorB / vectorB.w << std::endl;
+
+	std::cout << vectorB.xyw * vectorA << std::endl;
+	std::cout << vectorB.xyw / vectorA << std::endl;
+
+	std::cout << vectorA * vectorB.xyw  << std::endl;
+	std::cout << vectorA / vectorB.xyw << std::endl;
 	
 	return 0;
 }
