@@ -34,6 +34,4 @@ namespace EM
 			return first < min_rest ? first : min_rest;
 		}
 	}
-
-
 }

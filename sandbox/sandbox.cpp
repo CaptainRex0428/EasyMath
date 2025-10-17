@@ -7,18 +7,9 @@
 
 int main(int argc, char * argv[])
 {
-	EM::Matrix<double,4,3> matrixA {1,2,3,4,5,6,7,8,9,10,11,12};
-	EM::Matrix<double,4,4> matrixB {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-	
-	matrixA.submatrix(0,1);
-	matrixA.transpose();
+	EM::Vector<float, 3> vectorA{1,2,3};
+	EM::Vector<float, 4> vectorB{4,5,6,7};
 
-	matrixB.submatrix(1,2);
-	matrixB.transpose();
-	matrixB.determinant();
-	matrixB.cofactorMatrix();
-	matrixB.adjugate();
-	matrixB.inverse();
-	
+	std::cout << vectorA.xy << std::endl;
 	return 0;
 }

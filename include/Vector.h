@@ -925,14 +925,14 @@ namespace EM
 		}
 		
 	protected:
-		float elem(int i) const
+		T elem(int i) const
 		{
 			// 注意，它存在于Union之中，尽管自身仅占1个字节，
 			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
 			return reinterpret_cast<const T*>(this)[i];
 		}
 
-		float& elem(int i)
+		T& elem(int i)
 		{
 			return reinterpret_cast<T*>(this)[i];
 		}
@@ -965,14 +965,14 @@ namespace EM
 		}
 
 	protected:
-		float elem(int i) const
+		T elem(int i) const
 		{
 			// 注意，它存在于Union之中，尽管自身仅占1个字节，
 			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
 			return reinterpret_cast<const T*>(this)[i];
 		}
 
-		float& elem(int i)
+		T& elem(int i)
 		{
 			return reinterpret_cast<T*>(this)[i];
 		}
@@ -1012,14 +1012,14 @@ namespace EM
 		}
 
 	protected:
-		float elem(int i) const
+		T elem(int i) const
 		{
 			// 注意，它存在于Union之中，尽管自身仅占1个字节，
 			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
 			return reinterpret_cast<const T*>(this)[i];
 		}
 
-		float& elem(int i)
+		T& elem(int i)
 		{
 			return reinterpret_cast<T*>(this)[i];
 		}
@@ -1054,14 +1054,14 @@ namespace EM
 		}
 
 	protected:
-		float elem(int i) const
+		T elem(int i) const
 		{
 			// 注意，它存在于Union之中，尽管自身仅占1个字节，
 			// 但是可以转化为[x,y,z,w]的内存布局的float[4]
 			return reinterpret_cast<const T*>(this)[i];
 		}
 
-		float& elem(int i)
+		T& elem(int i)
 		{
 			return reinterpret_cast<T*>(this)[i];
 		}
