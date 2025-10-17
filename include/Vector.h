@@ -2,6 +2,7 @@
 
 #include "EasyMathAPI.h"
 #include "Common.h"
+#include "Version.h"
 
 #include <cmath>
 #include <iostream>
@@ -899,38 +900,7 @@ namespace EM
 	    // 编译期检查所有索引是否在范围内
 	    static constexpr bool check_indices()
 	    {
-	        return ((Indices < static_cast<int>(dimension)) && ...);
-	    }
-	    
-	protected:
-	    // 访问底层数据的辅助函数
-	    // 注意：这些函数不能是 static 的，因为需要通过 this 指针访问 union 中的数据
-	    T elem(int i) const
-	    {
-	        // 通过 reinterpret_cast 将 this 指针转换为 T* 来访问 union 中的 data 数组
-	        return reinterpret_cast<const T*>(this)[i];
-	    }
-	    
-	    T& elem(int i)
-	    {
-	        return reinterpret_cast<T*>(this)[i];
-	    }
-	    
-	    // 辅助：使用索引序列创建 Vector
-	    template<size_t... Is>
-	    Vector<T, swizzle_dim> make_vector_impl(std::index_sequence<Is...>) const
-	    {
-	        // 将 Indices... 展开为数组，然后用索引序列访问
-	        constexpr int idx_array[] = {Indices...};
-	        return Vector<T, swizzle_dim>{elem(idx_array[Is])...};
-	    }
-	    
-	    // 辅助：使用索引序列赋值
-	    template<size_t... Is>
-	    void assign_vector_impl(const Vector<T, swizzle_dim>& vec, std::index_sequence<Is...>)
-	    {
-	        constexpr int idx_array[] = {Indices...};
-	        ((elem(idx_array[Is]) = vec[Is]), ...);
+	    	return ((Indices < static_cast<int>(dimension)) && ...);
 	    }
 	    
 	public:
@@ -964,7 +934,8 @@ namespace EM
 	    // ==================== 通用功能（所有维度）====================
 	    
 	    // 赋值操作符：从 Vector 赋值
-	    Swizzle& operator=(const Vector<T, swizzle_dim>& vec)
+		template<size_t D = swizzle_dim>
+		std::enable_if_t<D >= 2, Swizzle&> operator=(const Vector<T, swizzle_dim>& vec)
 	    {
 	        static_assert(check_indices(),
 	            "Swizzle index out of bounds! "
@@ -975,7 +946,8 @@ namespace EM
 	    }
 	    
 	    // 转换为 Vector
-	    operator Vector<T, swizzle_dim>() const
+		template<size_t D = swizzle_dim>
+		operator std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> () const
 	    {
 	        static_assert(check_indices(), 
 	            "Swizzle index out of bounds! "
@@ -1000,6 +972,205 @@ namespace EM
 	            return out << Vector<T, swizzle_dim>(sw);
 	        }
 	    }
+
+		// ==================== 算术运算符重载 ====================
+		
+		// ---------------- 1D Swizzle 与不同维度 Swizzle 运算（广播） ----------------
+		
+		// ---------------- Swizzle 与 Swizzle 运算（相同维度） ----------------
+		
+
+		// ---------------- 1D Swizzle 与 Vector 运算 ----------------
+		template<size_t D = swizzle_dim, size_t VDimension>
+		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator+(const Vector<T,VDimension> vec)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return vec + T(*this);
+	    }
+
+		template<size_t D = swizzle_dim, size_t VDimension>
+		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator*(const Vector<T,VDimension> vec)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return vec * T(*this);
+	    }
+
+		// ---------------- Swizzle 与 Vector 运算 ----------------
+		
+
+		// ---------------- 1D Swizzle 与 Scalar 运算 ----------------
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D == 1, T> operator+(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return T(*this) + scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D == 1, T> operator-(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return T(*this) - scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D == 1, T> operator*(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return T(*this) * scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D == 1, T> operator/(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return T(*this) / scalar;
+	    }
+		
+		// ---------------- Swizzle 与 Scalar 运算 ----------------
+		
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator+(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	return lhs + scalar;
+	    }
+		
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator-(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	return lhs - scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator*(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	return lhs * scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator/(const T& scalar) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	return lhs / scalar;
+	    }
+
+		// ---------------- 友元函数：支持反向运算 ----------------
+		
+		// Vector & Swizzle
+		
+		// Vector & 1D Swizzle（广播）
+		template<size_t D = swizzle_dim, size_t VDimension>
+		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator+(const Vector<T,VDimension>& vec, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw + vec;
+	    }
+
+		template<size_t D = swizzle_dim, size_t VDimension>
+		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator-(const Vector<T,VDimension>& vec, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return vec - T(sw);
+	    }
+
+		template<size_t D = swizzle_dim, size_t VDimension>
+		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator*(const Vector<T,VDimension>& vec, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw * vec;
+	    }
+
+		template<size_t D = swizzle_dim, size_t VDimension>
+		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator/(const Vector<T,VDimension>& vec, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return vec / T(sw);
+	    }
+		
+		// Scalar & Swizzle
+
+		template<size_t D = swizzle_dim>
+		friend  typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator+(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw + scalar;
+	    }
+		
+		template<size_t D = swizzle_dim>
+		friend  typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>>  operator*(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw * scalar;
+	    }
+		
+		// Scalar & 1D Swizzle
+		
+		template<size_t D = swizzle_dim>
+		friend typename std::enable_if_t<D == 1, T> operator+(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw + scalar;
+	    }
+		
+		template<size_t D = swizzle_dim>
+		friend typename std::enable_if_t<D == 1, T> operator-(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return scalar - T(sw) ;
+	    }
+
+		template<size_t D = swizzle_dim>
+		friend typename std::enable_if_t<D == 1, T>  operator*(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return sw * scalar;
+	    }
+
+		template<size_t D = swizzle_dim>
+		friend typename std::enable_if_t<D == 1, T> operator/(const T& scalar, const Swizzle& sw)
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	return scalar/T(sw);
+	    }
+		
+
+	protected:
+		// 访问底层数据的辅助函数
+		// 注意：这些函数不能是 static 的，因为需要通过 this 指针访问 union 中的数据
+		T elem(int i) const
+		{
+			// 通过 reinterpret_cast 将 this 指针转换为 T* 来访问 union 中的 data 数组
+			return reinterpret_cast<const T*>(this)[i];
+		}
+	    
+		T& elem(int i)
+		{
+			return reinterpret_cast<T*>(this)[i];
+		}
+	    
+		// 辅助：使用索引序列创建 Vector
+		template<size_t... Is>
+		Vector<T, swizzle_dim> make_vector_impl(std::index_sequence<Is...>) const
+		{
+			// 将 Indices... 展开为数组，然后用索引序列访问
+			constexpr int idx_array[] = {Indices...};
+			return Vector<T, swizzle_dim>{elem(idx_array[Is])...};
+		}
+	    
+		// 辅助：使用索引序列赋值
+		template<size_t... Is>
+		void assign_vector_impl(const Vector<T, swizzle_dim>& vec, std::index_sequence<Is...>)
+		{
+			constexpr int idx_array[] = {Indices...};
+			((elem(idx_array[Is]) = vec[Is]), ...);
+		}
 	};
 
 

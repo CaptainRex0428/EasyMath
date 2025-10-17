@@ -8,9 +8,27 @@
 int main(int argc, char * argv[])
 {
 	EM::Vector<float, 3> vectorA{1,2,3};
-	EM::Vector<float, 4> vectorB{4,5,6,7};
 	
-	vectorB.wxz = vectorA;
-	std::cout << vectorB  << std::endl;
+	std::cout << vectorA.z + 5.f << std::endl;
+	std::cout << vectorA.zy + 5.f << std::endl;
+	std::cout << 5.f + vectorA.z  << std::endl;
+	std::cout << 5.f + vectorA.zy  << std::endl;
+	std::cout << vectorA.z - 5.f << std::endl;
+	std::cout << vectorA.zy - 5.f << std::endl;
+	std::cout << 5.f-vectorA.z << std::endl;
+	//std::cout << 5.f-vectorA.zy << std::endl;
+	std::cout << vectorA.z * 5.f << std::endl;
+	std::cout << vectorA.zy * 5.f << std::endl;
+	std::cout << 5.f * vectorA.z << std::endl;
+	std::cout << 5.f * vectorA.zy << std::endl;
+	std::cout << vectorA.z / 5.f << std::endl;
+	std::cout << vectorA.zy / 5.f << std::endl;
+	std::cout << 5.f / vectorA.z << std::endl;
+
+	EM::Vector<float, 4> vectorB{4,5,6,7};
+	std::cout << vectorB.w << std::endl;
+	std::cout << vectorB.y * vectorB << std::endl;
+	std::cout << vectorB / vectorB.w << std::endl;
+	
 	return 0;
 }
