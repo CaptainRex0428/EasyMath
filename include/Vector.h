@@ -976,6 +976,24 @@ namespace EM
 		// ==================== 算术运算符重载 ====================
 		
 		// ---------------- 1D Swizzle 与不同维度 Swizzle 运算（广播） ----------------
+		template<size_t D = swizzle_dim,size_t OtherDimension, int... OtherIndices>
+		typename std::enable_if_t<D == 1, Vector<T, sizeof...(OtherIndices)>> 
+		operator+(const Swizzle<T, OtherDimension, OtherIndices...>& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	constexpr size_t other_dim = sizeof...(OtherIndices);
+	    	return Vector<T, other_dim>(other) + T(*this);
+	    }
+		
+		template<size_t D = swizzle_dim,size_t OtherDimension, int... OtherIndices>
+		typename std::enable_if_t<D == 1, Vector<T, sizeof...(OtherIndices)>> 
+		operator*(const Swizzle<T, OtherDimension, OtherIndices...>& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	constexpr size_t other_dim = sizeof...(OtherIndices);
+	    	return Vector<T, other_dim>(other) * T(*this);
+	    }
+		
 		
 		// ---------------- Swizzle 与 Swizzle 运算（相同维度） ----------------
 		

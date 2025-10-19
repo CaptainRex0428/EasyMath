@@ -4,7 +4,7 @@
 
 ---
 
-![Static Badge](https://img.shields.io/badge/Version-1__0__8-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
+![Static Badge](https://img.shields.io/badge/Version-1.0.8-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
 
 --- 
 
