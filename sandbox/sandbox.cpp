@@ -71,7 +71,25 @@ int main(int argc, char * argv[])
 
 	cA.r = 1000.f;
 
-	std::cout << cA << std::endl;
+	std::cout << cA.g << std::endl;
+
+
+	EM::sRGBColor<float>::fromHSV(EM::Vector<float,3>{1,1,1},1);
+	EM::sRGBColor<float>::fromHSL(EM::Vector<float,3>{1,1,1},1);
+	EM::sRGBColor<float>::fromHSI(EM::Vector<float,3>{1,1,1},1);
+	EM::LinearColor<float>::fromHSV(EM::Vector<float,3>{1,1,1},1);
+	EM::LinearColor<float>::fromHSL(EM::Vector<float,3>{1,1,1},1);
+	EM::LinearColor<float>::fromHSI(EM::Vector<float,3>{1,1,1},1);
+
+	// EM::sRGBColor<float> sRGBA;
+	// sRGBA.toLinear<>();
+	//
+	// EM::LinearColor<float> LinearA;
+	// LinearA.toSRGB<>();
+	//
+	// EM::HSV<float> HSVA;
+	// HSVA.toSRGB<>();
+	// HSVA.toLinear<>();
 	
 	return 0;
 }
