@@ -42,6 +42,24 @@ int main(int argc, char * argv[])
 	std::cout << vectorB.xyw * vectorA.x << std::endl;
 	std::cout << vectorB.xyw - vectorA.x << std::endl;
 	std::cout << vectorB.xyw / vectorA.y << std::endl;
+
+	std::cout << vectorB.xyw + vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw * vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw - vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw / vectorA.xyz << std::endl;
+
+	std::cout << vectorB.xyw + vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw * vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw - vectorA.xyz << std::endl;
+	std::cout << vectorB.xyw / vectorA.xyz << std::endl;
+
+	std::cout << dot(vectorB.x, vectorA.y) << std::endl;
+	std::cout << cross(vectorB.xyw, vectorA.xyz) << std::endl;
+	std::cout << cross(vectorB.xy, vectorA.xy) << std::endl;
+
+	std::cout << vectorB.x * vectorA.x << std::endl;
+
+	std::cout << distance(vectorB.xy, vectorA.xy) << std::endl;
 	
 	return 0;
 }

@@ -813,9 +813,27 @@ namespace EM
 		return result;
 	}
 
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b,T> dot(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b)
+	{
+		if constexpr (dim_a > 1)
+		{
+			Vector<T, dim_a> va = a;
+			Vector<T, dim_b> vb = b;
+			return dot(va, vb);
+		}
+		else
+		{
+			T va = a;
+			T vb = b;
+			return va * vb;
+		}
+	}
+
 	// 3D叉积
-	template<typename T>
-	Vector<T, 3> cross(const Vector<T, 3>& a, const Vector<T, 3>& b)
+	template<typename T, size_t dimension>
+	typename std::enable_if_t<dimension == 3, Vector<T, dimension>>
+	cross(const Vector<T, dimension>& a, const Vector<T, dimension>& b)
 	{
 		return {
 			a.y * b.z - a.z * b.y,
@@ -824,11 +842,32 @@ namespace EM
 		};
 	}
 
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == 3 && dim_b == 3, Vector<T, 3>> cross(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b)
+	{
+	
+		Vector<T, 3> va = a;
+		Vector<T, 3> vb = b;
+		return cross(va, vb);
+		
+	}
+
 	// 2D叉积（返回标量）
-	template<typename T>
-	T cross2D(const Vector<T, 2>& a, const Vector<T, 2>& b)
+	template<typename T, size_t dimension>
+	typename std::enable_if_t<dimension == 2, T>
+	cross(const Vector<T, dimension>& a, const Vector<T, dimension>& b)
 	{
 		return a.x * b.y - a.y * b.x;
+	}
+
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == 2 && dim_b == 2, T> cross(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b)
+	{
+	
+		Vector<T, 2> va = a;
+		Vector<T, 2> vb = b;
+		return cross(va, vb);
+		
 	}
 
 	// 距离函数
@@ -838,10 +877,26 @@ namespace EM
 		return (b - a).length(dimensionalityReduction);
 	}
 
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b, T> distance(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b, bool dimensionalityReduction  = true)
+	{
+		Vector<T, dim_a> va = a;
+		Vector<T, dim_b> vb = b;
+		return distance(va, vb, dimensionalityReduction);
+	}
+
 	template<typename T, size_t D>
 	T distanceSquared(const Vector<T, D>& a, const Vector<T, D>& b, bool dimensionalityReduction = true)
 	{
 		return (b - a).lengthSquared(dimensionalityReduction);
+	}
+
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b, T> distanceSquared(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b, bool dimensionalityReduction  = true)
+	{
+		Vector<T, dim_a> va = a;
+		Vector<T, dim_b> vb = b;
+		return distanceSquared(va, vb, dimensionalityReduction);
 	}
 
 	// 角度函数
@@ -856,11 +911,27 @@ namespace EM
 		return std::acos(std::clamp(dot_product / magnitude_product, T{ -1 }, T{ 1 }));
 	}
 
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b, T> angle(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b, bool dimensionalityReduction  = true)
+	{
+		Vector<T, dim_a> va = a;
+		Vector<T, dim_b> vb = b;
+		return angle(va,vb,dimensionalityReduction);
+	}
+
 	// 线性插值
 	template<typename T, size_t D>
 	Vector<T, D> lerp(const Vector<T, D>& a, const Vector<T, D>& b, T t)
 	{
 		return a.lerp(b, t);
+	}
+
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b, T> lerp(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b, T t)
+	{
+		Vector<T, dim_a> va = a;
+		Vector<T, dim_b> vb = b;
+		return lerp(va,vb,t);
 	}
 
 	// 球面线性插值（仅用于单位向量）
@@ -883,6 +954,14 @@ namespace EM
 		}
 
 		return factor_a * a + factor_b * b;
+	}
+
+	template<typename T, size_t Dim1, size_t Dim2, int... Indices1, int... Indices2, size_t dim_a = sizeof...(Indices1), size_t dim_b = sizeof...(Indices2)>
+	std::enable_if_t<dim_a == dim_b, T> slerp(const Swizzle<T, Dim1, Indices1...>& a, const Swizzle<T, Dim2, Indices2...>& b, T t)
+	{
+		Vector<T, dim_a> va = a;
+		Vector<T, dim_b> vb = b;
+		return slerp(va,vb,t);
 	}
 
 	
@@ -974,40 +1053,166 @@ namespace EM
 	    }
 
 		// ==================== 算术运算符重载 ====================
+
+		// ---------------- 1D Swizzle 与 1D Swizzle 运算（返回标量） ----------------
+		template<size_t D = swizzle_dim, size_t otherDimension, int OtherIndex>
+		typename std::enable_if_t<D == 1, T> 
+		operator+(const Swizzle<T, otherDimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
+	    	return T(*this) + T(other);
+	    }
+		
+		template<size_t D = swizzle_dim, size_t otherDimension, int OtherIndex>
+		typename std::enable_if_t<D == 1, T> 
+		operator-(const Swizzle<T, otherDimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
+	    	return T(*this) - T(other);
+	    }
+		
+		template<size_t D = swizzle_dim, size_t otherDimension, int OtherIndex>
+		typename std::enable_if_t<D == 1, T> 
+		operator*(const Swizzle<T, otherDimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
+	    	return T(*this) * T(other);
+	    }
+		
+		template<size_t D = swizzle_dim, size_t otherDimension, int OtherIndex>
+		typename std::enable_if_t<D == 1, T> 
+		operator/(const Swizzle<T, otherDimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
+	    	return T(*this) / T(other);
+	    }
 		
 		// ---------------- 1D Swizzle 与不同维度 Swizzle 运算（广播） ----------------
-		template<size_t D = swizzle_dim,size_t OtherDimension, int... OtherIndices>
-		typename std::enable_if_t<D == 1, Vector<T, sizeof...(OtherIndices)>> 
-		operator+(const Swizzle<T, OtherDimension, OtherIndices...>& other) const
+		template<size_t D = swizzle_dim, int... OtherIndices>
+		typename std::enable_if_t<D == 1 && (sizeof...(OtherIndices) > 1), Vector<T, sizeof...(OtherIndices)>> 
+		operator+(const Swizzle<T, dimension, OtherIndices...>& other) const
 	    {
-	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
 	    	constexpr size_t other_dim = sizeof...(OtherIndices);
 	    	return Vector<T, other_dim>(other) + T(*this);
 	    }
 		
-		template<size_t D = swizzle_dim,size_t OtherDimension, int... OtherIndices>
-		typename std::enable_if_t<D == 1, Vector<T, sizeof...(OtherIndices)>> 
-		operator*(const Swizzle<T, OtherDimension, OtherIndices...>& other) const
+		template<size_t D = swizzle_dim, int... OtherIndices>
+		typename std::enable_if_t<D == 1 && (sizeof...(OtherIndices) > 1), Vector<T, sizeof...(OtherIndices)>> 
+		operator*(const Swizzle<T, dimension, OtherIndices...>& other) const
 	    {
-	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	static_assert(check_indices(), "left swizzle index out of bounds");
+	    	static_assert(other.check_indices(), "right swizzle index out of bounds");
 	    	constexpr size_t other_dim = sizeof...(OtherIndices);
 	    	return Vector<T, other_dim>(other) * T(*this);
 	    }
 		
-		
-		// ---------------- Swizzle 与 Swizzle 运算（相同维度） ----------------
-		
+		// ---------------- Swizzle 与 Swizzle 运算（相同IndicesNumber） ----------------
+
+		// swizzle + 1D swizzle（右侧1D广播）
+
+		template<int OtherIndex, size_t D = swizzle_dim>
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> 
+		operator+(const Swizzle<T, dimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "Left swizzle index out of bounds");
+	        
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	T scalar_value = T(other);
+	    	return lhs + scalar_value;
+	    }
+
+		template<int OtherIndex, size_t D = swizzle_dim>
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> 
+		operator-(const Swizzle<T, dimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "Left swizzle index out of bounds");
+	        
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	T scalar_value = T(other);
+	    	return lhs - scalar_value;
+	    }
+
+		template<int OtherIndex, size_t D = swizzle_dim>
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> 
+		operator*(const Swizzle<T, dimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "Left swizzle index out of bounds");
+	        
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	T scalar_value = T(other);
+	    	return lhs * scalar_value;
+	    }
+
+		template<int OtherIndex, size_t D = swizzle_dim>
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> 
+		operator/(const Swizzle<T, dimension, OtherIndex>& other) const
+	    {
+	    	static_assert(check_indices(), "Left swizzle index out of bounds");
+	        
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	T scalar_value = T(other);
+	    	return lhs / scalar_value;
+	    }
+
+		// Swizzle + Swizzle
+
+		template<int ... OtherIndices, size_t OtherDimension, size_t D = swizzle_dim, size_t OtherD = sizeof ... (OtherIndices)>
+		typename std::enable_if_t<(D > 1 && D == OtherD), Vector<T, swizzle_dim>> 
+		operator+(const Swizzle<T, OtherDimension, OtherIndices ...>& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	Vector<T, swizzle_dim> rhs = other;
+	    	return lhs + rhs;
+	    }
+
+		template<int ... OtherIndices, size_t OtherDimension, size_t D = swizzle_dim, size_t OtherD = sizeof ... (OtherIndices)>
+		typename std::enable_if_t<(D > 1 && D == OtherD), Vector<T, swizzle_dim>> 
+		operator-(const Swizzle<T, OtherDimension, OtherIndices ... >& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	Vector<T, swizzle_dim> rhs = other;
+	    	return lhs - rhs;
+	    }
+
+		template<int ... OtherIndices, size_t OtherDimension, size_t D = swizzle_dim, size_t OtherD = sizeof ... (OtherIndices)>
+		typename std::enable_if_t<(D > 1 && D == OtherD), Vector<T, swizzle_dim>> 
+		operator*(const Swizzle<T, OtherDimension, OtherIndices ...>& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	Vector<T, swizzle_dim> rhs = other;
+	    	return lhs * rhs;
+	    }
+
+		template<int ... OtherIndices, size_t OtherDimension, size_t D = swizzle_dim, size_t OtherD = sizeof ... (OtherIndices)>
+		typename std::enable_if_t<(D > 1 && D == OtherD), Vector<T, swizzle_dim>> 
+		operator/(const Swizzle<T, OtherDimension, OtherIndices ... >& other) const
+	    {
+	    	static_assert(check_indices(), "Swizzle index out of bounds");
+	    	Vector<T, swizzle_dim> lhs = *this;
+	    	Vector<T, swizzle_dim> rhs = other;
+	    	return lhs / rhs;
+	    }
 
 		// ---------------- 1D Swizzle 与 Vector 运算 ----------------
+		
 		template<size_t D = swizzle_dim, size_t VDimension>
-		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator+(const Vector<T,VDimension>& vec)
+		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator+(const Vector<T,VDimension>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec + T(*this);
 	    }
 
 		template<size_t D = swizzle_dim, size_t VDimension>
-		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator*(const Vector<T,VDimension>& vec)
+		typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator*(const Vector<T,VDimension>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec * T(*this);
@@ -1015,28 +1220,28 @@ namespace EM
 
 		// ---------------- Swizzle 与 Vector 运算 ----------------
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator+(const Vector<T,swizzle_dim>& vec)
+		typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator+(const Vector<T,swizzle_dim>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec + Vector<T,swizzle_dim>(*this);
 	    }
 
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator-(const Vector<T,swizzle_dim>& vec)
+		typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator-(const Vector<T,swizzle_dim>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return Vector<T,swizzle_dim>(*this) - vec;
 	    }
 
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator*(const Vector<T,swizzle_dim>& vec)
+		typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator*(const Vector<T,swizzle_dim>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec * Vector<T,swizzle_dim>(*this);
 	    }
 
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator/(const Vector<T,swizzle_dim>& vec)
+		typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator/(const Vector<T,swizzle_dim>& vec) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return Vector<T,swizzle_dim>(*this) / vec;
@@ -1074,7 +1279,7 @@ namespace EM
 		// ---------------- Swizzle 与 Scalar 运算 ----------------
 		
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator+(const T& scalar) const
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> operator+(const T& scalar) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	Vector<T, swizzle_dim> lhs = *this;
@@ -1082,7 +1287,7 @@ namespace EM
 	    }
 		
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator-(const T& scalar) const
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> operator-(const T& scalar) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	Vector<T, swizzle_dim> lhs = *this;
@@ -1090,7 +1295,7 @@ namespace EM
 	    }
 
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator*(const T& scalar) const
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> operator*(const T& scalar) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	Vector<T, swizzle_dim> lhs = *this;
@@ -1098,7 +1303,7 @@ namespace EM
 	    }
 
 		template<size_t D = swizzle_dim>
-		typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator/(const T& scalar) const
+		typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> operator/(const T& scalar) const
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	Vector<T, swizzle_dim> lhs = *this;
@@ -1109,28 +1314,28 @@ namespace EM
 		
 		// Vector & Swizzle
 		template<size_t D = swizzle_dim>
-		friend typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator+(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator+(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec + Vector<T,swizzle_dim>(sw);
 	    }
 
 		template<size_t D = swizzle_dim>
-		friend typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator-(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator-(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec - Vector<T,swizzle_dim>(sw);
 	    }
 
 		template<size_t D = swizzle_dim>
-		friend typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator*(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator*(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec * Vector<T,swizzle_dim>(sw);
 	    }
 
 		template<size_t D = swizzle_dim>
-		friend typename std::enable_if_t<D >= 2, Vector<T,swizzle_dim>> operator/(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator/(const Vector<T,swizzle_dim>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec / Vector<T,swizzle_dim>(sw) ;
@@ -1138,28 +1343,28 @@ namespace EM
 		
 		// Vector & 1D Swizzle（广播）
 		template<size_t D = swizzle_dim, size_t VDimension>
-		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator+(const Vector<T,VDimension>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,VDimension>> operator+(const Vector<T,VDimension>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return sw + vec;
 	    }
 
 		template<size_t D = swizzle_dim, size_t VDimension>
-		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator-(const Vector<T,VDimension>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,VDimension>> operator-(const Vector<T,VDimension>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec - T(sw);
 	    }
 
 		template<size_t D = swizzle_dim, size_t VDimension>
-		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator*(const Vector<T,VDimension>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,VDimension>> operator*(const Vector<T,VDimension>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return sw * vec;
 	    }
 
 		template<size_t D = swizzle_dim, size_t VDimension>
-		friend typename std::enable_if_t<D == 1, Vector<T,VDimension>> operator/(const Vector<T,VDimension>& vec, const Swizzle& sw)
+		friend typename std::enable_if_t<(D > 1), Vector<T,VDimension>> operator/(const Vector<T,VDimension>& vec, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return vec / T(sw);
@@ -1168,14 +1373,14 @@ namespace EM
 		// Scalar & Swizzle
 
 		template<size_t D = swizzle_dim>
-		friend  typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>> operator+(const T& scalar, const Swizzle& sw)
+		friend  typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>> operator+(const T& scalar, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return sw + scalar;
 	    }
 		
 		template<size_t D = swizzle_dim>
-		friend  typename std::enable_if_t<D >= 2, Vector<T, swizzle_dim>>  operator*(const T& scalar, const Swizzle& sw)
+		friend  typename std::enable_if_t<(D > 1), Vector<T, swizzle_dim>>  operator*(const T& scalar, const Swizzle& sw)
 	    {
 	    	static_assert(check_indices(), "Swizzle index out of bounds");
 	    	return sw * scalar;
