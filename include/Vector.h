@@ -1055,6 +1055,7 @@ namespace EM
 		// ==================== 算术运算符重载 ====================
 
 		// ---------------- 1D Swizzle 与 1D Swizzle 运算（返回标量） ----------------
+		
 		template<size_t D = swizzle_dim, size_t otherDimension, int OtherIndex>
 		typename std::enable_if_t<D == 1, T> 
 		operator+(const Swizzle<T, otherDimension, OtherIndex>& other) const
@@ -1219,6 +1220,7 @@ namespace EM
 	    }
 
 		// ---------------- Swizzle 与 Vector 运算 ----------------
+
 		template<size_t D = swizzle_dim>
 		typename std::enable_if_t<(D > 1), Vector<T,swizzle_dim>> operator+(const Vector<T,swizzle_dim>& vec) const
 	    {
@@ -1248,6 +1250,7 @@ namespace EM
 	    }
 
 		// ---------------- 1D Swizzle 与 Scalar 运算 ----------------
+
 		template<size_t D = swizzle_dim>
 		typename std::enable_if_t<D == 1, T> operator+(const T& scalar) const
 	    {

@@ -4,7 +4,7 @@
 
 ---
 
-![Static Badge](https://img.shields.io/badge/Version-1.0.8-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
+![Static Badge](https://img.shields.io/badge/Version-1.0.10-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
 
 --- 
 
@@ -97,6 +97,7 @@ int main() {
 
 ### Documentaion
 - [Vector](/docs/Vector.en.md)
+- [Swizzle](/docs/Swizzle.en.md)
 - [Matrix](/docs/Matrix.en.md)
 
 ### Roadmap
@@ -108,7 +109,7 @@ int main() {
 - [ ] Add Euler angles APIs
 - [ ] Add conversions among Euler angles, quaternions and axis-angle
 - [x] Optimize algorithm of vector swizzle operation
-- [ ] Sync algorithms of vector to swizzle
+- [x] Sync algorithms of vector to swizzle
 
 ### Version & Requirements
 - Compilers: MSVC v143+, Clang 12+, GCC 10+ (recommended)
@@ -210,6 +211,7 @@ int main() {
 ```
 ### 文档
 - [Vector](/docs/Vector.md)
+- [Swizzle](/docs/Swizzle.md)
 - [Matrix](/docs/Matrix.md)
 
 ### 版本开发计划 
@@ -219,7 +221,7 @@ int main() {
 - [ ] 添加欧拉角API
 - [ ] 添加欧拉角、四元数、轴角转换方法
 - [x] 优化vector swizzle算法
-- [ ] 为swizzle同步vector算法
+- [x] 为swizzle同步vector算法
 
 
 ### 版本与要求
