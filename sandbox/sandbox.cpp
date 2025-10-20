@@ -60,6 +60,18 @@ int main(int argc, char * argv[])
 	std::cout << vectorB.x * vectorA.x << std::endl;
 
 	std::cout << distance(vectorB.xy, vectorA.xy) << std::endl;
+
+	EM::Color<float> cA{0.3f,0.5f,0.7f,1.f};
+	EM::Color<float> cB{0.2f,0.8f,0.9f,1.f};
+
+	std::cout << cA.luminance(EM::LuminanceStandard::Rec601) << std::endl;
+	std::cout << cA.luminance(EM::LuminanceStandard::Rec709) << std::endl;
+	std::cout << cB.luminance(EM::LuminanceStandard::Rec601) << std::endl;
+	std::cout << cB.luminance(EM::LuminanceStandard::Rec709) << std::endl;
+
+	cA.r = 1000.f;
+
+	std::cout << cA << std::endl;
 	
 	return 0;
 }
