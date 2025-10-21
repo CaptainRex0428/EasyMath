@@ -1,10 +1,22 @@
+#include <iostream>
+#include <ostream>
+
+#ifdef ENGINE_API
+#include "EasyMath/include/Color.h"
+#include "EasyMath/include/Vector.h"
+#include "EasyMath/include/Matrix.h"
+#include "EasyMath/include/Quaternion.h"
+#else
 #include "Vector.h"
 #include "Matrix.h"
 #include "Quaternion.h"
 #include "Color.h"
+#endif
 
+#ifdef ENGINE_API
+
+#elif
 #define PRINT(var) std::cout << var << std::endl;
-
 int main(int argc, char * argv[])
 {
 
@@ -29,3 +41,5 @@ int main(int argc, char * argv[])
 	
 	return 0;
 }
+
+#endif

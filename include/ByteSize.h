@@ -20,8 +20,19 @@ namespace EM
 	};
 
 	// transfer Byte size to specific unit output in double
+#ifdef ENGINE_API
+	double ByteSizeTo(int bytesize, SystemSizeUnit unit);
+#else
 	EASYMATH_API double ByteSizeTo(int bytesize, SystemSizeUnit unit);
+#endif
 
+#ifdef ENGINE_API
+	std::tuple<const char*, double> ByteSizeConvert(uintmax_t bytesize);
+#else
 	// transfer Byte size to a proper unit output in double
 	EASYMATH_API std::tuple<const char*, double> ByteSizeConvert(uintmax_t bytesize);
+#endif
+	
+
+	
 }
