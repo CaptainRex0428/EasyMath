@@ -14,25 +14,25 @@ namespace EM
         Rec2020    // 0.2627, 0.6780, 0.0593 (UHD)
     };
 
-    template <typename T, bool bsRGB ,bool bRGBMode, typename>
+    template <typename T, bool bsRGB ,size_t modeIndex, typename>
     class Color;
 
     template <typename T>
-    using sRGBColor = Color<T, true, true,  std::enable_if_t<std::is_arithmetic_v<T>>>;
+    using sRGBColor = Color<T, true, 1,  std::enable_if_t<std::is_arithmetic_v<T>>>;
 
     template <typename T>
-    using LinearColor = Color<T, true, false, std::enable_if_t<std::is_arithmetic_v<T>>>;
+    using LinearColor = Color<T, true, 0, std::enable_if_t<std::is_arithmetic_v<T>>>;
 
     template <typename T>
-    using HSV = Color<T, false, false,  std::enable_if_t<std::is_arithmetic_v<T>>>;
+    using HSV = Color<T, false, 0,  std::enable_if_t<std::is_arithmetic_v<T>>>;
 
     template <typename T>
-    using HSL = Color<T, false, false,  std::enable_if_t<std::is_arithmetic_v<T>>>;
+    using HSL = Color<T, false, 1,  std::enable_if_t<std::is_arithmetic_v<T>>>;
 
     template <typename T>
-    using HSI = Color<T, false, false,  std::enable_if_t<std::is_arithmetic_v<T>>>;
+    using HSI = Color<T, false, 2,  std::enable_if_t<std::is_arithmetic_v<T>>>;
     
-    template <typename T,bool isRGBMode = true, bool bsRGB = false , typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    template <typename T,bool isRGBMode = true, size_t modeIndex = 0 , typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     class Color : public Vector<T, 4>
     {
     public:
@@ -55,20 +55,96 @@ namespace EM
 
         virtual ~Color() = default;
 
-        T luminance(LuminanceStandard ls = LuminanceStandard::Rec709)
+        /**
+         * 计算物理正确的亮度（Luminance）
+         * 对于sRGB颜色，会先转换到线性空间再计算
+         * 对于Linear颜色，直接计算
+         * @param ls 亮度标准（Rec601/Rec709/Rec2020）
+         * @return 亮度值 [0, 1]
+         */
+        template <bool rgbmode = isRGBMode>
+        typename std::enable_if_t<rgbmode, T>
+        luminance(LuminanceStandard ls = LuminanceStandard::Rec709)
         {
-            return dot((*this).rgb,getRGBLuminanceContribute(ls).rgb);
+            if constexpr (modeIndex == 1) // sRGB
+            {
+                // sRGB需要先转换到线性空间
+                auto linear = toLinear();
+                return dot(linear.rgb, getRGBLuminanceContribute(ls).rgb);
+            }
+            
+            // 线性空间直接计算
+            return dot((*this).rgb, getRGBLuminanceContribute(ls).rgb);
         }
+
+        /**
+         * 计算感知亮度（Perceived Luminance）
+         * 直接在当前颜色空间（sRGB或Linear）计算
+         * 适用于UI显示、文本对比度计算等场景
+         * @param ls 亮度标准
+         * @return 感知亮度值
+         */
+        template <bool rgbmode = isRGBMode>
+        typename std::enable_if_t<rgbmode, T>
+        perceivedLuminance(LuminanceStandard ls = LuminanceStandard::Rec709) const
+        {
+            // 直接在当前颜色空间计算（不转换）
+            return dot((*this).rgb, getRGBLuminanceContribute(ls).rgb);
+        }
+        
+        /**
+        * 获取相对亮度（Relative Luminance）- W3C WCAG标准
+        * 用于计算对比度，符合无障碍访问标准
+        * 始终在线性空间计算
+        * @return 相对亮度 [0, 1]
+        */
+        template <bool rgbmode = isRGBMode>
+        typename std::enable_if_t<rgbmode, T>
+        relativeLuminance() const
+        {
+            // WCAG使用Rec.709系数，并要求在线性空间计算
+            if constexpr (modeIndex == 1) // sRGB
+            {
+                auto linear = toLinear();
+                return dot(linear.rgb, getRGBLuminanceContribute(LuminanceStandard::Rec709).rgb);
+            }
+            else // Linear
+            {
+                return dot((*this).rgb, getRGBLuminanceContribute(LuminanceStandard::Rec709).rgb);
+            }
+        }
+
+        /**
+         * 计算与另一个颜色的对比度（Contrast Ratio）- W3C WCAG标准
+         * 用于确保文本可读性
+         * @param other 另一个颜色
+         * @return 对比度比值 [1, 21]
+         */
+        template <bool rgbmode = isRGBMode>
+        typename std::enable_if_t<rgbmode, T>
+        contrastRatio(const Color& other) const
+        {
+            T L1 = relativeLuminance();
+            T L2 = other.relativeLuminance();
+            
+            // 确保L1是较亮的颜色
+            if (L2 > L1) std::swap(L1, L2);
+            
+            // WCAG对比度公式: (L1 + 0.05) / (L2 + 0.05)
+            return (L1 + T(0.05)) / (L2 + T(0.05));
+        }
+        
 
         /**
          * 将sRGB颜色转换为线性颜色空间
          * @return 线性颜色空间的Color对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        typename std::enable_if_t<rgbmode && bsRGB, LinearColor<T>>
+        template <bool rgbmode = isRGBMode>
+        typename std::enable_if_t< rgbmode && modeIndex == 1, LinearColor<T>>
         toLinear() const
         {
-            Color result;
+            LinearColor<T> result;
+            
             for (size_t i = 0; i < 3; ++i)
             {
                 T value = (*this)[i];
@@ -81,7 +157,9 @@ namespace EM
                     result[i] = std::pow((value + T(0.055)) / T(1.055), T(2.4));
                 }
             }
-            result[3] = (*this)[3]; // Alpha通道保持不变
+            
+            result.a = (*this).a; // Alpha通道保持不变
+            
             return result;
         }
 
@@ -90,10 +168,11 @@ namespace EM
          * @return sRGB颜色空间的Color对象
          */
         template <bool rgbmode = isRGBMode>
-        typename std::enable_if_t<rgbmode && (!bsRGB), sRGBColor<T>>
+        typename std::enable_if_t<rgbmode && modeIndex == 0, sRGBColor<T>>
         toSRGB() const
         {
-            Color result;
+            sRGBColor<T> result;
+            
             for (size_t i = 0; i < 3; ++i)
             {
                 T value = (*this)[i];
@@ -106,7 +185,8 @@ namespace EM
                     result[i] = T(1.055) * std::pow(value, T(1.0 / 2.4)) - T(0.055);
                 }
             }
-            result[3] = (*this)[3]; // Alpha通道保持不变
+            
+            result.a = (*this).a; // Alpha通道保持不变
             return result;
         }
 
@@ -118,44 +198,44 @@ namespace EM
         typename std::enable_if_t<rgbmode, HSV<T>>
         toHSV() const
         {
-            T r = (*this)[0];
-            T g = (*this)[1];
-            T b = (*this)[2];
+            T r = (*this).r;
+            T g = (*this).g;
+            T b = (*this).b;
 
             T max = std::max({r, g, b});
             T min = std::min({r, g, b});
             T delta = max - min;
 
-            Vector<T, 3> hsv;
+            HSV<T> hsv;
             
             // Hue计算
             if (delta < T(1e-6))
             {
-                hsv[0] = T(0);
+                hsv.x = T(0);
             }
             else if (max == r)
             {
-                hsv[0] = T(60) * (std::fmod((g - b) / delta, T(6)));
+                hsv.x = T(60) * (std::fmod((g - b) / delta, T(6)));
             }
             else if (max == g)
             {
-                hsv[0] = T(60) * ((b - r) / delta + T(2));
+                hsv.x = T(60) * ((b - r) / delta + T(2));
             }
             else
             {
-                hsv[0] = T(60) * ((r - g) / delta + T(4));
+                hsv.x = T(60) * ((r - g) / delta + T(4));
             }
             
-            if (hsv[0] < T(0))
+            if (hsv.x < T(0))
             {
-                hsv[0] += T(360);
+                hsv.x += T(360);
             }
 
-            // Saturation计算
-            hsv[1] = (max < T(1e-6)) ? T(0) : (delta / max);
+            // Saturation计算 (HSV定义)
+            hsv.y = (max < T(1e-6)) ? T(0) : (delta / max);
 
             // Value计算
-            hsv[2] = max;
+            hsv.z = max;
 
             return hsv;
         }
@@ -168,48 +248,48 @@ namespace EM
         typename std::enable_if_t<rgbmode, HSL<T>>
         toHSL() const
         {
-            T r = (*this)[0];
-            T g = (*this)[1];
-            T b = (*this)[2];
+            T r = (*this).r;
+            T g = (*this).g;
+            T b = (*this).b;
 
             T max = std::max({r, g, b});
             T min = std::min({r, g, b});
             T delta = max - min;
 
-            Vector<T, 3> hsl;
+            HSL<T> hsl;
             
             // Lightness计算
-            hsl[2] = (max + min) / T(2);
+            hsl.z = (max + min) / T(2);
 
             // Saturation计算
             if (delta < T(1e-6))
             {
-                hsl[0] = T(0);
-                hsl[1] = T(0);
+                hsl.x = T(0);
+                hsl.y = T(0);
             }
             else
             {
                 // Hue计算（与HSV相同）
                 if (max == r)
                 {
-                    hsl[0] = T(60) * (std::fmod((g - b) / delta, T(6)));
+                    hsl.x = T(60) * (std::fmod((g - b) / delta, T(6)));
                 }
                 else if (max == g)
                 {
-                    hsl[0] = T(60) * ((b - r) / delta + T(2));
+                    hsl.x = T(60) * ((b - r) / delta + T(2));
                 }
                 else
                 {
-                    hsl[0] = T(60) * ((r - g) / delta + T(4));
+                    hsl.x = T(60) * ((r - g) / delta + T(4));
                 }
                 
-                if (hsl[0] < T(0))
+                if (hsl.x < T(0))
                 {
-                    hsl[0] += T(360);
+                    hsl.x += T(360);
                 }
 
                 // Saturation (HSL定义)
-                hsl[1] = delta / (T(1) - std::abs(T(2) * hsl[2] - T(1)));
+                hsl.y = delta / (T(1) - std::abs(T(2) * hsl.z - T(1)));
             }
 
             return hsl;
@@ -223,30 +303,31 @@ namespace EM
         typename std::enable_if_t<rgbmode, HSI<T>>
         toHSI() const
         {
-            T r = (*this)[0];
-            T g = (*this)[1];
-            T b = (*this)[2];
+            T r = (*this).r;
+            T g = (*this).g;
+            T b = (*this).b;
 
-            Vector<T, 3> hsi;
+            HSI<T> hsi;
             
             // Intensity计算
-            hsi[2] = (r + g + b) / T(3);
+            hsi.z = (r + g + b) / T(3);
 
             // Saturation计算
-            T min_rgb = std::min({r, g, b});
-            if (hsi[2] < T(1e-6))
+            T min_rgb = Min(r,g,b);
+            
+            if (hsi.z < T(1e-6))
             {
-                hsi[1] = T(0);
-                hsi[0] = T(0);
+                hsi.y = T(0);
+                hsi.x = T(0);
             }
             else
             {
-                hsi[1] = T(1) - min_rgb / hsi[2];
+                hsi.y = T(1) - min_rgb / hsi.z;
                 
                 // Hue计算
-                if (hsi[1] < T(1e-6))
+                if (hsi.y < T(1e-6))
                 {
-                    hsi[0] = T(0);
+                    hsi.x = T(0);
                 }
                 else
                 {
@@ -255,12 +336,12 @@ namespace EM
                     
                     if (denominator < T(1e-6))
                     {
-                        hsi[0] = T(0);
+                        hsi.x = T(0);
                     }
                     else
                     {
                         T theta = std::acos(numerator / denominator);
-                        hsi[0] = (b <= g) ? theta * T(180) / T(PI) : T(360) - theta * T(180) / T(PI);
+                        hsi.x = (b <= g) ? theta * T(180) / T(PI) : T(360) - theta * T(180) / T(PI);
                     }
                 }
             }
@@ -277,14 +358,14 @@ namespace EM
             switch (ls)
             {
             case LuminanceStandard::Rec2020:
-                result = Vector<T, 4>{0.2627f, 0.6780f, 0.0593f, 1.f};
+                result = Vector<T, 4>{T(0.2627), T(0.6780), T(0.0593), T(1)};
                 break;
             case LuminanceStandard::Rec709:
-                 result = Vector<T, 4>{0.2126f, 0.7152f, 0.0722f, 1.f};
+                 result = Vector<T, 4>{T(0.2126), T(0.7152), T(0.0722), T(1)};
                 break;
             case LuminanceStandard::Rec601:
             default:
-                result = Vector<T, 4>{0.299f, 0.587f, 0.114f, 1.f};
+                result = Vector<T, 4>{T(0.299), T(0.587), T(0.114), T(1)};
                 break;
             }
             return result;
@@ -298,8 +379,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSV(T h, T s, T v, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -346,11 +427,23 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSV(const Vector<T, 3>& hsv, T a = T(1))
         {
-            return fromHSV(hsv[0], hsv[1], hsv[2], a);
+            return fromHSV(hsv.x, hsv.y, hsv.z, a);
+        }
+
+        /**
+         * 从HSV Vector创建RGB颜色
+         * @param hsv HSV
+         * @return RGB颜色对象
+         */
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        fromHSV(const HSV<T>& hsv)
+        {
+            return fromHSV(hsv.x, hsv.y, hsv.z, hsv.w);
         }
 
         /**
@@ -361,8 +454,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSL(T h, T s, T l, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -409,11 +502,23 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSL(const Vector<T, 3>& hsl, T a = T(1))
         {
             return fromHSL(hsl[0], hsl[1], hsl[2], a);
+        }
+
+        /**
+         * 从HSL Vector创建RGB颜色
+         * @param hsl HSL
+         * @return RGB颜色对象
+         */
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        fromHSL(const HSL<T>& hsl)
+        {
+            return fromHSL(hsl[0], hsl[1], hsl[2], hsl[3]);
         }
 
         /**
@@ -424,8 +529,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSI(T h, T s, T i, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -472,11 +577,66 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode, bool srgb = bsRGB>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, bsRGB>>
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSI(const Vector<T, 3>& hsi, T a = T(1))
         {
             return fromHSI(hsi[0], hsi[1], hsi[2], a);
+        }
+
+        /**
+         * 从HSI Vector创建RGB颜色
+         * @param hsi HSI
+         * @return RGB颜色对象
+         */
+        template <bool rgbmode = isRGBMode>
+        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        fromHSI(const HSI<T> hsi)
+        {
+            return fromHSI(hsi[0], hsi[1], hsi[2], hsi[3]);
+        }
+
+        virtual std::ostream& print(std::ostream& out) const override
+        {
+            std::string mode;
+
+            if (isRGBMode)
+            {
+                if (modeIndex)
+                {
+                    mode = "sRGB";
+                }
+                else
+                {
+                    mode = "Linear";
+                }
+            }
+            else
+            {
+                switch (modeIndex)
+                {
+                case (0):
+                    mode = "HSV";
+                    break;
+                case (1):
+                    mode = "HSL";
+                    break;
+                case (2):
+                    mode = "HSI";
+                    break;
+                }
+            }
+			
+            out << "(";
+            for (size_t i = 0; i < 4; ++i) 
+            {
+                out << (*this).data[i];
+                if (i < 4 - 1) {
+                    out << ", ";
+                }
+            }
+            out << ") (Color mode: " << mode << ")";
+            return out;
         }
     };
     
