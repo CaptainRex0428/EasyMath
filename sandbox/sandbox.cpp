@@ -10,7 +10,6 @@ int main(int argc, char * argv[])
 
 	EM::sRGBColor<float> ColorS{0.4f,0.6f,0.9f,1.f};
 	EM::LinearColor<float> ColorL{0.4f,0.6f,0.9f,1.f};
-	std::cout << ColorS << std::endl;
 	std::cout << ColorS.luminance() << std::endl;
 	std::cout << ColorL.luminance()<< std::endl;
 
