@@ -15,7 +15,7 @@
 
 #ifdef ENGINE_API
 
-#elif
+#else
 #define PRINT(var) std::cout << var << std::endl;
 int main(int argc, char * argv[])
 {
