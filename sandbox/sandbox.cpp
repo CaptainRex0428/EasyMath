@@ -23,6 +23,8 @@ int main(int argc, char * argv[])
 	std::cout << EM::LinearColor<float>::fromHSV(EM::Vector<float,3>{1,1,1},1)<< std::endl;
 	std::cout << EM::LinearColor<float>::fromHSL(EM::Vector<float,3>{1,1,1},1)<< std::endl;
 	std::cout << EM::LinearColor<float>::fromHSI(EM::Vector<float,3>{1,1,1},1)<< std::endl;
+	
+	std::cout << ColorL2 * ColorS2 << std::endl;
 
 	
 	

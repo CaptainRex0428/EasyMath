@@ -4,7 +4,7 @@
 
 ---
 
-![Static Badge](https://img.shields.io/badge/Version-1.0.10-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
+![Static Badge](https://img.shields.io/badge/Version-1.0.11-orange) ![Static Badge](https://img.shields.io/badge/Code->C%2B%2B17-red) ![Static Badge](https://img.shields.io/badge/Export-dll-brightgreen) ![Static Badge](https://img.shields.io/badge/Sandbox-console-brown) ![Static Badge](https://img.shields.io/badge/State-developing-blue)
 
 --- 
 
@@ -104,10 +104,12 @@ int main() {
 ![Static Badge](https://img.shields.io/badge/next_version-1.1-yellow)
 
 
-- [ ] Optimize matrix and vector algorithms
+- [x] Optimize matrix and vector algorithms
 - [ ] Enrich quaternion APIs
 - [ ] Add Euler angles APIs
 - [ ] Add conversions among Euler angles, quaternions and axis-angle
+- [x] Add Color APIs（support sRGB, LinearColor, HSV, HSL, HSI）
+- [ ] Add Color operations
 - [x] Optimize algorithm of vector swizzle operation
 - [x] Sync algorithms of vector to swizzle
 
@@ -215,11 +217,13 @@ int main() {
 - [Matrix](/docs/Matrix.md)
 
 ### 版本开发计划 
-![Static Badge](https://img.shields.io/badge/Next_Version-1__1__0-yellow)
-- [ ] 优化矩阵和向量算法
+![Static Badge](https://img.shields.io/badge/Next_Version-1.1.0-yellow)
+- [x] 优化矩阵和向量算法
 - [ ] 完善四元数计算API
 - [ ] 添加欧拉角API
 - [ ] 添加欧拉角、四元数、轴角转换方法
+- [x] 添加Color类型（支持sRGB,LinearColor,HSV,HSL,HSI）
+- [ ] 添加Color相关运算
 - [x] 优化vector swizzle算法
 - [x] 为swizzle同步vector算法
 
@@ -232,4 +236,4 @@ int main() {
 - 欢迎 Issue 与 PR。请保持 API 命名与语义一致，优先清晰命名与早返回，避免深层嵌套。
 
 ### 许可协议
-请参阅英文许可 `LICENSE`
+请参阅英文许可 [`LICENSE`](LICENSE)
