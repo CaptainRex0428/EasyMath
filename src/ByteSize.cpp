@@ -1,9 +1,4 @@
-#ifdef ENGINE_API
-#include "EasyMath/EasyMath/include/ByteSize.h"
-#else
 #include "ByteSize.h"
-#endif
-
 
 double EM::ByteSizeTo(int bytesize, SystemSizeUnit unit)
 {
