@@ -5,7 +5,7 @@
 #include "Vector.h"
 
 
-namespace EM
+namespace EasyMath
 {
     enum class LuminanceStandard
     {
@@ -14,7 +14,7 @@ namespace EM
         Rec2020    // 0.2627, 0.6780, 0.0593 (UHD)
     };
 
-    template <typename T, bool bsRGB ,size_t modeIndex, typename>
+    template <typename T, bool bIsRGB, size_t modeIndex, typename>
     class Color;
 
     template <typename T>
@@ -32,7 +32,7 @@ namespace EM
     template <typename T>
     using HSI = Color<T, false, 2,  std::enable_if_t<std::is_arithmetic_v<T>>>;
     
-    template <typename T,bool isRGBMode = true, size_t modeIndex = 0 , typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+    template <typename T,bool bIsRGB = true, size_t modeIndex = 0 , typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     class Color : public Vector<T, 4>
     {
     public:
@@ -62,7 +62,7 @@ namespace EM
          * @param ls 亮度标准（Rec601/Rec709/Rec2020）
          * @return 亮度值 [0, 1]
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, T>
         luminance(LuminanceStandard ls = LuminanceStandard::Rec709)
         {
@@ -84,7 +84,7 @@ namespace EM
          * @param ls 亮度标准
          * @return 感知亮度值
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, T>
         perceivedLuminance(LuminanceStandard ls = LuminanceStandard::Rec709) const
         {
@@ -98,7 +98,7 @@ namespace EM
         * 始终在线性空间计算
         * @return 相对亮度 [0, 1]
         */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, T>
         relativeLuminance() const
         {
@@ -120,7 +120,7 @@ namespace EM
          * @param other 另一个颜色
          * @return 对比度比值 [1, 21]
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, T>
         contrastRatio(const Color& other) const
         {
@@ -139,7 +139,7 @@ namespace EM
          * 将sRGB颜色转换为线性颜色空间
          * @return 线性颜色空间的Color对象
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t< rgbmode && modeIndex == 1, LinearColor<T>>
         toLinear() const
         {
@@ -167,7 +167,7 @@ namespace EM
          * 将线性颜色空间转换为sRGB
          * @return sRGB颜色空间的Color对象
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode && modeIndex == 0, sRGBColor<T>>
         toSRGB() const
         {
@@ -194,7 +194,7 @@ namespace EM
          * 将RGB颜色转换为HSV颜色空间
          * @return HSV格式的Vector3 (H: [0,360], S: [0,1], V: [0,1])
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, HSV<T>>
         toHSV() const
         {
@@ -244,7 +244,7 @@ namespace EM
          * 将RGB颜色转换为HSL颜色空间
          * @return HSL格式的Vector3 (H: [0,360], S: [0,1], L: [0,1])
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, HSL<T>>
         toHSL() const
         {
@@ -299,7 +299,7 @@ namespace EM
          * 将RGB颜色转换为HSI颜色空间
          * @return HSI格式的Vector3 (H: [0,360], S: [0,1], I: [0,1])
          */
-        template <bool rgbmode = isRGBMode>
+        template <bool rgbmode = bIsRGB>
         typename std::enable_if_t<rgbmode, HSI<T>>
         toHSI() const
         {
@@ -379,8 +379,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSV(T h, T s, T v, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -427,8 +427,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSV(const Vector<T, 3>& hsv, T a = T(1))
         {
             return fromHSV(hsv.x, hsv.y, hsv.z, a);
@@ -439,8 +439,8 @@ namespace EM
          * @param hsv HSV
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSV(const HSV<T>& hsv)
         {
             return fromHSV(hsv.x, hsv.y, hsv.z, hsv.w);
@@ -454,8 +454,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSL(T h, T s, T l, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -502,8 +502,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSL(const Vector<T, 3>& hsl, T a = T(1))
         {
             return fromHSL(hsl[0], hsl[1], hsl[2], a);
@@ -514,8 +514,8 @@ namespace EM
          * @param hsl HSL
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSL(const HSL<T>& hsl)
         {
             return fromHSL(hsl[0], hsl[1], hsl[2], hsl[3]);
@@ -529,8 +529,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSI(T h, T s, T i, T a = T(1))
         {
             // 将色相规范化到[0, 360)
@@ -577,8 +577,8 @@ namespace EM
          * @param a Alpha通道值 [0, 1]
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSI(const Vector<T, 3>& hsi, T a = T(1))
         {
             return fromHSI(hsi[0], hsi[1], hsi[2], a);
@@ -589,8 +589,8 @@ namespace EM
          * @param hsi HSI
          * @return RGB颜色对象
          */
-        template <bool rgbmode = isRGBMode>
-        static typename std::enable_if_t<rgbmode, Color<T, isRGBMode, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
+        template <bool rgbmode = bIsRGB>
+        static typename std::enable_if_t<rgbmode, Color<T, bIsRGB, modeIndex, std::enable_if_t<std::is_arithmetic_v<T>>>>
         fromHSI(const HSI<T> hsi)
         {
             return fromHSI(hsi[0], hsi[1], hsi[2], hsi[3]);
@@ -600,7 +600,7 @@ namespace EM
         {
             std::string mode;
 
-            if (isRGBMode)
+            if (bIsRGB)
             {
                 if (modeIndex)
                 {

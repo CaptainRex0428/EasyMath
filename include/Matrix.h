@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace EM
+namespace EasyMath
 {
 	template<typename T, size_t dimension, typename>
 	class Vector;

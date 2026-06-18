@@ -5,7 +5,7 @@
 
 #define NEARZERO_THRESHOLD 1e-6
 
-namespace EM
+namespace EasyMath
 {
 	template<typename T, typename... Args>
 	struct are_comparable :

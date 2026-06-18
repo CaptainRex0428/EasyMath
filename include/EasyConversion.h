@@ -3,7 +3,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 
-namespace EM
+namespace EasyMath
 {
 	// ========== Vector 到 Matrix 的转换 ==========
 

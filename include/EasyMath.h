@@ -12,3 +12,6 @@
 #include "Quaternion.h"
 #include "EasyConversion.h"
 
+#include "Color.h"
+
+using namespace EasyMath;

@@ -4,7 +4,7 @@
 
 #include <tuple>
 
-namespace EM
+namespace EasyMath
 {
 	enum SystemSizeUnit
 	{

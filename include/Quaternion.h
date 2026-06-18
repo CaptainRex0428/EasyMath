@@ -3,7 +3,7 @@
 #include "EasyMathAPI.h"
 #include "Vector.h"
 
-namespace EM
+namespace EasyMath
 {
     template<typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     class Quaternion : public Vector<T,4>

@@ -1,6 +1,6 @@
 #include "ByteSize.h"
 
-double EM::ByteSizeTo(int bytesize, SystemSizeUnit unit)
+double EasyMath::ByteSizeTo(int bytesize, SystemSizeUnit unit)
 {
 
 	const double KB = 1024.0;
@@ -40,7 +40,7 @@ double EM::ByteSizeTo(int bytesize, SystemSizeUnit unit)
 
 }
 
-std::tuple<const char*, double> EM::ByteSizeConvert(uintmax_t bytesize)
+std::tuple<const char*, double> EasyMath::ByteSizeConvert(uintmax_t bytesize)
 {
 	double size = (double)bytesize;
 	const char* unit = "Byte";

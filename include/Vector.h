@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace EM
+namespace EasyMath
 {
 	template <typename T, size_t rows, size_t cols, typename>
 	class Matrix;
