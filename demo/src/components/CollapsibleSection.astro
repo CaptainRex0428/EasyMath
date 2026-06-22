@@ -1,0 +1,117 @@
+---
+/**
+ * CollapsibleSection.astro
+ * A <details>/<summary> based collapsible panel with optional localStorage persistence.
+ *
+ * Props:
+ *   - title: section heading
+ *   - id: unique identifier for persistence (required for persistence)
+ *   - defaultOpen: initial state (default true)
+ *   - persist: whether to save state to localStorage (default true)
+ */
+const {
+  title,
+  id,
+  defaultOpen = true,
+  persist = true,
+  badge = ''
+} = Astro.props;
+---
+<details
+  class="collapsible-section"
+  data-persist-key={persist && id ? id : null}
+  open={defaultOpen}
+>
+  <summary>
+    <span class="summary-text">{title}</span>
+    {badge && <span class="summary-badge">{badge}</span>}
+    <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </summary>
+  <div class="section-content">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .collapsible-section {
+    margin-top: 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.01);
+    overflow: hidden;
+  }
+
+  .collapsible-section > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background var(--transition-fast);
+    border-bottom: 1px solid transparent;
+  }
+
+  .collapsible-section > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .collapsible-section > summary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+
+  .collapsible-section[open] > summary {
+    border-bottom-color: var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  .summary-text {
+    flex: 1;
+  }
+
+  .summary-badge {
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    background: var(--bg-tertiary);
+    color: var(--accent-blue);
+    border-radius: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .collapsible-section[open] > summary .chevron {
+    transform: rotate(180deg);
+  }
+
+  .section-content {
+    padding: 10px 12px 12px;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

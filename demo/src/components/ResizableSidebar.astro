@@ -1,0 +1,74 @@
+---
+/**
+ * ResizableSidebar.astro
+ * Wrapper that adds a draggable resize handle to the sidebar content.
+ * Usage:
+ *   <ResizableSidebar>
+ *     ... sidebar content ...
+ *   </ResizableSidebar>
+ */
+const { id = 'controls' } = Astro.props;
+---
+<div class="sidebar-wrapper">
+  <aside id={id} class="sidebar-content">
+    <slot />
+  </aside>
+  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize sidebar"></div>
+</div>
+
+<style>
+  .sidebar-wrapper {
+    position: relative;
+    display: contents;
+  }
+
+  .sidebar-content {
+    width: var(--sidebar-width, 280px);
+    min-width: var(--sidebar-min-width, 200px);
+    max-width: var(--sidebar-max-width, 600px);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0s; /* avoid layout animations during drag */
+  }
+
+  .sidebar-resizer {
+    position: absolute;
+    top: 0;
+    left: var(--sidebar-width, 280px);
+    width: var(--resizer-width, 4px);
+    height: 100%;
+    cursor: col-resize;
+    background: transparent;
+    z-index: 10;
+    transform: translateX(-50%);
+  }
+
+  .sidebar-resizer:hover,
+  .sidebar-resizer.resizing {
+    background: var(--accent-blue);
+  }
+
+  /* Mobile: hide sidebar, show as collapsible overlay */
+  @media (max-width: 768px) {
+    .sidebar-content {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      transform: translateX(-100%);
+      transition: transform var(--transition-base);
+      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-content.is-open {
+      transform: translateX(0);
+    }
+
+    .sidebar-resizer {
+      display: none;
+    }
+  }
+</style>

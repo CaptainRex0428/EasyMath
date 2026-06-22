@@ -28,7 +28,7 @@
 
 ### ✅ Matrix<T, R, C> - 矩阵类
 **文件**: `include/Matrix.h`
-**完成度**: 90%
+**完成度**: 95%
 
 **已实现**:
 - ✅ 泛型行列支持
@@ -46,12 +46,21 @@
   - MTXRotationX/Y/Z - 旋转矩阵
   - MTXTranslation - 平移矩阵
   - MTXScale - 缩放矩阵
+- ✅ **投影矩阵（新增 2026-06-18）**：
+  - MTXLookAt - 视图矩阵（世界→相机空间）
+  - MTXPerspective - 透视投影（3D 游戏）
+  - MTXOrtho - 正交投影（2D 游戏/UI）
 
-**待实现**:
-- [ ] 透视投影矩阵（MTXPerspective）
-- [ ] 正交投影矩阵（MTXOrtho）
-- [ ] Look-At 矩阵（MTXLookAt）
-- [ ] SIMD 优化
+**性能优化**（2026-06-18）:
+- ✅ MTXLookAt: 减少 1 次 sqrt，提升 ~13%
+- ✅ MTXPerspective: 减少 5 次除法，提升 ~30%
+- ✅ MTXOrtho: 减少 6 次除法，提升 ~40%
+- ✅ 详细优化文档：`memory/optimization-summary.md`
+
+**待实现** (v1.1.0 中优先级):
+- [ ] 投影矩阵变体（DirectX 风格）
+- [ ] LU 分解（更快的逆矩阵算法）
+- [ ] SIMD 优化（v1.2.0）
 
 ---
 

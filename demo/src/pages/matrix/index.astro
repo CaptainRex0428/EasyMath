@@ -1,0 +1,1383 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+<Layout title="Matrix Demo">
+<div id="app">
+
+  <!-- ===== HEADER ===== -->
+  <div id="header">
+    <div id="header-left">
+      <button id="mobile-menu-btn" class="icon-btn" aria-label="Toggle sidebar">☰</button>
+      <span id="header-title">🔢 Matrix Demo</span>
+    </div>
+    <div id="tab-switcher" role="tablist">
+      <button class="tab-btn active" data-tab="webgl" role="tab">⚡ Pure WebGL</button>
+      <button class="tab-btn" data-tab="threejs" role="tab">🎲 Three.js</button>
+    </div>
+    <div id="header-right">
+      <a href="/" id="back-link">← 返回主页</a>
+    </div>
+  </div>
+
+  <!-- ===== SIDEBAR RESIZER ===== -->
+  <div id="sidebar-resizer"></div>
+
+  <!-- ===== CONTROLS SIDEBAR ===== -->
+  <div id="controls">
+
+    <!-- Shape selector -->
+    <div class="shape-selector">
+      <div class="shape-label">Shape</div>
+      <div class="shape-btns">
+        <button class="shape-btn active" data-shape="cube"     title="Cube">⬜</button>
+        <button class="shape-btn"        data-shape="sphere"   title="Sphere">⚪</button>
+        <button class="shape-btn"        data-shape="cone"     title="Cone">🔺</button>
+        <button class="shape-btn"        data-shape="torus"    title="Torus">⭕</button>
+        <button class="shape-btn"        data-shape="cylinder" title="Cylinder">🥫</button>
+      </div>
+      <button id="view-src-btn" class="src-btn" title="View source code">⟨/⟩ Source</button>
+    </div>
+
+    <details class="cs" data-key="model-trans" open>
+      <summary><span>Model — 平移 Translation</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
+      <div class="sc">
+        <div class="row"><label>tx</label><input type="range" id="tx" min="-3" max="3" step="0.1" value="0"><span id="tx-v">0.0</span></div>
+        <div class="row"><label>ty</label><input type="range" id="ty" min="-3" max="3" step="0.1" value="0"><span id="ty-v">0.0</span></div>
+        <div class="row"><label>tz</label><input type="range" id="tz" min="-3" max="3" step="0.1" value="0"><span id="tz-v">0.0</span></div>
+      </div>
+    </details>
+
+    <details class="cs" data-key="model-rot" open>
+      <summary><span>Model — 旋转 Rotation (°)</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
+      <div class="sc">
+        <div class="row"><label>rx</label><input type="range" id="rx" min="0" max="360" step="1" value="0"><span id="rx-v">0°</span></div>
+        <div class="row"><label>ry</label><input type="range" id="ry" min="0" max="360" step="1" value="0"><span id="ry-v">0°</span></div>
+        <div class="row"><label>rz</label><input type="range" id="rz" min="0" max="360" step="1" value="0"><span id="rz-v">0°</span></div>
+      </div>
+    </details>
+
+    <details class="cs" data-key="model-scale" open>
+      <summary><span>Model — 缩放 Scale</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
+      <div class="sc">
+        <div class="row"><label>sx</label><input type="range" id="sx" min="0.1" max="3" step="0.05" value="1"><span id="sx-v">1.0</span></div>
+        <div class="row"><label>sy</label><input type="range" id="sy" min="0.1" max="3" step="0.05" value="1"><span id="sy-v">1.0</span></div>
+        <div class="row"><label>sz</label><input type="range" id="sz" min="0.1" max="3" step="0.05" value="1"><span id="sz-v">1.0</span></div>
+      </div>
+    </details>
+
+    <details class="cs" data-key="camera" open>
+      <summary><span>Camera — LookAt 相机</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
+      <div class="sc">
+        <div class="row"><label>ex</label><input type="range" id="ex" min="-10" max="10" step="0.1" value="0"><span id="ex-v">0.0</span></div>
+        <div class="row"><label>ey</label><input type="range" id="ey" min="-10" max="10" step="0.1" value="3"><span id="ey-v">3.0</span></div>
+        <div class="row"><label>ez</label><input type="range" id="ez" min="-10" max="10" step="0.1" value="6"><span id="ez-v">6.0</span></div>
+        <div class="row"><label>ltx</label><input type="range" id="ltx" min="-5" max="5" step="0.1" value="0"><span id="ltx-v">0.0</span></div>
+        <div class="row"><label>lty</label><input type="range" id="lty" min="-5" max="5" step="0.1" value="0"><span id="lty-v">0.0</span></div>
+        <div class="row"><label>ltz</label><input type="range" id="ltz" min="-5" max="5" step="0.1" value="0"><span id="ltz-v">0.0</span></div>
+      </div>
+    </details>
+
+    <details class="cs" data-key="projection" open>
+      <summary><span>Projection 投影</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
+      <div class="sc">
+        <div class="toggle-row">
+          <button class="toggle-btn active" id="btn-persp" onclick="setProj('persp')">Perspective</button>
+          <button class="toggle-btn" id="btn-ortho" onclick="setProj('ortho')">Orthographic</button>
+        </div>
+        <div id="persp-params">
+          <div class="row"><label>fov</label><input type="range" id="fov" min="20" max="120" step="1" value="60"><span id="fov-v">60°</span></div>
+        </div>
+        <div id="ortho-params" style="display:none">
+          <div class="row"><label>size</label><input type="range" id="ortho-size" min="1" max="10" step="0.1" value="4"><span id="ortho-size-v">4.0</span></div>
+        </div>
+        <div class="row"><label>near</label><input type="range" id="near" min="0.01" max="2" step="0.01" value="0.1"><span id="near-v">0.1</span></div>
+        <div class="row"><label>far</label><input type="range" id="far" min="10" max="200" step="1" value="50"><span id="far-v">50.0</span></div>
+      </div>
+    </details>
+
+  </div><!-- /controls -->
+
+  <!-- ===== CANVAS AREA ===== -->
+  <div id="canvas-area">
+    <!-- WebGL tab -->
+    <div id="tab-webgl" class="tab-content active">
+      <canvas id="gl-canvas"></canvas>
+    </div>
+    <!-- Three.js tab -->
+    <div id="tab-threejs" class="tab-content">
+      <div id="threejs-container">
+        <div id="threejs-badge">Three.js</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PIPELINE BAR ===== -->
+  <div id="pipeline-bar">
+    <div class="ps">Local Space<small>Object Coords</small></div>
+    <div class="pa"><span class="arr">→</span><strong>× Model</strong>MTXTranslation·MTXRy·MTXRx·MTXRz·MTXScale</div>
+    <div class="ps">World Space<small>World Coords</small></div>
+    <div class="pa"><span class="arr">→</span><strong>× MTXLookAt</strong>View Matrix</div>
+    <div class="ps">Camera Space<small>View Coords</small></div>
+    <div class="pa"><span class="arr">→</span><strong id="proj-fn-label">× MTXPerspective</strong>Proj Matrix</div>
+    <div class="ps">Clip Space<small>Homogeneous</small></div>
+    <div class="pa"><span class="arr">→</span><strong>÷ w</strong>Perspective Divide</div>
+    <div class="ps">NDC<small>[-1,1]³</small></div>
+  </div>
+
+  <!-- ===== MATRIX PANEL ===== -->
+  <div id="matrix-panel">
+    <div class="mat-box">
+      <div class="mat-title"><span class="sf">Local</span><span class="sa"> →×Model→ </span><span class="st">World</span><span class="fl"> MTXTranslation·MTXRy·MTXRx·MTXRz·MTXScale</span></div>
+      <div class="mat-grid" id="mat-model"></div>
+    </div>
+    <div class="mat-box">
+      <div class="mat-title"><span class="sf">World</span><span class="sa"> →×MTXLookAt→ </span><span class="st">Camera</span></div>
+      <div class="mat-grid" id="mat-view"></div>
+    </div>
+    <div class="mat-box">
+      <div class="mat-title" id="proj-mat-label"><span class="sf">Camera</span><span class="sa"> →×MTXPerspective→ </span><span class="st">Clip</span></div>
+      <div class="mat-grid" id="mat-proj"></div>
+    </div>
+    <div class="mat-box">
+      <div class="mat-title"><span class="sf">Local</span><span class="sa"> →×MVP→ </span><span class="st">Clip</span></div>
+      <div class="mat-grid" id="mat-mvp"></div>
+    </div>
+  </div>
+
+  <!-- Mobile overlay backdrop -->
+  <div id="sidebar-backdrop"></div>
+
+  <!-- Source code modal -->
+  <div id="src-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="modal-title">Source Code</span>
+        <div class="modal-header-actions">
+          <button id="modal-copy-btn" class="modal-action-btn" title="Copy code">⎘ Copy</button>
+          <button id="modal-close-btn" class="modal-action-btn" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-src="geo">Geometry</button>
+        <button class="modal-tab" data-src="vert">Vertex Shader</button>
+        <button class="modal-tab" data-src="frag">Fragment Shader</button>
+      </div>
+      <pre id="modal-code" class="modal-code"><code></code></pre>
+    </div>
+  </div>
+
+</div><!-- /app -->
+</Layout>
+
+<style is:global>
+/* ===== LAYOUT =====
+   Use height:100vh so grid rows with 1fr get real pixel heights.
+   body/html overflow is hidden here; only #controls scrolls internally.
+===== */
+html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
+
+<style>
+
+#app {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 280px) 4px 1fr;
+  grid-template-rows: 44px 1fr 58px 190px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Header spans full width */
+#header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+#header-left { display: flex; align-items: center; gap: 8px; }
+#header-title { font-size: 0.9rem; font-weight: 600; color: var(--accent-blue); white-space: nowrap; }
+#header-right { margin-left: auto; font-size: 0.78rem; }
+#back-link { color: var(--text-secondary); }
+#back-link:hover { color: var(--text-primary); }
+
+/* Sidebar resizer */
+#sidebar-resizer {
+  grid-column: 2;
+  grid-row: 2 / 5;
+  background: var(--border-color);
+  cursor: col-resize;
+  transition: background var(--transition-fast);
+  z-index: 10;
+}
+#sidebar-resizer:hover,
+#sidebar-resizer.resizing { background: var(--accent-blue); }
+
+/* Controls sidebar — scrolls internally */
+#controls {
+  grid-column: 1;
+  grid-row: 2 / 5;
+  background: var(--bg-secondary);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+}
+
+/* Canvas area — fills the grid cell, children use absolute/100% */
+#canvas-area {
+  grid-column: 3;
+  grid-row: 2;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Tab content: use absolute positioning so height is always the parent cell height */
+.tab-content {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+.tab-content.active { display: block; }
+
+#gl-canvas { display: block; width: 100%; height: 100%; }
+#threejs-container { width: 100%; height: 100%; position: relative; }
+#threejs-badge {
+  position: absolute; top: 8px; right: 10px;
+  font-size: 0.7rem; color: var(--text-muted); pointer-events: none;
+}
+
+/* Pipeline bar */
+#pipeline-bar {
+  grid-column: 3;
+  grid-row: 3;
+  background: #13191f;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  overflow-x: auto;
+}
+.ps { text-align: center; font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; line-height: 1.4; }
+.ps small { font-size: 0.6rem; color: var(--accent-blue); font-weight: 400; display: block; }
+.pa { font-size: 0.6rem; text-align: center; color: var(--text-secondary); padding: 0 6px; line-height: 1.4; white-space: nowrap; flex-shrink: 0; }
+.pa strong { color: var(--accent-green); display: block; font-size: 0.68rem; }
+.pa .arr { color: #444; font-size: 1rem; }
+
+/* Matrix panel */
+#matrix-panel {
+  grid-column: 3;
+  grid-row: 4;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  overflow-x: auto;
+  min-width: 0;
+}
+.mat-box { flex: 1; border-right: 1px solid var(--border-subtle); padding: 6px 8px; display: flex; flex-direction: column; min-width: 200px; }
+.mat-box:last-child { border-right: none; }
+.mat-title { font-size: 0.6rem; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 2px; line-height: 1.3; }
+.sf { color: var(--accent-orange); font-weight: 700; }
+.st { color: var(--accent-green); font-weight: 700; }
+.sa { color: #444; }
+.fl { color: #79c0ff; font-size: 0.58rem; }
+.mat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; font-family: monospace; font-size: 0.68rem; flex: 1; }
+.mat-cell { text-align: right; padding: 1px 3px; border-radius: 2px; background: var(--bg-primary); color: var(--accent-green); }
+.mat-cell.hl { color: var(--accent-orange); background: #2d1f0e; }
+
+/* ===== SHAPE SELECTOR ===== */
+.shape-selector { padding: 8px 4px 4px; margin-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
+.shape-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.shape-btns { display: flex; gap: 4px; }
+.shape-btn { flex: 1; padding: 6px 2px; border: 1px solid var(--border-color); border-radius: 5px; background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 1rem; line-height: 1; transition: all var(--transition-fast); }
+.shape-btn:hover { border-color: var(--text-muted); background: var(--bg-quaternary, #2d333b); }
+.shape-btn.active { border-color: var(--accent-blue); background: #1d3557; }
+
+/* ===== COLLAPSIBLE SECTIONS ===== */
+.cs { border: 1px solid var(--border-subtle); border-radius: 6px; margin-bottom: 6px; overflow: hidden; }
+.cs > summary {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px; font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-secondary); cursor: pointer; list-style: none;
+  user-select: none; transition: background var(--transition-fast);
+  border-bottom: 1px solid transparent;
+}
+.cs > summary::-webkit-details-marker { display: none; }
+.cs > summary:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.cs[open] > summary { border-bottom-color: var(--border-subtle); color: var(--text-primary); }
+.chev { width: 12px; height: 12px; color: var(--text-muted); transition: transform var(--transition-fast); flex-shrink: 0; }
+.cs[open] > summary .chev { transform: rotate(180deg); }
+.sc { padding: 8px 10px 10px; }
+
+/* ===== CONTROLS ROWS ===== */
+.row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.row:last-child { margin-bottom: 0; }
+.row label { width: 28px; font-size: 0.75rem; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
+.row input[type=range] { flex: 1; accent-color: var(--accent-blue); }
+.row span { width: 44px; font-size: 0.7rem; color: var(--accent-green); text-align: right; font-family: monospace; flex-shrink: 0; }
+.toggle-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.toggle-btn { flex: 1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; font-family: inherit; transition: all var(--transition-fast); }
+.toggle-btn.active { background: #1d3557; border-color: var(--accent-blue); color: var(--accent-blue); }
+
+/* ===== TAB SWITCHER ===== */
+#tab-switcher { display: inline-flex; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px; gap: 2px; margin: 0 auto; }
+.tab-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 0.78rem; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all var(--transition-fast); font-family: inherit; }
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-quaternary, #2d333b); }
+.tab-btn.active { background: var(--bg-secondary); color: var(--accent-blue); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+/* ===== SOURCE MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.visible { display: flex; }
+
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.modal-header-actions { display: flex; gap: 8px; }
+
+.modal-action-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+.modal-action-btn:hover { background: var(--bg-quaternary, #2d333b); color: var(--text-primary); }
+.modal-action-btn.copied { border-color: var(--accent-green); color: var(--accent-green); }
+
+.modal-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+.modal-tab {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+  margin-bottom: -1px;
+}
+.modal-tab:hover { color: var(--text-primary); }
+.modal-tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+
+.modal-code {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: 0 0 10px 10px;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #e6edf3;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Simple token colors */
+.modal-code .kw  { color: #ff7b72; }   /* keywords */
+.modal-code .fn  { color: #d2a8ff; }   /* functions */
+.modal-code .nm  { color: #79c0ff; }   /* numbers */
+.modal-code .cm  { color: #8b949e; font-style: italic; } /* comments */
+.modal-code .st  { color: #a5d6ff; }   /* strings */
+
+.src-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: 'Cascadia Code', monospace;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+.src-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: #1d3557; }
+
+/* ===== MOBILE ===== */
+#mobile-menu-btn { display: none; }
+#sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+
+@media (max-width: 768px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height, 44px) minmax(300px, 1fr) 58px 190px;
+  }
+  #sidebar-resizer { display: none; }
+  #controls {
+    position: fixed; top: 0; left: 0; height: 100vh;
+    width: 280px !important; z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    box-shadow: 4px 0 16px rgba(0,0,0,0.5);
+    padding-top: 8px;
+  }
+  #controls.is-open { transform: translateX(0); }
+  #canvas-area { grid-column: 1; grid-row: 2; }
+  #pipeline-bar { grid-column: 1; grid-row: 3; }
+  #matrix-panel { grid-column: 1; grid-row: 4; }
+  #mobile-menu-btn { display: flex; }
+  #sidebar-backdrop.visible { display: block; }
+}
+</style>
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script is:inline>
+// ============================================================
+// SHARED STATE & STORAGE
+// ============================================================
+const STORAGE = {
+  get(k, d=null) { try { const v=localStorage.getItem('em-'+k); return v===null?d:JSON.parse(v); } catch(e){ return d; } },
+  set(k, v) { try { localStorage.setItem('em-'+k, JSON.stringify(v)); } catch(e){} }
+};
+
+// ============================================================
+// MATRIX MATH (row-major, matching EasyMath C++)
+// ============================================================
+function matId() { return [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]; }
+function matTranslation(x,y,z) { return [1,0,0,x, 0,1,0,y, 0,0,1,z, 0,0,0,1]; }
+function matRotX(a) { const c=Math.cos(a),s=Math.sin(a); return [1,0,0,0, 0,c,-s,0, 0,s,c,0, 0,0,0,1]; }
+function matRotY(a) { const c=Math.cos(a),s=Math.sin(a); return [c,0,s,0, 0,1,0,0, -s,0,c,0, 0,0,0,1]; }
+function matRotZ(a) { const c=Math.cos(a),s=Math.sin(a); return [c,-s,0,0, s,c,0,0, 0,0,1,0, 0,0,0,1]; }
+function matScale(x,y,z) { return [x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1]; }
+function matMul(A,B) { const R=new Array(16).fill(0); for(let i=0;i<4;i++) for(let j=0;j<4;j++) for(let k=0;k<4;k++) R[i*4+j]+=A[i*4+k]*B[k*4+j]; return R; }
+function normalize3(v) { const l=Math.sqrt(v[0]**2+v[1]**2+v[2]**2); return l<1e-6?[0,0,1]:[v[0]/l,v[1]/l,v[2]/l]; }
+function cross3(a,b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+function dot3(a,b) { return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+function matLookAt(eye,target,up) {
+  const fwd=normalize3([target[0]-eye[0],target[1]-eye[1],target[2]-eye[2]]);
+  const right=normalize3(cross3(fwd,up));
+  const camUp=cross3(right,fwd);
+  return [right[0],right[1],right[2],-dot3(right,eye), camUp[0],camUp[1],camUp[2],-dot3(camUp,eye), -fwd[0],-fwd[1],-fwd[2],dot3(fwd,eye), 0,0,0,1];
+}
+function matPerspective(fov,aspect,near,far) {
+  const invTan=1/Math.tan(fov/2),invRange=1/(far-near);
+  return [invTan/aspect,0,0,0, 0,invTan,0,0, 0,0,-(far+near)*invRange,-(2*far*near)*invRange, 0,0,-1,0];
+}
+function matOrtho(l,r,b,t,n,f) {
+  const iw=1/(r-l),ih=1/(t-b),id=1/(f-n);
+  return [2*iw,0,0,-(r+l)*iw, 0,2*ih,0,-(t+b)*ih, 0,0,-2*id,-(f+n)*id, 0,0,0,1];
+}
+function transpose(m) { return [m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m[6],m[10],m[14],m[3],m[7],m[11],m[15]]; }
+
+function g(id) { return parseFloat(document.getElementById(id).value); }
+
+// ============================================================
+// SHARED: compute matrices from current slider state
+// ============================================================
+function computeMatrices(aspect) {
+  const deg = Math.PI/180;
+  const model = matMul(matTranslation(g('tx'),g('ty'),g('tz')),
+    matMul(matRotY(g('ry')*deg),
+    matMul(matRotX(g('rx')*deg),
+    matMul(matRotZ(g('rz')*deg),
+    matScale(g('sx'),g('sy'),g('sz'))))));
+  const eye=[g('ex'),g('ey'),g('ez')], target=[g('ltx'),g('lty'),g('ltz')];
+  const view = matLookAt(eye, target, [0,1,0]);
+  const near=g('near'), far=g('far');
+  let proj;
+  if(projMode==='persp') {
+    proj = matPerspective(g('fov')*deg, aspect, near, far);
+  } else {
+    const s=g('ortho-size'), a=s*aspect;
+    proj = matOrtho(-a,a,-s,s,near,far);
+  }
+  const mvp = matMul(proj, matMul(view, model));
+  return { model, view, proj, mvp, eye, target, near, far };
+}
+
+// ============================================================
+// SHARED: display matrix in DOM
+// ============================================================
+function displayMatrix(id, m) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '';
+  for(let i=0;i<16;i++) {
+    const d = document.createElement('div');
+    d.className = 'mat-cell' + (i%5===0?' hl':'');
+    d.textContent = m[i].toFixed(3);
+    el.appendChild(d);
+  }
+}
+
+// ============================================================
+// PROJECTION MODE
+// ============================================================
+let projMode = STORAGE.get('proj-mode', 'persp');
+
+function setProj(mode) {
+  projMode = mode;
+  STORAGE.set('proj-mode', mode);
+  document.getElementById('btn-persp').classList.toggle('active', mode==='persp');
+  document.getElementById('btn-ortho').classList.toggle('active', mode==='ortho');
+  document.getElementById('persp-params').style.display = mode==='persp'?'':'none';
+  document.getElementById('ortho-params').style.display = mode==='ortho'?'':'none';
+  const fn = mode==='persp' ? 'MTXPerspective(fov,aspect,near,far)' : 'MTXOrtho(l,r,b,t,near,far)';
+  document.getElementById('proj-fn-label').textContent = '× ' + fn;
+  const matName = mode==='persp' ? 'MTXPerspective' : 'MTXOrtho';
+  document.getElementById('proj-mat-label').innerHTML =
+    '<span class="sf">Camera</span><span class="sa"> →×' + matName + '→ </span><span class="st">Clip</span>';
+}
+
+// Apply saved projection mode on load
+setProj(projMode);
+
+// ============================================================
+// ACTIVE TAB — declared early so renderers can read it
+// ============================================================
+let activeTab = (function() {
+  const urlTab = new URLSearchParams(location.search).get('tab');
+  if(urlTab === 'webgl' || urlTab === 'threejs') return urlTab;
+  try { const v=localStorage.getItem('em-active-tab'); return (v==='"webgl"'||v==='"threejs"') ? JSON.parse(v) : 'webgl'; } catch(e){ return 'webgl'; }
+})();
+
+// ============================================================
+// GEOMETRY GENERATORS (for WebGL — indexed triangle lists)
+// Returns { verts: Float32Array, indices: Uint16Array }
+// Each vertex: x,y,z,r,g,b (stride 24 bytes)
+// ============================================================
+function buildCube() {
+  const C=0.5;
+  const verts = new Float32Array([
+    -C,-C,-C,0.9,0.3,0.3,  C,-C,-C,0.9,0.3,0.3,  C,C,-C,0.9,0.3,0.3,  -C,C,-C,0.9,0.3,0.3,
+    -C,-C, C,0.3,0.5,0.9,  C,-C, C,0.3,0.5,0.9,  C,C, C,0.3,0.5,0.9,  -C,C, C,0.3,0.5,0.9,
+    -C,-C, C,0.3,0.85,0.4, -C,-C,-C,0.3,0.85,0.4, -C,C,-C,0.3,0.85,0.4, -C,C,C,0.3,0.85,0.4,
+     C,-C,-C,0.95,0.65,0.2, C,-C,C,0.95,0.65,0.2,  C,C,C,0.95,0.65,0.2,  C,C,-C,0.95,0.65,0.2,
+    -C,C,-C,0.3,0.85,0.85,  C,C,-C,0.3,0.85,0.85,  C,C,C,0.3,0.85,0.85, -C,C,C,0.3,0.85,0.85,
+    -C,-C,C,0.5,0.5,0.55,   C,-C,C,0.5,0.5,0.55,   C,-C,-C,0.5,0.5,0.55,-C,-C,-C,0.5,0.5,0.55,
+  ]);
+  const indices = new Uint16Array(Array.from({length:6},(_,f)=>{const b=f*4;return[b,b+1,b+2,b,b+2,b+3];}).flat());
+  return { verts, indices };
+}
+
+function buildSphere(stacks=20, slices=30) {
+  const verts=[], indices=[];
+  // HSL color band by latitude
+  for(let i=0;i<=stacks;i++) {
+    const phi = Math.PI*i/stacks;
+    const sp=Math.sin(phi), cp=Math.cos(phi);
+    const t = i/stacks;
+    const r=0.2+0.5*t, g2=0.6-0.2*t, b=0.9-0.4*t;
+    for(let j=0;j<=slices;j++) {
+      const theta=2*Math.PI*j/slices;
+      verts.push(sp*Math.cos(theta)*0.7, cp*0.7, sp*Math.sin(theta)*0.7, r,g2,b);
+    }
+  }
+  for(let i=0;i<stacks;i++) for(let j=0;j<slices;j++) {
+    const a=i*(slices+1)+j, b=a+slices+1;
+    indices.push(a,b,a+1, b,b+1,a+1);
+  }
+  return { verts:new Float32Array(verts), indices:new Uint16Array(indices) };
+}
+
+function buildCone(slices=32, stacks=16) {
+  const verts=[], indices=[];
+  const H=1.0, R=0.6;
+  // side
+  for(let j=0;j<=slices;j++) {
+    const theta=2*Math.PI*j/slices;
+    const ct=Math.cos(theta), st=Math.sin(theta);
+    const t=j/slices;
+    const r=0.95,g2=0.5+0.3*t,b=0.2;
+    verts.push(R*ct,-H/2,R*st,r,g2,b);   // base ring
+    verts.push(0,    H/2, 0,  1.0,0.8,0.3); // apex
+  }
+  for(let j=0;j<slices;j++) {
+    const b=j*2;
+    indices.push(b,b+2,b+1);
+  }
+  // base cap
+  const capStart=verts.length/6;
+  verts.push(0,-H/2,0, 0.5,0.3,0.1);
+  const cIdx=capStart;
+  for(let j=0;j<=slices;j++) {
+    const theta=2*Math.PI*j/slices;
+    verts.push(R*Math.cos(theta),-H/2,R*Math.sin(theta),0.6,0.35,0.15);
+  }
+  for(let j=0;j<slices;j++) indices.push(cIdx, cIdx+j+2, cIdx+j+1);
+  return { verts:new Float32Array(verts), indices:new Uint16Array(indices) };
+}
+
+function buildTorus(R=0.55, r=0.22, tubeSeg=24, radSeg=36) {
+  const verts=[], indices=[];
+  for(let i=0;i<=radSeg;i++) {
+    const u=2*Math.PI*i/radSeg;
+    const cu=Math.cos(u), su=Math.sin(u);
+    const t=i/radSeg;
+    for(let j=0;j<=tubeSeg;j++) {
+      const v=2*Math.PI*j/tubeSeg;
+      const cv=Math.cos(v), sv=Math.sin(v);
+      const x=(R+r*cv)*cu, y=r*sv, z=(R+r*cv)*su;
+      const col_r=0.3+0.5*Math.abs(Math.sin(u+v));
+      const col_g=0.5+0.3*Math.abs(Math.cos(v));
+      const col_b=0.8-0.3*t;
+      verts.push(x,y,z,col_r,col_g,col_b);
+    }
+  }
+  for(let i=0;i<radSeg;i++) for(let j=0;j<tubeSeg;j++) {
+    const a=i*(tubeSeg+1)+j, b=a+tubeSeg+1;
+    indices.push(a,b,a+1, b,b+1,a+1);
+  }
+  return { verts:new Float32Array(verts), indices:new Uint16Array(indices) };
+}
+
+function buildCylinder(slices=32) {
+  const verts=[], indices=[];
+  const H=1.0, R=0.5;
+  // side
+  for(let j=0;j<=slices;j++) {
+    const theta=2*Math.PI*j/slices;
+    const ct=Math.cos(theta), st=Math.sin(theta);
+    const t=j/slices;
+    const r2=0.2+0.4*t, g2=0.7, b2=0.9-0.4*t;
+    verts.push(R*ct,-H/2,R*st, r2,g2,b2);
+    verts.push(R*ct, H/2,R*st, r2+0.1,g2-0.1,b2+0.1);
+  }
+  for(let j=0;j<slices;j++) {
+    const b=j*2;
+    indices.push(b,b+2,b+1, b+1,b+2,b+3);
+  }
+  // caps
+  for(const [cy,sign] of [[-H/2,-1],[H/2,1]]) {
+    const capC=verts.length/6;
+    verts.push(0,cy,0, 0.3,0.6,0.85);
+    for(let j=0;j<=slices;j++) {
+      const theta=2*Math.PI*j/slices;
+      verts.push(R*Math.cos(theta),cy,R*Math.sin(theta), 0.25,0.55,0.8);
+    }
+    for(let j=0;j<slices;j++) {
+      if(sign>0) indices.push(capC,capC+j+1,capC+j+2);
+      else       indices.push(capC,capC+j+2,capC+j+1);
+    }
+  }
+  return { verts:new Float32Array(verts), indices:new Uint16Array(indices) };
+}
+
+const GEOMETRIES = { cube:buildCube, sphere:buildSphere, cone:buildCone, torus:buildTorus, cylinder:buildCylinder };
+let currentShape = STORAGE.get('shape', 'cube');
+
+// ============================================================
+// WEBGL RENDERER
+// ============================================================
+(function initWebGL() {
+  const canvas = document.getElementById('gl-canvas');
+  const gl = canvas.getContext('webgl');
+  if(!gl) { canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f85149;font-size:0.9rem;">WebGL not supported</div>'; return; }
+
+  const vsrc = 'attribute vec3 aPos;attribute vec3 aColor;uniform mat4 uMVP;varying vec3 vColor;void main(){gl_Position=uMVP*vec4(aPos,1.0);vColor=aColor;}';
+  const fsrc = 'precision mediump float;varying vec3 vColor;void main(){gl_FragColor=vec4(vColor,1.0);}';
+  function compileShader(type, src) { const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s); return s; }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, vsrc));
+  gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, fsrc));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const aPos=gl.getAttribLocation(prog,'aPos'), aColor=gl.getAttribLocation(prog,'aColor'), uMVP=gl.getUniformLocation(prog,'uMVP');
+
+  // Dynamic shape buffers
+  let shapeVBO = gl.createBuffer();
+  let shapeIBO = gl.createBuffer();
+  let shapeIdxCount = 0;
+
+  function uploadShape(name) {
+    const { verts, indices } = GEOMETRIES[name]();
+    gl.bindBuffer(gl.ARRAY_BUFFER, shapeVBO);
+    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, shapeIBO);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.DYNAMIC_DRAW);
+    shapeIdxCount = indices.length;
+  }
+  uploadShape(currentShape);
+
+  // Listen for shape changes
+  window.addEventListener('easymath:shapechange', e => uploadShape(e.detail));
+
+  const axisVerts = new Float32Array([0,0,0,1,0,0, 2,0,0,1,0,0, 0,0,0,0,1,0, 0,2,0,0,1,0, 0,0,0,0,0,1, 0,0,2,0,0,1]);
+  const axisVBO=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,axisVBO); gl.bufferData(gl.ARRAY_BUFFER,axisVerts,gl.STATIC_DRAW);
+
+  const gridLines=[];
+  for(let i=0;i<=10;i++) { const t=-5+i,c=[0.18,0.22,0.27]; gridLines.push(t,0,-5,...c, t,0,5,...c, -5,0,t,...c, 5,0,t,...c); }
+  const gridVerts=new Float32Array(gridLines);
+  const gridVBO=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,gridVBO); gl.bufferData(gl.ARRAY_BUFFER,gridVerts,gl.STATIC_DRAW);
+
+  function drawBuf(vbo, ibo, vtxCount, idxCount, mvp, mode) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    if(ibo) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,24,0);
+    gl.enableVertexAttribArray(aColor); gl.vertexAttribPointer(aColor,3,gl.FLOAT,false,24,12);
+    gl.uniformMatrix4fv(uMVP, false, transpose(mvp));
+    if(ibo) gl.drawElements(mode, idxCount, gl.UNSIGNED_SHORT, 0);
+    else gl.drawArrays(mode, 0, vtxCount);
+  }
+
+  function renderWebGL() {
+    if(activeTab !== 'webgl') { requestAnimationFrame(renderWebGL); return; }
+    const w=canvas.clientWidth, h=canvas.clientHeight;
+    if(canvas.width!==w||canvas.height!==h) { canvas.width=w; canvas.height=h; }
+    gl.viewport(0,0,w,h);
+    gl.clearColor(0.051,0.067,0.09,1);
+    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+
+    const { model, view, proj, mvp } = computeMatrices(w/h);
+    const vp = matMul(proj, view);
+    drawBuf(gridVBO, null, gridVerts.length/6, 0, vp, gl.LINES);
+    drawBuf(shapeVBO, shapeIBO, 0, shapeIdxCount, mvp, gl.TRIANGLES);
+    drawBuf(axisVBO, null, axisVerts.length/6, 0, vp, gl.LINES);
+
+    displayMatrix('mat-model', model);
+    displayMatrix('mat-view', view);
+    displayMatrix('mat-proj', proj);
+    displayMatrix('mat-mvp', mvp);
+    requestAnimationFrame(renderWebGL);
+  }
+  renderWebGL();
+})();
+
+// ============================================================
+// THREE.JS RENDERER
+// ============================================================
+(function initThreeJS() {
+  if(typeof THREE === 'undefined') {
+    document.getElementById('threejs-container').innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#f85149;font-size:0.9rem;">Three.js failed to load</div>';
+    return;
+  }
+  const container = document.getElementById('threejs-container');
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setClearColor(0x0d1117);
+  container.appendChild(renderer.domElement);
+  Object.assign(renderer.domElement.style, { position:'absolute', top:'0', left:'0', width:'100%', height:'100%' });
+
+  const scene = new THREE.Scene();
+
+  // Shape mesh — swappable geometry
+  const shapeMat = new THREE.MeshPhongMaterial({ color: 0x58a6ff, vertexColors: false });
+  let shapeMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), shapeMat);
+  scene.add(shapeMesh);
+
+  function buildThreeGeo(name) {
+    switch(name) {
+      case 'sphere':   return new THREE.SphereGeometry(0.7, 32, 24);
+      case 'cone':     return new THREE.ConeGeometry(0.6, 1.0, 32);
+      case 'torus':    return new THREE.TorusGeometry(0.55, 0.22, 24, 48);
+      case 'cylinder': return new THREE.CylinderGeometry(0.5, 0.5, 1.0, 32);
+      default:         return new THREE.BoxGeometry(1, 1, 1);
+    }
+  }
+
+  const SHAPE_COLORS = {
+    cube: 0x58a6ff, sphere: 0x3fb950, cone: 0xf0883e, torus: 0xbc8cff, cylinder: 0x39c5cf
+  };
+
+  function applyShape(name) {
+    shapeMesh.geometry.dispose();
+    shapeMesh.geometry = buildThreeGeo(name);
+    shapeMat.color.setHex(SHAPE_COLORS[name] || 0x58a6ff);
+  }
+
+  window.addEventListener('easymath:shapechange', e => applyShape(e.detail));
+  applyShape(currentShape);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  dirLight.position.set(5,8,5); scene.add(dirLight);
+  scene.add(new THREE.GridHelper(10,10,0x2d333b,0x21262d));
+  scene.add(new THREE.AxesHelper(2));
+
+  let threeCamera = new THREE.PerspectiveCamera(60,1,0.1,50);
+
+  function renderThreeJS() {
+    requestAnimationFrame(renderThreeJS);
+    if(activeTab !== 'threejs') return;
+    const w=container.clientWidth, h=container.clientHeight;
+    if(!w||!h) return;
+    renderer.setSize(w, h);
+    const aspect = w/h;
+    const deg = Math.PI/180;
+    shapeMesh.position.set(g('tx'),g('ty'),g('tz'));
+    shapeMesh.rotation.order='YXZ';
+    shapeMesh.rotation.set(g('rx')*deg, g('ry')*deg, g('rz')*deg);
+    shapeMesh.scale.set(g('sx'),g('sy'),g('sz'));
+
+    const near=g('near'), far=g('far');
+    if(projMode==='persp') {
+      if(!(threeCamera instanceof THREE.PerspectiveCamera)) { threeCamera=new THREE.PerspectiveCamera(60,aspect,near,far); scene.add(threeCamera); }
+      threeCamera.fov=g('fov'); threeCamera.aspect=aspect; threeCamera.near=near; threeCamera.far=far;
+      threeCamera.updateProjectionMatrix();
+    } else {
+      if(!(threeCamera instanceof THREE.OrthographicCamera)) { const s=g('ortho-size'),a=s*aspect; threeCamera=new THREE.OrthographicCamera(-a,a,s,-s,near,far); scene.add(threeCamera); }
+      const s=g('ortho-size'),a=s*aspect;
+      threeCamera.left=-a; threeCamera.right=a; threeCamera.top=s; threeCamera.bottom=-s;
+      threeCamera.near=near; threeCamera.far=far;
+      threeCamera.updateProjectionMatrix();
+    }
+    threeCamera.position.set(g('ex'),g('ey'),g('ez'));
+    threeCamera.lookAt(g('ltx'),g('lty'),g('ltz'));
+    renderer.render(scene, threeCamera);
+
+    const { model, view, proj, mvp } = computeMatrices(aspect);
+    displayMatrix('mat-model', model);
+    displayMatrix('mat-view', view);
+    displayMatrix('mat-proj', proj);
+    displayMatrix('mat-mvp', mvp);
+  }
+  renderThreeJS();
+})();
+
+// ============================================================
+// ORBIT CAMERA CONTROL
+// Shared between WebGL and Three.js.
+// Stores camera position as spherical coords (theta, phi, radius)
+// and target as (tx, ty, tz). Syncs back to sliders so matrix
+// display stays consistent.
+// Left-drag: orbit  |  Right-drag: pan target  |  Wheel: zoom
+// ============================================================
+(function initOrbit() {
+  const canvasArea = document.getElementById('canvas-area');
+
+  // Init from current slider values → convert to spherical
+  function cartToSpherical(x, y, z) {
+    const r = Math.sqrt(x*x + y*y + z*z) || 1;
+    return {
+      radius: r,
+      theta: Math.atan2(x, z),          // azimuth (around Y)
+      phi: Math.acos(Math.max(-1, Math.min(1, y / r))) // polar (from +Y)
+    };
+  }
+
+  function setSlider(id, val) {
+    const el = document.getElementById(id);
+    if(!el) return;
+    // clamp to slider range
+    const mn = parseFloat(el.min), mx = parseFloat(el.max);
+    el.value = Math.max(mn, Math.min(mx, val));
+    // fire input event so the value display updates
+    el.dispatchEvent(new Event('input'));
+  }
+
+  function applyOrbit() {
+    // spherical → cartesian, offset by target
+    const tx = g('ltx'), ty = g('lty'), tz = g('ltz');
+    const x = orbit.radius * Math.sin(orbit.phi) * Math.sin(orbit.theta);
+    const y = orbit.radius * Math.cos(orbit.phi);
+    const z = orbit.radius * Math.sin(orbit.phi) * Math.cos(orbit.theta);
+    setSlider('ex', tx + x);
+    setSlider('ey', ty + y);
+    setSlider('ez', tz + z);
+  }
+
+  // Init orbit state from current sliders
+  const initEye = [g('ex') - g('ltx'), g('ey') - g('lty'), g('ez') - g('ltz')];
+  const initSph = cartToSpherical(initEye[0], initEye[1], initEye[2]);
+  const orbit = {
+    theta:  initSph.theta,
+    phi:    Math.max(0.05, Math.min(Math.PI - 0.05, initSph.phi)),
+    radius: Math.max(0.5, initSph.radius)
+  };
+
+  let isDragging = false;
+  let isRightDrag = false;
+  let lastX = 0, lastY = 0;
+
+  canvasArea.addEventListener('mousedown', e => {
+    isDragging = true;
+    isRightDrag = e.button === 2;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    e.preventDefault();
+  });
+
+  canvasArea.addEventListener('contextmenu', e => e.preventDefault());
+
+  document.addEventListener('mousemove', e => {
+    if(!isDragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    if(isRightDrag) {
+      // Pan: move target in camera-right / camera-up plane
+      const panSpeed = orbit.radius * 0.002;
+      // approximate right direction from theta
+      const rightX =  Math.cos(orbit.theta);
+      const rightZ = -Math.sin(orbit.theta);
+      const upX = -Math.cos(orbit.phi) * Math.sin(orbit.theta);
+      const upY =  Math.sin(orbit.phi);
+      const upZ = -Math.cos(orbit.phi) * Math.cos(orbit.theta);
+      setSlider('ltx', g('ltx') - dx * rightX * panSpeed + dy * upX * panSpeed);
+      setSlider('lty', g('lty') + dy * upY * panSpeed);
+      setSlider('ltz', g('ltz') - dx * rightZ * panSpeed + dy * upZ * panSpeed);
+    } else {
+      // Orbit
+      orbit.theta -= dx * 0.008;
+      orbit.phi    = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi + dy * 0.008));
+    }
+    applyOrbit();
+  });
+
+  document.addEventListener('mouseup', () => { isDragging = false; });
+
+  canvasArea.addEventListener('wheel', e => {
+    e.preventDefault();
+    orbit.radius = Math.max(0.5, Math.min(50, orbit.radius * (1 + e.deltaY * 0.001)));
+    applyOrbit();
+  }, { passive: false });
+
+  // Touch support
+  let lastTouchDist = 0;
+  let lastTouchX = 0, lastTouchY = 0;
+
+  canvasArea.addEventListener('touchstart', e => {
+    if(e.touches.length === 1) {
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    } else if(e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  canvasArea.addEventListener('touchmove', e => {
+    if(e.touches.length === 1) {
+      const dx = e.touches[0].clientX - lastTouchX;
+      const dy = e.touches[0].clientY - lastTouchY;
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+      orbit.theta -= dx * 0.008;
+      orbit.phi = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi + dy * 0.008));
+      applyOrbit();
+    } else if(e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      orbit.radius = Math.max(0.5, Math.min(50, orbit.radius * (lastTouchDist / dist)));
+      lastTouchDist = dist;
+      applyOrbit();
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  canvasArea.addEventListener('touchend', () => {}, { passive: true });
+})();
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tab) {
+  activeTab = tab;
+  STORAGE.set('active-tab', tab);
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('tab-webgl').classList.toggle('active', tab === 'webgl');
+  document.getElementById('tab-threejs').classList.toggle('active', tab === 'threejs');
+  const url = new URL(location.href);
+  url.searchParams.set('tab', tab);
+  history.replaceState(null, '', url);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+switchTab(activeTab);
+
+// ============================================================
+// SIDEBAR RESIZE
+// ============================================================
+(function initResize() {
+  const MIN=200, MAX=600, DEFAULT=280;
+  let savedWidth = STORAGE.get('sidebar-width', DEFAULT);
+  savedWidth = Math.min(Math.max(savedWidth, MIN), MAX);
+
+  function setWidth(w) {
+    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+  }
+  setWidth(savedWidth);
+
+  const resizer = document.getElementById('sidebar-resizer');
+  let isResizing=false, startX=0, startW=0;
+
+  resizer.addEventListener('mousedown', e => {
+    isResizing=true; startX=e.clientX;
+    startW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width')) || DEFAULT;
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+    resizer.classList.add('resizing');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if(!isResizing) return;
+    const w = Math.min(Math.max(startW + (e.clientX - startX), MIN), MAX);
+    setWidth(w);
+  });
+  document.addEventListener('mouseup', () => {
+    if(!isResizing) return;
+    isResizing=false;
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+    resizer.classList.remove('resizing');
+    const w = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width')) || DEFAULT;
+    STORAGE.set('sidebar-width', w);
+  });
+})();
+
+// ============================================================
+// MOBILE MENU
+// ============================================================
+const mobileBtn = document.getElementById('mobile-menu-btn');
+const controls = document.getElementById('controls');
+const backdrop = document.getElementById('sidebar-backdrop');
+mobileBtn.addEventListener('click', () => {
+  controls.classList.toggle('is-open');
+  backdrop.classList.toggle('visible');
+});
+backdrop.addEventListener('click', () => {
+  controls.classList.remove('is-open');
+  backdrop.classList.remove('visible');
+});
+
+// ============================================================
+// SOURCE CODE VIEWER MODAL
+// ============================================================
+const SOURCE_GEO = {
+  cube: `// Cube — 6 faces × 4 vertices, interleaved x,y,z,r,g,b
+// Matches EasyMath C++ mesh convention (row-major, unit cube)
+function buildCube() {
+  const C = 0.5;
+  const verts = new Float32Array([
+    // Front  (-z) red
+    -C,-C,-C, 0.9,0.3,0.3,   C,-C,-C, 0.9,0.3,0.3,
+     C, C,-C, 0.9,0.3,0.3,  -C, C,-C, 0.9,0.3,0.3,
+    // Back   (+z) blue
+    -C,-C, C, 0.3,0.5,0.9,   C,-C, C, 0.3,0.5,0.9,
+     C, C, C, 0.3,0.5,0.9,  -C, C, C, 0.3,0.5,0.9,
+    // Left   (-x) green
+    -C,-C, C, 0.3,0.85,0.4, -C,-C,-C, 0.3,0.85,0.4,
+    -C, C,-C, 0.3,0.85,0.4, -C, C, C, 0.3,0.85,0.4,
+    // Right  (+x) orange
+     C,-C,-C, 0.95,0.65,0.2, C,-C, C, 0.95,0.65,0.2,
+     C, C, C, 0.95,0.65,0.2, C, C,-C, 0.95,0.65,0.2,
+    // Top    (+y) cyan
+    -C, C,-C, 0.3,0.85,0.85, C, C,-C, 0.3,0.85,0.85,
+     C, C, C, 0.3,0.85,0.85,-C, C, C, 0.3,0.85,0.85,
+    // Bottom (-y) gray
+    -C,-C, C, 0.5,0.5,0.55,  C,-C, C, 0.5,0.5,0.55,
+     C,-C,-C, 0.5,0.5,0.55, -C,-C,-C, 0.5,0.5,0.55,
+  ]);
+  // 6 faces × 2 triangles each
+  const indices = new Uint16Array(
+    Array.from({length:6}, (_,f) => {
+      const b = f*4;
+      return [b, b+1, b+2,  b, b+2, b+3];
+    }).flat()
+  );
+  return { verts, indices };
+}`,
+
+  sphere: `// Sphere — spherical coordinates UV subdivision
+// stacks × slices grid, color bands by latitude
+function buildSphere(stacks=20, slices=30) {
+  const verts = [], indices = [];
+  for (let i = 0; i <= stacks; i++) {
+    const phi = Math.PI * i / stacks;
+    const sp = Math.sin(phi), cp = Math.cos(phi);
+    const t  = i / stacks;
+    const r = 0.2+0.5*t, g = 0.6-0.2*t, b = 0.9-0.4*t;
+    for (let j = 0; j <= slices; j++) {
+      const theta = 2 * Math.PI * j / slices;
+      verts.push(
+        sp * Math.cos(theta) * 0.7,  // x
+        cp * 0.7,                     // y
+        sp * Math.sin(theta) * 0.7,  // z
+        r, g, b
+      );
+    }
+  }
+  for (let i = 0; i < stacks; i++)
+    for (let j = 0; j < slices; j++) {
+      const a = i*(slices+1)+j, b = a+slices+1;
+      indices.push(a, b, a+1,  b, b+1, a+1);
+    }
+  return { verts: new Float32Array(verts), indices: new Uint16Array(indices) };
+}`,
+
+  cone: `// Cone — side triangles (base ring → apex) + base cap
+function buildCone(slices=32) {
+  const verts = [], indices = [];
+  const H = 1.0, R = 0.6;
+  // Side: each slice → one triangle (base vertex + apex)
+  for (let j = 0; j <= slices; j++) {
+    const theta = 2 * Math.PI * j / slices;
+    const ct = Math.cos(theta), st = Math.sin(theta);
+    const t  = j / slices;
+    verts.push(R*ct, -H/2, R*st,  0.95, 0.5+0.3*t, 0.2); // base
+    verts.push(0,     H/2, 0,     1.0,  0.8,        0.3); // apex
+  }
+  for (let j = 0; j < slices; j++)
+    indices.push(j*2, j*2+2, j*2+1);
+  // Base cap (center + ring)
+  const capC = verts.length / 6;
+  verts.push(0, -H/2, 0,  0.5, 0.3, 0.1);
+  for (let j = 0; j <= slices; j++) {
+    const theta = 2 * Math.PI * j / slices;
+    verts.push(R*Math.cos(theta), -H/2, R*Math.sin(theta), 0.6,0.35,0.15);
+  }
+  for (let j = 0; j < slices; j++)
+    indices.push(capC, capC+j+2, capC+j+1);
+  return { verts: new Float32Array(verts), indices: new Uint16Array(indices) };
+}`,
+
+  torus: `// Torus — R = major radius, r = tube radius
+// Double UV loop: radial segments × tube segments
+function buildTorus(R=0.55, r=0.22, tubeSeg=24, radSeg=36) {
+  const verts = [], indices = [];
+  for (let i = 0; i <= radSeg; i++) {
+    const u  = 2 * Math.PI * i / radSeg;
+    const cu = Math.cos(u), su = Math.sin(u);
+    const t  = i / radSeg;
+    for (let j = 0; j <= tubeSeg; j++) {
+      const v  = 2 * Math.PI * j / tubeSeg;
+      const cv = Math.cos(v), sv = Math.sin(v);
+      verts.push(
+        (R + r*cv) * cu,   // x
+        r * sv,            // y
+        (R + r*cv) * su,   // z
+        0.3 + 0.5*Math.abs(Math.sin(u+v)),  // r
+        0.5 + 0.3*Math.abs(Math.cos(v)),    // g
+        0.8 - 0.3*t                          // b
+      );
+    }
+  }
+  for (let i = 0; i < radSeg; i++)
+    for (let j = 0; j < tubeSeg; j++) {
+      const a = i*(tubeSeg+1)+j, b = a+tubeSeg+1;
+      indices.push(a, b, a+1,  b, b+1, a+1);
+    }
+  return { verts: new Float32Array(verts), indices: new Uint16Array(indices) };
+}`,
+
+  cylinder: `// Cylinder — side quad strip + top & bottom caps
+function buildCylinder(slices=32) {
+  const verts = [], indices = [];
+  const H = 1.0, R = 0.5;
+  // Side: two rings (bottom + top) interleaved
+  for (let j = 0; j <= slices; j++) {
+    const theta = 2 * Math.PI * j / slices;
+    const ct = Math.cos(theta), st = Math.sin(theta);
+    const t  = j / slices;
+    verts.push(R*ct, -H/2, R*st,  0.2+0.4*t, 0.7, 0.9-0.4*t); // bottom
+    verts.push(R*ct,  H/2, R*st,  0.3+0.4*t, 0.6, 1.0-0.4*t); // top
+  }
+  for (let j = 0; j < slices; j++) {
+    const b = j*2;
+    indices.push(b, b+2, b+1,  b+1, b+2, b+3);
+  }
+  // Caps: bottom (winding CW from below) + top (CCW from above)
+  for (const [cy, sign] of [[-H/2, -1], [H/2, 1]]) {
+    const capC = verts.length / 6;
+    verts.push(0, cy, 0,  0.3, 0.6, 0.85);
+    for (let j = 0; j <= slices; j++) {
+      const theta = 2 * Math.PI * j / slices;
+      verts.push(R*Math.cos(theta), cy, R*Math.sin(theta), 0.25,0.55,0.8);
+    }
+    for (let j = 0; j < slices; j++) {
+      if (sign > 0) indices.push(capC, capC+j+1, capC+j+2);
+      else          indices.push(capC, capC+j+2, capC+j+1);
+    }
+  }
+  return { verts: new Float32Array(verts), indices: new Uint16Array(indices) };
+}`
+};
+
+const SOURCE_VERT = `// WebGL Vertex Shader
+// Transforms local-space vertex positions to clip space via MVP matrix.
+// Passes per-vertex color through to fragment shader.
+//
+// Matches EasyMath C++ pipeline:
+//   gl_Position = P * V * M * vec4(localPos, 1.0)
+//
+// Note: uMVP is passed as column-major (transposed from row-major C++ storage).
+
+attribute vec3 aPos;     // local-space position
+attribute vec3 aColor;   // per-vertex RGB color
+
+uniform mat4 uMVP;       // Model × View × Projection (pre-multiplied)
+
+varying vec3 vColor;     // pass color to fragment shader
+
+void main() {
+  gl_Position = uMVP * vec4(aPos, 1.0);
+  vColor = aColor;
+}`;
+
+const SOURCE_FRAG = `// WebGL Fragment Shader
+// Outputs interpolated vertex color as the final pixel color.
+// Barycentric interpolation is handled automatically by the GPU.
+
+precision mediump float;
+
+varying vec3 vColor;  // interpolated from vertex shader
+
+void main() {
+  gl_FragColor = vec4(vColor, 1.0);  // RGB + full opacity
+}`;
+
+const SRC_MAP = { geo: null, vert: SOURCE_VERT, frag: SOURCE_FRAG };
+let currentModalTab = 'geo';
+
+function highlightCode(code) {
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>')
+    .replace(/\b(function|const|let|var|for|if|else|return|new|of|in)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(Float32Array|Uint16Array|Math\.PI|Math\.sin|Math\.cos|Math\.abs|Math\.sqrt)\b/g, '<span class="fn">$1</span>')
+    .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="nm">$1</span>');
+}
+
+function openModal() {
+  SRC_MAP.geo = SOURCE_GEO[currentShape];
+  const modal = document.getElementById('src-modal');
+  const title = document.getElementById('modal-title');
+  const names = { cube:'Cube', sphere:'Sphere', cone:'Cone', torus:'Torus', cylinder:'Cylinder' };
+  title.textContent = (names[currentShape] || currentShape) + ' — Source Code';
+  modal.classList.add('visible');
+  showModalTab(currentModalTab);
+}
+
+function showModalTab(tab) {
+  currentModalTab = tab;
+  document.querySelectorAll('.modal-tab').forEach(b => b.classList.toggle('active', b.dataset.src === tab));
+  const code = SRC_MAP[tab] || '';
+  document.querySelector('#modal-code code').innerHTML = highlightCode(code);
+}
+
+document.getElementById('view-src-btn').addEventListener('click', openModal);
+
+document.getElementById('modal-close-btn').addEventListener('click', () => {
+  document.getElementById('src-modal').classList.remove('visible');
+});
+
+document.getElementById('src-modal').addEventListener('click', e => {
+  if(e.target === document.getElementById('src-modal'))
+    document.getElementById('src-modal').classList.remove('visible');
+});
+
+document.querySelectorAll('.modal-tab').forEach(btn => {
+  btn.addEventListener('click', () => showModalTab(btn.dataset.src));
+});
+
+document.getElementById('modal-copy-btn').addEventListener('click', () => {
+  const code = SRC_MAP[currentModalTab] || '';
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('modal-copy-btn');
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '⎘ Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {});
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') document.getElementById('src-modal').classList.remove('visible');
+});
+
+// Update modal title when shape changes
+window.addEventListener('easymath:shapechange', () => {
+  if(document.getElementById('src-modal').classList.contains('visible')) openModal();
+});
+
+// ============================================================
+// SHAPE SELECTOR
+// ============================================================
+document.querySelectorAll('.shape-btn').forEach(btn => {
+  if(btn.dataset.shape === currentShape) btn.classList.add('active');
+  else btn.classList.remove('active');
+  btn.addEventListener('click', () => {
+    currentShape = btn.dataset.shape;
+    STORAGE.set('shape', currentShape);
+    document.querySelectorAll('.shape-btn').forEach(b => b.classList.toggle('active', b.dataset.shape === currentShape));
+    window.dispatchEvent(new CustomEvent('easymath:shapechange', { detail: currentShape }));
+  });
+});
+
+// ============================================================
+// COLLAPSIBLE SECTIONS - persist state
+// ============================================================
+document.querySelectorAll('.cs[data-key]').forEach(details => {
+  const key = 'section-' + details.dataset.key;
+  const saved = STORAGE.get(key, null);
+  if(saved === false) details.removeAttribute('open');
+  details.addEventListener('toggle', () => STORAGE.set(key, details.open));
+});
+
+// ============================================================
+// SLIDER UI SYNC
+// ============================================================
+document.querySelectorAll('input[type=range]').forEach(input => {
+  const id = input.id;
+  const span = document.getElementById(id+'-v');
+  if(!span) return;
+  const isDeg = ['rx','ry','rz','fov'].includes(id);
+  const update = () => {
+    const v = parseFloat(input.value);
+    span.textContent = isDeg ? v+'°' : v.toFixed(1);
+  };
+  input.addEventListener('input', update);
+  update();
+});
+</script>

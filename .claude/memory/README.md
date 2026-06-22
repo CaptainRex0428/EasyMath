@@ -95,3 +95,6 @@
 | Quaternion 进度 | development-status.md → Quaternion 部分 |
 | 命名规范 | code-conventions.md → 命名约定 |
 | UE 集成方式 | project-context.md → UE 集成机制 |
+| **Demo 开发** | **demo-overview.md** |
+| Matrix Demo 设计 | demo-matrix-design.md |
+| Demo 开发技能 | ../skills/demo-dev.md |

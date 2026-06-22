@@ -70,7 +70,7 @@
 
 ---
 
-### 🟡 中优先级（功能增强）
+### 中优先级
 
 #### 4. Color 运算扩展
 - [ ] **颜色混合模式**
@@ -94,10 +94,19 @@
   - [ ] 亮度调整（`adjustBrightness(factor)`）
   - [ ] 对比度调整（`adjustContrast(factor)`）
 
-#### 5. Matrix 投影支持
-- [ ] 透视投影矩阵（`MTXPerspective(fov, aspect, near, far)`）
-- [ ] 正交投影矩阵（`MTXOrtho(left, right, bottom, top, near, far)`）
-- [ ] Look-At 矩阵（`MTXLookAt(eye, target, up)`）
+#### 5. Matrix 投影支持 ✅ **已完成 (2026-06-18)**
+- [x] 透视投影矩阵（`MTXPerspective(fov, aspect, near, far)`）
+- [x] 正交投影矩阵（`MTXOrtho(left, right, bottom, top, near, far)`）
+- [x] Look-At 矩阵（`MTXLookAt(eye, target, up)`）
+- [x] **性能优化**：
+  - [x] MTXLookAt: 减少归一化次数（-1 sqrt）
+  - [x] MTXPerspective: 缓存倒数（-5 次除法）
+  - [x] MTXOrtho: 缓存倒数（-6 次除法）
+  - [x] 详细文档化优化原理
+
+**新增扩展任务**：
+- [ ] DirectX 风格投影矩阵（NDC [0,1] vs [-1,1]）
+- [ ] 特化版本（MTXLookAtUpY, MTXPerspective60）
 
 ---
 

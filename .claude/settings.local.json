@@ -4,7 +4,11 @@
       "Bash(ls:*)",
       "Bash(cd:*)",
       "Bash(head:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(npx astro:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)"
     ]
   }
 }

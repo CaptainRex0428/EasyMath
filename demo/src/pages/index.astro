@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const demos = [
+  {
+    category: 'Matrix 矩阵',
+    slug: 'matrix',
+    items: [
+      { title: 'Matrix Demo', desc: '自实现矩阵运算 · WebGL & Three.js 双引擎 · 可调整侧栏 · 可折叠面板', href: '/matrix/', badge: 'WebGL · Three.js', color: '#58a6ff' },
+    ]
+  }
+];
+---
+<Layout title="EasyMath Demo">
+<main>
+  <header>
+    <h1>EasyMath <span>Interactive Demo</span></h1>
+    <p>实时渲染数学库 · 交互式学习平台</p>
+  </header>
+
+  {demos.map(cat => (
+    <section>
+      <h2>{cat.category}</h2>
+      <div class="grid">
+        {cat.items.map(item => (
+          <a href={item.href} class="card">
+            <div class="card-title">{item.title}</div>
+            <div class="card-desc">{item.desc}</div>
+            <span class="badge" style={`color:${item.color};border-color:${item.color}`}>{item.badge}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</main>
+</Layout>
+
+<style>
+main { max-width:900px; margin:0 auto; padding:60px 24px; }
+header { margin-bottom:48px; }
+h1 { font-size:2.4rem; font-weight:700; }
+h1 span { color:#58a6ff; }
+header p { color:#8b949e; margin-top:8px; font-size:1rem; }
+section { margin-bottom:48px; }
+h2 { font-size:1rem; font-weight:600; color:#8b949e; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid #21262d; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.card { display:block; padding:20px; background:#161b22; border:1px solid #30363d; border-radius:10px; transition:.2s; }
+.card:hover { border-color:#58a6ff; transform:translateY(-2px); text-decoration:none; }
+.card-title { font-size:1.1rem; font-weight:600; color:#f0f6fc; margin-bottom:6px; }
+.card-desc { font-size:0.85rem; color:#8b949e; line-height:1.5; margin-bottom:12px; }
+.badge { font-size:0.72rem; padding:2px 8px; border:1px solid; border-radius:20px; background:transparent; }
+</style>
