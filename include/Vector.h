@@ -493,10 +493,11 @@ namespace EasyMath
 
 		virtual Vector<T, dimension>& operator/=(const Vector<T, dimension>& other)
 		{
-			for (size_t i = 0; i < dimension; ++i) {
+			// assert 移到循环外，避免循环内分支阻碍编译器向量化
+			for (size_t i = 0; i < dimension; ++i)
 				assert(other.data[i] != T{ 0 } && "Division by zero");
+			for (size_t i = 0; i < dimension; ++i)
 				data[i] /= other.data[i];
-			}
 			return *this;
 		}
 
@@ -653,7 +654,7 @@ namespace EasyMath
 	public:
 		union
 		{
-			std::array<T, dimension> data;
+			alignas(16) std::array<T, dimension> data;
 			Swizzle<T, dimension, 0> x;
 			Swizzle<T, dimension, 1> y;
 			Swizzle<T, dimension, 2> z;

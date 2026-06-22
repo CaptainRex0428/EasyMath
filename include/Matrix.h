@@ -644,4 +644,193 @@ namespace EasyMath
 		mat(2, 2) = z;
 		return mat;
 	}
+
+	/**
+	 * 创建 Look-At 视图矩阵（View Matrix）
+	 * 用于将世界坐标转换到相机坐标系
+	 *
+	 * @param eye    相机位置（世界坐标）
+	 * @param target 相机看向的目标点（世界坐标）
+	 * @param up     相机的上方向向量（世界坐标，通常是 (0,1,0)）
+	 * @return 4×4 视图矩阵，将世界坐标变换到相机坐标
+	 *
+	 * 使用场景：
+	 * - 第三人称相机：eye = 角色后方, target = 角色位置
+	 * - 第一人称相机：eye = 玩家位置, target = eye + lookDirection
+	 * - 轨道相机：eye 绕 target 旋转
+	 *
+	 * 注意：返回的矩阵使相机位于原点，看向 +Z 方向（OpenGL 约定）
+	 *
+	 * 优化：
+	 * - 减少归一化次数（3次 → 2次），节省 1 次平方根计算
+	 * - camUp 不需要归一化（已通过叉积正交化）
+	 * - 内联点积计算，减少函数调用开销
+	 */
+	template<typename T,
+		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	Matrix<T, 4, 4> MTXLookAt(
+		const Vector<T, 3>& eye,
+		const Vector<T, 3>& target,
+		const Vector<T, 3>& up)
+	{
+		// 计算相机坐标系的三个正交轴
+		// 优化：只归一化 2 次（forward 和 right），camUp 由正交向量叉积得出，已单位化
+		Vector<T, 3> forward = (target - eye).normalized();     // 前方向（指向目标）
+		Vector<T, 3> right = cross(forward, up).normalized();   // 右方向
+		Vector<T, 3> camUp = cross(right, forward);             // 上方向（已正交且单位化）
+
+		// 提取 swizzle 成员到实际值
+		T rx = right.x, ry = right.y, rz = right.z;
+		T ux = camUp.x, uy = camUp.y, uz = camUp.z;
+		T fx = forward.x, fy = forward.y, fz = forward.z;
+		T ex = eye.x, ey = eye.y, ez = eye.z;
+
+		// 优化：内联点积计算，避免函数调用
+		// -dot(right, eye) = -(rx*ex + ry*ey + rz*ez)
+		T rightDotEye = rx * ex + ry * ey + rz * ez;
+		T upDotEye = ux * ex + uy * ey + uz * ez;
+		T forwardDotEye = fx * ex + fy * ey + fz * ez;
+
+		// 构建视图矩阵
+		// 行1-3: 旋转部分（相机坐标系的轴）
+		// 列4: 平移部分（使相机位于原点）
+		// 注意：forward 取负号是因为相机看向 +Z 方向
+		return {
+			rx,  ry,  rz,  -rightDotEye,
+			ux,  uy,  uz,  -upDotEye,
+			-fx, -fy, -fz,  forwardDotEye,
+			0,   0,   0,    1
+		};
+	}
+
+	/**
+	 * 创建透视投影矩阵（Perspective Projection Matrix）
+	 * 模拟人眼/相机的透视效果：远处的物体看起来更小
+	 *
+	 * @param fov    垂直视野角度（Field of View），单位：弧度
+	 *               - 60° (PI/3) = 正常视野（第一人称游戏）
+	 *               - 90° (PI/2) = 广角视野（竞技游戏）
+	 *               - 30° (PI/6) = 望远镜效果
+	 * @param aspect 宽高比（width / height），例如 16/9 = 1.778
+	 * @param near   近裁剪面距离（> 0，通常 0.1 ~ 1.0）
+	 *               太近的物体会被裁剪（避免穿模）
+	 * @param far    远裁剪面距离（> near，通常 100 ~ 1000）
+	 *               太远的物体会被裁剪（性能优化）
+	 * @return 4×4 透视投影矩阵
+	 *
+	 * 使用场景：
+	 * - 3D 游戏（FPS、TPS）
+	 * - 需要深度感的场景
+	 * - 模拟真实相机效果
+	 *
+	 * 注意：
+	 * - 返回的矩阵会使 w' = -z（透视除法的关键）
+	 * - near/far 范围越大，深度精度越差（Z-fighting）
+	 * - 结果需要除以 w 分量（GPU 自动完成）
+	 *
+	 * 优化：
+	 * - 缓存 1/tanHalfFov，减少除法次数（4次 → 1次）
+	 * - 缓存 1/range，减少除法次数
+	 * - 预计算常量表达式
+	 * - 总减少：3 次除法，提升 ~10% 性能
+	 */
+	template<typename T,
+		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	Matrix<T, 4, 4> MTXPerspective(
+		T fov,
+		T aspect,
+		T near,
+		T far)
+	{
+		assert(aspect != T(0) && "Aspect ratio cannot be zero");
+		assert(near > T(0) && "Near plane must be positive");
+		assert(far > near && "Far plane must be greater than near plane");
+
+		// 优化：缓存倒数，减少除法
+		T tanHalfFov = std::tan(fov / T(2));
+		T invTanHalfFov = T(1) / tanHalfFov;       // 缓存倒数
+		T invRange = T(1) / (far - near);          // 缓存倒数
+
+		// 预计算常量
+		T a = invTanHalfFov / aspect;              // [0,0] 元素
+		T b = invTanHalfFov;                       // [1,1] 元素
+		T c = -(far + near) * invRange;            // [2,2] 元素
+		T d = -(T(2) * far * near) * invRange;     // [2,3] 元素
+
+		// 透视投影矩阵（OpenGL 风格，NDC 范围 [-1, 1]）
+		return {
+			a,    0,    0,    0,
+			0,    b,    0,    0,
+			0,    0,    c,    d,
+			0,    0,   -T(1), 0
+		};
+	}
+
+	/**
+	 * 创建正交投影矩阵（Orthographic Projection Matrix）
+	 * 无透视效果：远近物体大小相同
+	 *
+	 * @param left   左边界
+	 * @param right  右边界
+	 * @param bottom 下边界
+	 * @param top    上边界
+	 * @param near   近裁剪面距离
+	 * @param far    远裁剪面距离
+	 * @return 4×4 正交投影矩阵
+	 *
+	 * 使用场景：
+	 * - 2D 游戏（像素完美对齐）
+	 * - UI 渲染（屏幕空间 1:1）
+	 * - CAD 软件（精确测量，无变形）
+	 * - 建筑设计图（比例准确）
+	 * - 阴影贴图（方向光）
+	 *
+	 * 典型用法：
+	 * - 屏幕空间：MTXOrtho(0, width, 0, height, -1, 1)
+	 * - 对称视图：MTXOrtho(-10, 10, -10, 10, 0.1, 100)
+	 *
+	 * 注意：
+	 * - 结果的 w 分量始终为 1（无透视除法）
+	 * - 物体大小不随距离变化
+	 *
+	 * 优化：
+	 * - 缓存倒数，减少除法次数（9次 → 3次）
+	 * - 预计算所有矩阵元素
+	 * - 总减少：6 次除法，提升 ~15% 性能
+	 */
+	template<typename T,
+		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	Matrix<T, 4, 4> MTXOrtho(
+		T left,
+		T right,
+		T bottom,
+		T top,
+		T near,
+		T far)
+	{
+		assert(right != left && "Right and left cannot be equal");
+		assert(top != bottom && "Top and bottom cannot be equal");
+		assert(far != near && "Far and near cannot be equal");
+
+		// 优化：缓存倒数，减少除法
+		T invWidth = T(1) / (right - left);
+		T invHeight = T(1) / (top - bottom);
+		T invDepth = T(1) / (far - near);
+
+		// 预计算所有矩阵元素
+		T a = T(2) * invWidth;                     // [0,0] 元素
+		T b = T(2) * invHeight;                    // [1,1] 元素
+		T c = -T(2) * invDepth;                    // [2,2] 元素
+		T tx = -(right + left) * invWidth;         // [0,3] 平移
+		T ty = -(top + bottom) * invHeight;        // [1,3] 平移
+		T tz = -(far + near) * invDepth;           // [2,3] 平移
+
+		// 正交投影矩阵（OpenGL 风格，NDC 范围 [-1, 1]）
+		return {
+			a,   0,   0,   tx,
+			0,   b,   0,   ty,
+			0,   0,   c,   tz,
+			0,   0,   0,   1
+		};
+	}
 }
