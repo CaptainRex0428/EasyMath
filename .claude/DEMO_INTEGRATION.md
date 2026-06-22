@@ -116,8 +116,9 @@ demo/
 │   └── pages/
 │       ├── index.astro          # 主页（Demo 画廊）
 │       └── matrix/
-│           ├── webgl.astro      # Pure WebGL 版本
-│           └── threejs.astro    # Three.js 版本
+│           ├── index.astro      # 统一 Matrix Demo（WebGL + Three.js）
+│           ├── webgl.astro      # 重定向 → /matrix/?tab=webgl
+│           └── threejs.astro    # 重定向 → /matrix/?tab=threejs
 ├── astro.config.mjs              # Astro 配置
 ├── package.json                  # 依赖管理
 └── dist/                         # 构建输出
@@ -351,8 +352,9 @@ gl.uniformMatrix4fv(uMVP2, false, transposed);
 - `sandbox/sandbox.cpp` - C++ 测试
 
 ### Demo 文件
-- `demo/src/pages/matrix/webgl.astro` - Pure WebGL 版本
-- `demo/src/pages/matrix/threejs.astro` - Three.js 版本
+- `demo/src/pages/matrix/index.astro` - 统一 Matrix Demo（WebGL + Three.js）
+- `demo/src/pages/matrix/webgl.astro` - 重定向到 `/matrix/?tab=webgl`
+- `demo/src/pages/matrix/threejs.astro` - 重定向到 `/matrix/?tab=threejs`
 
 ### 文档
 - `docs/Matrix_API.md` - Matrix API 文档

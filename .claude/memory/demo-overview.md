@@ -66,12 +66,7 @@ demo/
 
 ### 历史遗留
 
-**matrix-visualizer/** - 早期独立 HTML 版本（已集成到 Astro）
-- index.html - 导航页
-- webgl.html - Pure WebGL 版本
-- threejs.html - Three.js 版本
-
-> ⚠️ 这些文件已过时，请使用 Astro 版本进行开发
+> ⚠️ `demo/matrix-visualizer/`（早期独立 HTML 版本）已删除，请使用 Astro 版本进行开发
 
 ---
 
