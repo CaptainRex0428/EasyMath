@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
 ---
 <Layout title="Matrix Demo">
 <div id="app">
@@ -11,10 +12,17 @@ import Layout from '../../layouts/Layout.astro';
       <span id="header-title">🔢 Matrix Demo</span>
     </div>
     <div id="tab-switcher" role="tablist">
-      <button class="tab-btn active" data-tab="webgl" role="tab">⚡ Pure WebGL</button>
-      <button class="tab-btn" data-tab="threejs" role="tab">🎲 Three.js</button>
+      <button class="tab-btn active" data-tab="webgl" role="tab">
+        <span class="tab-icon">⚡</span>
+        <span>Pure WebGL</span>
+      </button>
+      <button class="tab-btn" data-tab="threejs" role="tab">
+        <span class="tab-icon">🎲</span>
+        <span>Three.js</span>
+      </button>
     </div>
     <div id="header-right">
+      <ThemeSwitcher />
       <a href="/" id="back-link">← 返回主页</a>
     </div>
   </div>
@@ -29,11 +37,26 @@ import Layout from '../../layouts/Layout.astro';
     <div class="shape-selector">
       <div class="shape-label">Shape</div>
       <div class="shape-btns">
-        <button class="shape-btn active" data-shape="cube"     title="Cube">⬜</button>
-        <button class="shape-btn"        data-shape="sphere"   title="Sphere">⚪</button>
-        <button class="shape-btn"        data-shape="cone"     title="Cone">🔺</button>
-        <button class="shape-btn"        data-shape="torus"    title="Torus">⭕</button>
-        <button class="shape-btn"        data-shape="cylinder" title="Cylinder">🥫</button>
+        <button class="shape-btn active" data-shape="cube" title="Cube">
+          <span class="shape-btn-icon">⬜</span>
+          <span>Cube</span>
+        </button>
+        <button class="shape-btn" data-shape="sphere" title="Sphere">
+          <span class="shape-btn-icon">⚪</span>
+          <span>Sphere</span>
+        </button>
+        <button class="shape-btn" data-shape="cone" title="Cone">
+          <span class="shape-btn-icon">🔺</span>
+          <span>Cone</span>
+        </button>
+        <button class="shape-btn" data-shape="torus" title="Torus">
+          <span class="shape-btn-icon">⭕</span>
+          <span>Torus</span>
+        </button>
+        <button class="shape-btn" data-shape="cylinder" title="Cylinder">
+          <span class="shape-btn-icon">🥫</span>
+          <span>Cylinder</span>
+        </button>
       </div>
       <button id="view-src-btn" class="src-btn" title="View source code">⟨/⟩ Source</button>
     </div>
@@ -41,39 +64,129 @@ import Layout from '../../layouts/Layout.astro';
     <details class="cs" data-key="model-trans" open>
       <summary><span>Model — 平移 Translation</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
       <div class="sc">
-        <div class="row"><label>tx</label><input type="range" id="tx" min="-3" max="3" step="0.1" value="0"><span id="tx-v">0.0</span></div>
-        <div class="row"><label>ty</label><input type="range" id="ty" min="-3" max="3" step="0.1" value="0"><span id="ty-v">0.0</span></div>
-        <div class="row"><label>tz</label><input type="range" id="tz" min="-3" max="3" step="0.1" value="0"><span id="tz-v">0.0</span></div>
+        <div class="row">
+          <div class="row-header">
+            <label>tx</label>
+            <span id="tx-v">0.0</span>
+          </div>
+          <input type="range" id="tx" min="-3" max="3" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ty</label>
+            <span id="ty-v">0.0</span>
+          </div>
+          <input type="range" id="ty" min="-3" max="3" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>tz</label>
+            <span id="tz-v">0.0</span>
+          </div>
+          <input type="range" id="tz" min="-3" max="3" step="0.1" value="0">
+        </div>
       </div>
     </details>
 
     <details class="cs" data-key="model-rot" open>
       <summary><span>Model — 旋转 Rotation (°)</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
       <div class="sc">
-        <div class="row"><label>rx</label><input type="range" id="rx" min="0" max="360" step="1" value="0"><span id="rx-v">0°</span></div>
-        <div class="row"><label>ry</label><input type="range" id="ry" min="0" max="360" step="1" value="0"><span id="ry-v">0°</span></div>
-        <div class="row"><label>rz</label><input type="range" id="rz" min="0" max="360" step="1" value="0"><span id="rz-v">0°</span></div>
+        <div class="row">
+          <div class="row-header">
+            <label>rx</label>
+            <span id="rx-v">0°</span>
+          </div>
+          <input type="range" id="rx" min="0" max="360" step="1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ry</label>
+            <span id="ry-v">0°</span>
+          </div>
+          <input type="range" id="ry" min="0" max="360" step="1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>rz</label>
+            <span id="rz-v">0°</span>
+          </div>
+          <input type="range" id="rz" min="0" max="360" step="1" value="0">
+        </div>
       </div>
     </details>
 
     <details class="cs" data-key="model-scale" open>
       <summary><span>Model — 缩放 Scale</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
       <div class="sc">
-        <div class="row"><label>sx</label><input type="range" id="sx" min="0.1" max="3" step="0.05" value="1"><span id="sx-v">1.0</span></div>
-        <div class="row"><label>sy</label><input type="range" id="sy" min="0.1" max="3" step="0.05" value="1"><span id="sy-v">1.0</span></div>
-        <div class="row"><label>sz</label><input type="range" id="sz" min="0.1" max="3" step="0.05" value="1"><span id="sz-v">1.0</span></div>
+        <div class="row">
+          <div class="row-header">
+            <label>sx</label>
+            <span id="sx-v">1.0</span>
+          </div>
+          <input type="range" id="sx" min="0.1" max="3" step="0.05" value="1">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>sy</label>
+            <span id="sy-v">1.0</span>
+          </div>
+          <input type="range" id="sy" min="0.1" max="3" step="0.05" value="1">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>sz</label>
+            <span id="sz-v">1.0</span>
+          </div>
+          <input type="range" id="sz" min="0.1" max="3" step="0.05" value="1">
+        </div>
       </div>
     </details>
 
     <details class="cs" data-key="camera" open>
       <summary><span>Camera — LookAt 相机</span><svg class="chev" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></summary>
       <div class="sc">
-        <div class="row"><label>ex</label><input type="range" id="ex" min="-10" max="10" step="0.1" value="0"><span id="ex-v">0.0</span></div>
-        <div class="row"><label>ey</label><input type="range" id="ey" min="-10" max="10" step="0.1" value="3"><span id="ey-v">3.0</span></div>
-        <div class="row"><label>ez</label><input type="range" id="ez" min="-10" max="10" step="0.1" value="6"><span id="ez-v">6.0</span></div>
-        <div class="row"><label>ltx</label><input type="range" id="ltx" min="-5" max="5" step="0.1" value="0"><span id="ltx-v">0.0</span></div>
-        <div class="row"><label>lty</label><input type="range" id="lty" min="-5" max="5" step="0.1" value="0"><span id="lty-v">0.0</span></div>
-        <div class="row"><label>ltz</label><input type="range" id="ltz" min="-5" max="5" step="0.1" value="0"><span id="ltz-v">0.0</span></div>
+        <div class="row">
+          <div class="row-header">
+            <label>ex</label>
+            <span id="ex-v">0.0</span>
+          </div>
+          <input type="range" id="ex" min="-10" max="10" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ey</label>
+            <span id="ey-v">3.0</span>
+          </div>
+          <input type="range" id="ey" min="-10" max="10" step="0.1" value="3">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ez</label>
+            <span id="ez-v">6.0</span>
+          </div>
+          <input type="range" id="ez" min="-10" max="10" step="0.1" value="6">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ltx</label>
+            <span id="ltx-v">0.0</span>
+          </div>
+          <input type="range" id="ltx" min="-5" max="5" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>lty</label>
+            <span id="lty-v">0.0</span>
+          </div>
+          <input type="range" id="lty" min="-5" max="5" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>ltz</label>
+            <span id="ltz-v">0.0</span>
+          </div>
+          <input type="range" id="ltz" min="-5" max="5" step="0.1" value="0">
+        </div>
       </div>
     </details>
 
@@ -85,13 +198,37 @@ import Layout from '../../layouts/Layout.astro';
           <button class="toggle-btn" id="btn-ortho" onclick="setProj('ortho')">Orthographic</button>
         </div>
         <div id="persp-params">
-          <div class="row"><label>fov</label><input type="range" id="fov" min="20" max="120" step="1" value="60"><span id="fov-v">60°</span></div>
+          <div class="row">
+            <div class="row-header">
+              <label>fov</label>
+              <span id="fov-v">60°</span>
+            </div>
+            <input type="range" id="fov" min="20" max="120" step="1" value="60">
+          </div>
         </div>
         <div id="ortho-params" style="display:none">
-          <div class="row"><label>size</label><input type="range" id="ortho-size" min="1" max="10" step="0.1" value="4"><span id="ortho-size-v">4.0</span></div>
+          <div class="row">
+            <div class="row-header">
+              <label>size</label>
+              <span id="ortho-size-v">4.0</span>
+            </div>
+            <input type="range" id="ortho-size" min="1" max="10" step="0.1" value="4">
+          </div>
         </div>
-        <div class="row"><label>near</label><input type="range" id="near" min="0.01" max="2" step="0.01" value="0.1"><span id="near-v">0.1</span></div>
-        <div class="row"><label>far</label><input type="range" id="far" min="10" max="200" step="1" value="50"><span id="far-v">50.0</span></div>
+        <div class="row">
+          <div class="row-header">
+            <label>near</label>
+            <span id="near-v">0.1</span>
+          </div>
+          <input type="range" id="near" min="0.01" max="2" step="0.01" value="0.1">
+        </div>
+        <div class="row">
+          <div class="row-header">
+            <label>far</label>
+            <span id="far-v">50.0</span>
+          </div>
+          <input type="range" id="far" min="10" max="200" step="1" value="50">
+        </div>
       </div>
     </details>
 
@@ -126,21 +263,89 @@ import Layout from '../../layouts/Layout.astro';
 
   <!-- ===== MATRIX PANEL ===== -->
   <div id="matrix-panel">
-    <div class="mat-box">
-      <div class="mat-title"><span class="sf">Local</span><span class="sa"> →×Model→ </span><span class="st">World</span><span class="fl"> MTXTranslation·MTXRy·MTXRx·MTXRz·MTXScale</span></div>
-      <div class="mat-grid" id="mat-model"></div>
-    </div>
-    <div class="mat-box">
-      <div class="mat-title"><span class="sf">World</span><span class="sa"> →×MTXLookAt→ </span><span class="st">Camera</span></div>
-      <div class="mat-grid" id="mat-view"></div>
-    </div>
-    <div class="mat-box">
-      <div class="mat-title" id="proj-mat-label"><span class="sf">Camera</span><span class="sa"> →×MTXPerspective→ </span><span class="st">Clip</span></div>
-      <div class="mat-grid" id="mat-proj"></div>
-    </div>
-    <div class="mat-box">
-      <div class="mat-title"><span class="sf">Local</span><span class="sa"> →×MVP→ </span><span class="st">Clip</span></div>
-      <div class="mat-grid" id="mat-mvp"></div>
+    <div id="matrix-resize-handle" class="resize-handle-horizontal" aria-label="Resize matrix panel"></div>
+
+    <div class="matrix-pipeline">
+      <!-- Model Matrix Card -->
+      <div class="matrix-card" data-matrix="model">
+        <div class="matrix-card-header">
+          <span class="matrix-stage-from">Local</span>
+          <span class="matrix-operation">× Model</span>
+          <span class="matrix-stage-to">World</span>
+        </div>
+        <div class="matrix-formula">T · Ry · Rx · Rz · S</div>
+        <div class="matrix-values-wrapper">
+          <span class="matrix-bracket left">[</span>
+          <div class="matrix-grid" id="mat-model"></div>
+          <span class="matrix-bracket right">]</span>
+        </div>
+      </div>
+
+      <!-- Arrow Connector -->
+      <div class="matrix-arrow">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+          <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- View Matrix Card -->
+      <div class="matrix-card" data-matrix="view">
+        <div class="matrix-card-header">
+          <span class="matrix-stage-from">World</span>
+          <span class="matrix-operation">× View</span>
+          <span class="matrix-stage-to">Camera</span>
+        </div>
+        <div class="matrix-formula">LookAt</div>
+        <div class="matrix-values-wrapper">
+          <span class="matrix-bracket left">[</span>
+          <div class="matrix-grid" id="mat-view"></div>
+          <span class="matrix-bracket right">]</span>
+        </div>
+      </div>
+
+      <!-- Arrow Connector -->
+      <div class="matrix-arrow">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+          <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Projection Matrix Card -->
+      <div class="matrix-card" data-matrix="projection">
+        <div class="matrix-card-header">
+          <span class="matrix-stage-from">Camera</span>
+          <span class="matrix-operation" id="proj-mat-label">× Projection</span>
+          <span class="matrix-stage-to">Clip</span>
+        </div>
+        <div class="matrix-formula">Perspective</div>
+        <div class="matrix-values-wrapper">
+          <span class="matrix-bracket left">[</span>
+          <div class="matrix-grid" id="mat-proj"></div>
+          <span class="matrix-bracket right">]</span>
+        </div>
+      </div>
+
+      <!-- Arrow Connector -->
+      <div class="matrix-arrow">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+          <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- MVP Matrix Card -->
+      <div class="matrix-card" data-matrix="mvp">
+        <div class="matrix-card-header">
+          <span class="matrix-stage-from">Local</span>
+          <span class="matrix-operation">× MVP</span>
+          <span class="matrix-stage-to">Clip</span>
+        </div>
+        <div class="matrix-formula">P · V · M</div>
+        <div class="matrix-values-wrapper">
+          <span class="matrix-bracket left">[</span>
+          <div class="matrix-grid" id="mat-mvp"></div>
+          <span class="matrix-bracket right">]</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -176,12 +381,12 @@ import Layout from '../../layouts/Layout.astro';
 ===== */
 html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 
-<style>
+<style is:inline>
 
 #app {
   display: grid;
   grid-template-columns: var(--sidebar-width, 280px) 4px 1fr;
-  grid-template-rows: 44px 1fr 58px 190px;
+  grid-template-rows: var(--header-height) 1fr auto 280px;
   height: 100vh;
   overflow: hidden;
 }
@@ -192,17 +397,17 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   grid-row: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  gap: var(--space-md);
+  padding: 0 var(--space-lg);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  z-index: 20;
+  z-index: var(--z-header);
   flex-shrink: 0;
 }
 
-#header-left { display: flex; align-items: center; gap: 8px; }
-#header-title { font-size: 0.9rem; font-weight: 600; color: var(--accent-blue); white-space: nowrap; }
-#header-right { margin-left: auto; font-size: 0.78rem; }
+#header-left { display: flex; align-items: center; gap: var(--space-sm); }
+#header-title { font-size: 0.9rem; font-weight: var(--weight-semibold); color: var(--accent-primary); white-space: nowrap; }
+#header-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-md); font-size: var(--text-md); }
 #back-link { color: var(--text-secondary); }
 #back-link:hover { color: var(--text-primary); }
 
@@ -210,13 +415,16 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 #sidebar-resizer {
   grid-column: 2;
   grid-row: 2 / 5;
-  background: var(--border-color);
+  background: transparent;
   cursor: col-resize;
   transition: background var(--transition-fast);
-  z-index: 10;
+  z-index: var(--z-resizer);
+  position: relative;
 }
 #sidebar-resizer:hover,
-#sidebar-resizer.resizing { background: var(--accent-blue); }
+#sidebar-resizer.resizing {
+  background: var(--accent-primary);
+}
 
 /* Controls sidebar — scrolls internally */
 #controls {
@@ -225,7 +433,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   background: var(--bg-secondary);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px;
+  padding: var(--space-lg);
 }
 
 /* Canvas area — fills the grid cell, children use absolute/100% */
@@ -262,76 +470,568 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
+  padding: var(--space-md) var(--space-lg);
   overflow-x: auto;
+  gap: var(--space-md);
 }
-.ps { text-align: center; font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-secondary); white-space: nowrap; line-height: 1.4; }
-.ps small { font-size: 0.6rem; color: var(--accent-blue); font-weight: 400; display: block; }
-.pa { font-size: 0.6rem; text-align: center; color: var(--text-secondary); padding: 0 6px; line-height: 1.4; white-space: nowrap; flex-shrink: 0; }
-.pa strong { color: var(--accent-green); display: block; font-size: 0.68rem; }
-.pa .arr { color: #444; font-size: 1rem; }
+.ps {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.ps small {
+  font-size: 0.85rem;
+  color: var(--accent-blue);
+  font-weight: 400;
+  display: block;
+}
+.pa {
+  font-size: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 0 var(--space-sm);
+  line-height: 1.4;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.pa strong {
+  color: var(--accent-green);
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.pa .arr {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
 
-/* Matrix panel */
+/* ===== MATRIX PANEL ===== */
 #matrix-panel {
+  position: relative;
   grid-column: 3;
   grid-row: 4;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
-  display: flex;
   overflow-x: auto;
-  min-width: 0;
+  overflow-y: hidden;
+  height: 100%;
 }
-.mat-box { flex: 1; border-right: 1px solid var(--border-subtle); padding: 6px 8px; display: flex; flex-direction: column; min-width: 200px; }
-.mat-box:last-child { border-right: none; }
-.mat-title { font-size: 0.6rem; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 2px; line-height: 1.3; }
-.sf { color: var(--accent-orange); font-weight: 700; }
-.st { color: var(--accent-green); font-weight: 700; }
-.sa { color: #444; }
-.fl { color: #79c0ff; font-size: 0.58rem; }
-.mat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; font-family: monospace; font-size: 0.68rem; flex: 1; }
-.mat-cell { text-align: right; padding: 1px 3px; border-radius: 2px; background: var(--bg-primary); color: var(--accent-green); }
-.mat-cell.hl { color: var(--accent-orange); background: #2d1f0e; }
+
+/* Resize handle for matrix panel */
+.resize-handle-horizontal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  z-index: 10;
+  transition: background var(--transition-fast);
+}
+
+.resize-handle-horizontal::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.resize-handle-horizontal:hover::before,
+.resize-handle-horizontal.dragging::before {
+  background: var(--accent-primary);
+  width: 64px;
+  height: 5px;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Matrix pipeline flowchart layout */
+.matrix-pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-lg);
+  min-width: min-content;
+  height: 100%;
+}
+
+/* Matrix card */
+.matrix-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  min-width: 300px;
+  max-width: 360px;
+  transition: all var(--transition-fast);
+}
+
+.matrix-card:hover {
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-md);
+}
+
+.matrix-card.highlight {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary-alpha);
+  box-shadow: var(--shadow-glow-strong);
+  animation: matrixPulse 0.6s ease-out, matrixFadeOut 0.4s ease-in 1.6s forwards;
+}
+
+@keyframes matrixPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes matrixFadeOut {
+  0% {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-alpha);
+    box-shadow: var(--shadow-glow-strong);
+  }
+  100% {
+    border-color: var(--border-color);
+    background: var(--bg-tertiary);
+    box-shadow: none;
+  }
+}
+
+/* Matrix card header */
+.matrix-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-md);
+  line-height: 1.3;
+  margin-bottom: var(--space-md);
+}
+
+.matrix-stage-from {
+  color: var(--accent-secondary);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+}
+
+.matrix-operation {
+  color: var(--text-muted);
+  font-size: var(--text-md);
+  font-family: var(--font-mono);
+}
+
+.matrix-stage-to {
+  color: var(--accent-primary);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+}
+
+/* Matrix formula */
+.matrix-formula {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-md);
+  padding: 6px var(--space-md);
+  background: var(--bg-quaternary);
+  border-radius: var(--radius-sm);
+}
+
+/* Matrix values with brackets */
+.matrix-values-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.matrix-bracket {
+  font-size: 6rem;
+  line-height: 1;
+  color: var(--text-muted);
+  font-weight: 100;
+  user-select: none;
+}
+
+.matrix-bracket.left {
+  margin-right: -2px;
+}
+
+.matrix-bracket.right {
+  margin-left: -2px;
+}
+
+/* Matrix grid (4x4) */
+.mat-grid,
+.matrix-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(50px, 1fr)) !important;
+  grid-template-rows: repeat(4, auto) !important;
+  gap: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  padding: 6px;
+  width: 100%;
+  align-items: center;
+}
+
+.mat-cell {
+  text-align: right;
+  padding: 5px 10px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-primary);
+  color: var(--accent-primary);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  font-size: 1.125rem;
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  min-width: 50px;
+  overflow: visible;
+}
+
+.mat-cell.hl {
+  color: var(--accent-secondary);
+  background: var(--accent-secondary-alpha);
+  font-weight: var(--weight-semibold);
+  animation: cellHighlight 0.4s ease-out;
+}
+
+@keyframes cellHighlight {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Arrow connector */
+.matrix-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.matrix-arrow.active {
+  color: var(--accent-primary);
+  animation: arrowFlow 1s ease-in-out 3;
+}
+
+@keyframes arrowFlow {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
+}
 
 /* ===== SHAPE SELECTOR ===== */
-.shape-selector { padding: 8px 4px 4px; margin-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
-.shape-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-.shape-btns { display: flex; gap: 4px; }
-.shape-btn { flex: 1; padding: 6px 2px; border: 1px solid var(--border-color); border-radius: 5px; background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 1rem; line-height: 1; transition: all var(--transition-fast); }
-.shape-btn:hover { border-color: var(--text-muted); background: var(--bg-quaternary, #2d333b); }
-.shape-btn.active { border-color: var(--accent-blue); background: #1d3557; }
+.shape-selector {
+  padding: var(--space-md) var(--space-xs) var(--space-xs);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.shape-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.shape-btns {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.shape-btn {
+  flex: 1;
+  min-width: 40px;
+  max-width: 60px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--space-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.65rem;
+  line-height: 1;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+.shape-btn:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+.shape-btn.active {
+  background: var(--accent-primary-alpha);
+  border: 2px solid var(--accent-primary);
+  color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-strong);
+}
+
+.shape-btn-icon {
+  font-size: 1.2rem;
+}
+
+.src-btn {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.src-btn:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
 
 /* ===== COLLAPSIBLE SECTIONS ===== */
-.cs { border: 1px solid var(--border-subtle); border-radius: 6px; margin-bottom: 6px; overflow: hidden; }
+.cs {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.01);
+}
 .cs > summary {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 7px 10px; font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.07em; text-transform: uppercase;
-  color: var(--text-secondary); cursor: pointer; list-style: none;
-  user-select: none; transition: background var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background var(--transition-fast);
   border-bottom: 1px solid transparent;
 }
 .cs > summary::-webkit-details-marker { display: none; }
-.cs > summary:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-.cs[open] > summary { border-bottom-color: var(--border-subtle); color: var(--text-primary); }
-.chev { width: 12px; height: 12px; color: var(--text-muted); transition: transform var(--transition-fast); flex-shrink: 0; }
+.cs > summary:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.cs[open] > summary {
+  border-bottom-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+.chev {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
 .cs[open] > summary .chev { transform: rotate(180deg); }
-.sc { padding: 8px 10px 10px; }
+.sc {
+  padding: 10px var(--space-md) var(--space-md);
+  animation: slideDown var(--transition-base) ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* ===== CONTROLS ROWS ===== */
-.row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
 .row:last-child { margin-bottom: 0; }
-.row label { width: 28px; font-size: 0.75rem; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
-.row input[type=range] { flex: 1; accent-color: var(--accent-blue); }
-.row span { width: 44px; font-size: 0.7rem; color: var(--accent-green); text-align: right; font-family: monospace; flex-shrink: 0; }
-.toggle-row { display: flex; gap: 6px; margin-bottom: 8px; }
-.toggle-btn { flex: 1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-tertiary); color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; font-family: inherit; transition: all var(--transition-fast); }
-.toggle-btn.active { background: #1d3557; border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row label {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.row span {
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+}
+
+.row input[type=range] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Range track */
+.row input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-quaternary);
+  border-radius: 3px;
+}
+
+.row input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-quaternary);
+  border-radius: 3px;
+}
+
+/* Range thumb */
+.row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  margin-top: -5px;
+}
+
+.row input[type=range]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+/* Range progress fill (webkit only) */
+.row input[type=range]::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--accent-primary) 0%,
+    var(--accent-primary) var(--range-progress, 0%),
+    var(--bg-quaternary) var(--range-progress, 0%),
+    var(--bg-quaternary) 100%
+  );
+}
+.toggle-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: var(--space-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.toggle-btn:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+.toggle-btn.active {
+  background: var(--accent-primary-alpha);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
 
 /* ===== TAB SWITCHER ===== */
-#tab-switcher { display: inline-flex; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px; gap: 2px; margin: 0 auto; }
-.tab-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: none; background: transparent; color: var(--text-secondary); font-size: 0.78rem; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all var(--transition-fast); font-family: inherit; }
-.tab-btn:hover { color: var(--text-primary); background: var(--bg-quaternary, #2d333b); }
-.tab-btn.active { background: var(--bg-secondary); color: var(--accent-blue); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+#tab-switcher {
+  display: inline-flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+  margin: 0 auto;
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-sm) 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+.tab-btn.active {
+  background: var(--bg-tertiary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+@media (max-width: 640px) {
+  .tab-btn {
+    padding: var(--space-sm) 10px;
+  }
+  .tab-btn span:not(.tab-icon) {
+    display: none;
+  }
+}
 
 /* ===== SOURCE MODAL ===== */
 .modal-overlay {
@@ -452,7 +1152,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 @media (max-width: 768px) {
   #app {
     grid-template-columns: 1fr;
-    grid-template-rows: var(--header-height, 44px) minmax(300px, 1fr) 58px 190px;
+    grid-template-rows: var(--header-height, 44px) minmax(300px, 1fr) auto 200px;
   }
   #sidebar-resizer { display: none; }
   #controls {
@@ -462,6 +1162,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
     transition: transform var(--transition-base);
     box-shadow: 4px 0 16px rgba(0,0,0,0.5);
     padding-top: 8px;
+    overflow-y: auto;
   }
   #controls.is-open { transform: translateX(0); }
   #canvas-area { grid-column: 1; grid-row: 2; }
@@ -469,6 +1170,183 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   #matrix-panel { grid-column: 1; grid-row: 4; }
   #mobile-menu-btn { display: flex; }
   #sidebar-backdrop.visible { display: block; }
+
+  /* Matrix panel mobile adjustments */
+  .matrix-pipeline {
+    padding: var(--space-sm);
+    gap: var(--space-sm);
+    flex-wrap: nowrap;
+  }
+
+  .matrix-card {
+    min-width: 150px;
+    max-width: 170px;
+    padding: var(--space-md);
+  }
+
+  .matrix-card-header {
+    font-size: var(--text-sm);
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .matrix-stage-from,
+  .matrix-stage-to {
+    font-size: var(--text-base);
+  }
+
+  .matrix-operation {
+    font-size: var(--text-sm);
+  }
+
+  .matrix-formula {
+    font-size: var(--text-sm);
+    padding: 4px var(--space-sm);
+  }
+
+  .mat-grid {
+    font-size: 0.75rem;
+    gap: 2px 4px;
+    padding: 4px;
+  }
+
+  .mat-cell {
+    padding: 3px 5px;
+    font-size: 0.75rem;
+  }
+
+  .matrix-bracket {
+    font-size: 2.5rem;
+  }
+
+  .matrix-arrow svg {
+    width: 20px;
+    height: 14px;
+  }
+
+  /* Pipeline bar mobile adjustments */
+  #pipeline-bar {
+    padding: var(--space-sm) var(--space-md);
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .ps {
+    font-size: 0.85rem;
+    padding: 4px 10px;
+  }
+
+  .ps small {
+    font-size: 0.7rem;
+  }
+
+  .pa {
+    font-size: 0.85rem;
+    padding: 0 4px;
+  }
+
+  .pa strong {
+    font-size: 0.9rem;
+  }
+
+  .pa .arr {
+    font-size: 1rem;
+  }
+
+  /* Hide matrix panel resize handle on mobile */
+  #matrix-resize-handle {
+    display: none;
+  }
+}
+
+/* Small mobile devices (< 480px) */
+@media (max-width: 480px) {
+  .matrix-pipeline {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .matrix-card {
+    min-width: 130px;
+    max-width: 150px;
+  }
+
+  .mat-grid {
+    font-size: 0.7rem;
+  }
+
+  .mat-cell {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+  }
+
+  .matrix-bracket {
+    font-size: 2rem;
+  }
+}
+
+/* Tablet devices (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .matrix-card {
+    min-width: 200px;
+    max-width: 240px;
+    padding: var(--space-lg);
+  }
+
+  .matrix-card-header {
+    font-size: var(--text-md);
+  }
+
+  .matrix-stage-from,
+  .matrix-stage-to {
+    font-size: var(--text-base);
+  }
+
+  .matrix-formula {
+    font-size: var(--text-md);
+  }
+
+  .mat-grid {
+    font-size: 0.95rem;
+    gap: 3px 6px;
+  }
+
+  .mat-cell {
+    font-size: 0.95rem;
+    padding: 4px 7px;
+  }
+
+  .matrix-bracket {
+    font-size: 4.5rem;
+  }
+
+  .matrix-pipeline {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  /* Adjust header for tablet */
+  #header {
+    padding: 0 var(--space-md);
+  }
+
+  #header h1 {
+    font-size: var(--text-lg);
+  }
+
+  /* Adjust sidebar width for tablet */
+  #app {
+    grid-template-columns: 240px 4px 1fr;
+  }
+
+  #controls {
+    min-width: 200px;
+    max-width: 240px;
+  }
+
+  /* Optimize slider groups for tablet */
+  .slider-group {
+    padding: var(--space-md);
+  }
 }
 </style>
 
@@ -547,7 +1425,12 @@ function displayMatrix(id, m) {
   for(let i=0;i<16;i++) {
     const d = document.createElement('div');
     d.className = 'mat-cell' + (i%5===0?' hl':'');
-    d.textContent = m[i].toFixed(3);
+    const val = m[i];
+    // Format with fixed width: always show 2 decimal places, pad to consistent width
+    const formatted = val >= 0
+      ? '\u00A0' + val.toFixed(2)  // Add space for positive numbers
+      : val.toFixed(2);
+    d.textContent = formatted;
     el.appendChild(d);
   }
 }
@@ -1077,6 +1960,52 @@ switchTab(activeTab);
 })();
 
 // ============================================================
+// MATRIX PANEL RESIZE
+// ============================================================
+(function initMatrixPanelResize() {
+  const MIN=200, MAX=600, DEFAULT=280;
+  const panel = document.getElementById('matrix-panel');
+  const resizer = document.getElementById('matrix-resize-handle');
+  const app = document.getElementById('app');
+
+  let savedHeight = STORAGE.get('matrix-panel-height', DEFAULT);
+  savedHeight = Math.min(Math.max(savedHeight, MIN), MAX);
+
+  function setHeight(h) {
+    app.style.gridTemplateRows = `var(--header-height) 1fr auto ${h}px`;
+  }
+  setHeight(savedHeight);
+
+  let isResizing=false, startY=0, startH=0;
+
+  resizer.addEventListener('mousedown', e => {
+    isResizing=true;
+    startY=e.clientY;
+    startH = panel.offsetHeight;
+    document.body.style.cursor='ns-resize';
+    document.body.style.userSelect='none';
+    resizer.classList.add('dragging');
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if(!isResizing) return;
+    const deltaY = e.clientY - startY;
+    const newH = Math.min(Math.max(startH - deltaY, MIN), MAX);
+    setHeight(newH);
+  });
+
+  document.addEventListener('mouseup', () => {
+    if(!isResizing) return;
+    isResizing=false;
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+    resizer.classList.remove('dragging');
+    STORAGE.set('matrix-panel-height', panel.offsetHeight);
+  });
+})();
+
+// ============================================================
 // MOBILE MENU
 // ============================================================
 const mobileBtn = document.getElementById('mobile-menu-btn');
@@ -1376,8 +2305,83 @@ document.querySelectorAll('input[type=range]').forEach(input => {
   const update = () => {
     const v = parseFloat(input.value);
     span.textContent = isDeg ? v+'°' : v.toFixed(1);
+
+    // Trigger matrix highlighting based on parameter (only on user input)
+    highlightMatrixForParameter(id);
   };
   input.addEventListener('input', update);
-  update();
+  // Initialize display without highlighting
+  const v = parseFloat(input.value);
+  span.textContent = isDeg ? v+'°' : v.toFixed(1);
 });
+
+// ============================================================
+// PARAMETER-MATRIX CORRELATION HIGHLIGHTING
+// ============================================================
+// Clear all highlights on page load (ensure no stale highlights)
+document.querySelectorAll('.matrix-card').forEach(card => {
+  card.classList.remove('highlight');
+});
+document.querySelectorAll('.matrix-arrow').forEach(arrow => {
+  arrow.classList.remove('active');
+});
+
+function highlightMatrixForParameter(paramId) {
+  // Remove all existing highlights immediately
+  document.querySelectorAll('.matrix-card').forEach(card => {
+    card.classList.remove('highlight');
+    // Force reflow to restart CSS animation
+    void card.offsetWidth;
+  });
+  document.querySelectorAll('.matrix-arrow').forEach(arrow => {
+    arrow.classList.remove('active');
+    void arrow.offsetWidth;
+  });
+
+  // Determine which matrices to highlight based on parameter
+  const matricesToHighlight = getMatricesForParameter(paramId);
+
+  // Apply highlights (CSS will auto-fade after 2 seconds)
+  matricesToHighlight.forEach(matrixName => {
+    const card = document.querySelector(`.matrix-card[data-matrix="${matrixName}"]`);
+    if (card) {
+      card.classList.add('highlight');
+    }
+  });
+
+  // Highlight arrows between matrices
+  if (matricesToHighlight.length >= 2) {
+    const arrows = document.querySelectorAll('.matrix-arrow');
+    matricesToHighlight.forEach((_, index) => {
+      if (index < matricesToHighlight.length - 1 && arrows[index]) {
+        arrows[index].classList.add('active');
+      }
+    });
+  }
+}
+
+function getMatricesForParameter(paramId) {
+  // Translation, Rotation, Scale affect Model matrix
+  const modelParams = ['tx', 'ty', 'tz', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz'];
+  // Camera parameters affect View matrix
+  const viewParams = ['ex', 'ey', 'ez', 'ltx', 'lty', 'ltz'];
+  // Projection parameters affect Projection matrix
+  const projParams = ['fov', 'near', 'far', 'ortho-size'];
+  // All matrices contribute to MVP
+  const mvpParams = [...modelParams, ...viewParams, ...projParams];
+
+  if (modelParams.includes(paramId)) {
+    // Model changed: highlight Model → View → Projection → MVP chain
+    return ['model', 'view', 'projection', 'mvp'];
+  } else if (viewParams.includes(paramId)) {
+    // View changed: highlight View → Projection → MVP chain
+    return ['view', 'projection', 'mvp'];
+  } else if (projParams.includes(paramId)) {
+    // Projection changed: highlight Projection → MVP chain
+    return ['projection', 'mvp'];
+  } else {
+    // Unknown parameter: highlight all
+    return ['model', 'view', 'projection', 'mvp'];
+  }
+}
 </script>

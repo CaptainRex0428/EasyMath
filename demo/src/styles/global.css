@@ -1,45 +1,10 @@
 /* ============================================
    EasyMath Demo - Global Styles
-   GitHub Dark palette + CSS variable system
+   Design system with theme support
    ============================================ */
 
-:root {
-  /* Backgrounds */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
-  --bg-quaternary: #2d333b;
-
-  /* Borders */
-  --border-color: #30363d;
-  --border-subtle: #21262d;
-
-  /* Text */
-  --text-primary: #e6edf3;
-  --text-secondary: #8b949e;
-  --text-muted: #6e7681;
-
-  /* Accents */
-  --accent-blue: #58a6ff;
-  --accent-green: #3fb950;
-  --accent-orange: #f0883e;
-  --accent-purple: #bc8cff;
-  --accent-red: #f85149;
-
-  /* Layout */
-  --sidebar-width: 280px;
-  --sidebar-min-width: 200px;
-  --sidebar-max-width: 600px;
-  --resizer-width: 4px;
-  --header-height: 44px;
-  --pipeline-height: 58px;
-  --matrix-panel-height: 190px;
-
-  /* Animation */
-  --transition-fast: 0.15s ease;
-  --transition-base: 0.2s ease;
-  --transition-slow: 0.3s ease;
-}
+/* Import theme definitions */
+@import './themes.css';
 
 /* Base reset */
 * {
@@ -51,20 +16,21 @@
 html, body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: var(--leading-normal);
+  transition: background var(--transition-base), color var(--transition-base);
 }
 
 a {
-  color: var(--accent-blue);
+  color: var(--accent-primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
   text-decoration: underline;
-  color: #79b8ff;
+  color: var(--accent-primary-hover);
 }
 
 /* Scrollbar styling */
@@ -88,27 +54,29 @@ a:hover {
 
 /* Selection */
 ::selection {
-  background: var(--accent-blue);
+  background: var(--accent-primary);
   color: var(--bg-primary);
 }
 
 /* Focus outline */
 button:focus-visible,
 input:focus-visible,
-details:focus-visible summary {
-  outline: 2px solid var(--accent-blue);
+details:focus-visible summary,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-primary);
   outline-offset: 1px;
 }
 
 /* Reusable button styles */
 .btn {
-  padding: 6px 12px;
+  padding: var(--space-sm) var(--space-lg);
   border: 1px solid var(--border-color);
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   font-family: inherit;
   transition: all var(--transition-fast);
 }
@@ -120,24 +88,36 @@ details:focus-visible summary {
 }
 
 .btn.btn-primary {
-  background: #1d3557;
-  border-color: var(--accent-blue);
-  color: var(--accent-blue);
+  background: var(--accent-primary-alpha);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .btn.btn-primary:hover {
-  background: #2d4a73;
-  color: #79b8ff;
+  background: rgba(var(--accent-primary), 0.25);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
 }
 
 /* Range input styles */
 input[type="range"] {
   flex: 1;
-  accent-color: var(--accent-blue);
+  accent-color: var(--accent-primary);
   cursor: pointer;
 }
 
 /* Utility */
 .mono {
-  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-family: var(--font-mono);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

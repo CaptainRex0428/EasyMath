@@ -1,0 +1,250 @@
+---
+/**
+ * ThemeSwitcher.astro
+ * Dropdown theme selector with 8 preset themes
+ */
+---
+<div class="theme-switcher">
+  <button class="theme-btn" id="theme-btn" aria-label="Switch theme" aria-haspopup="true" aria-expanded="false">
+    <svg class="theme-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 2v2M8 12v2M4 8H2M14 8h-2M12.5 12.5l-1.5-1.5M5 5L3.5 3.5M12.5 3.5L11 5M5 11l-1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <span class="theme-label">主题</span>
+    <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+      <path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="theme-dropdown" id="theme-dropdown" role="menu" aria-hidden="true">
+    <button class="theme-option" data-theme="purple-blue" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #8b7aff 0%, #5eb3ff 100%);"></span>
+      <span class="theme-name">紫蓝渐变</span>
+      <span class="theme-badge">默认</span>
+    </button>
+    <button class="theme-option" data-theme="cyan-tech" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #00d9ff 0%, #00ffa3 100%);"></span>
+      <span class="theme-name">青色科技</span>
+    </button>
+    <button class="theme-option" data-theme="matrix-green" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #00ff41 0%, #00ff88 100%);"></span>
+      <span class="theme-name">矩阵绿</span>
+    </button>
+    <button class="theme-option" data-theme="warm-orange" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #ff8c42 0%, #ffb366 100%);"></span>
+      <span class="theme-name">暖橙色</span>
+    </button>
+    <button class="theme-option" data-theme="alert-red" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #ff4757 0%, #ff6b9d 100%);"></span>
+      <span class="theme-name">警示红</span>
+    </button>
+    <button class="theme-option" data-theme="cyberpunk-pink" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #ff6bcb 0%, #a78bfa 100%);"></span>
+      <span class="theme-name">赛博粉</span>
+    </button>
+    <button class="theme-option" data-theme="luxury-gold" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);"></span>
+      <span class="theme-name">奢华金</span>
+    </button>
+    <button class="theme-option" data-theme="light-minimal" role="menuitem">
+      <span class="theme-swatch" style="background: linear-gradient(135deg, #5856d6 0%, #007aff 100%);"></span>
+      <span class="theme-name">浅色极简</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .theme-switcher {
+    position: relative;
+  }
+
+  .theme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: inherit;
+  }
+
+  .theme-btn:hover {
+    background: var(--bg-quaternary);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+  }
+
+  .theme-btn[aria-expanded="true"] {
+    background: var(--bg-quaternary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+  }
+
+  .theme-icon {
+    color: currentColor;
+    flex-shrink: 0;
+  }
+
+  .theme-label {
+    font-size: var(--text-base);
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .theme-btn[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .theme-dropdown {
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    right: 0;
+    min-width: 180px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    padding: var(--space-xs);
+    z-index: var(--z-dropdown);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), visibility 0s var(--transition-fast);
+  }
+
+  .theme-dropdown[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .theme-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: var(--text-base);
+    font-weight: var(--weight-normal);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .theme-option:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .theme-option.active {
+    background: var(--accent-primary-alpha);
+    color: var(--accent-primary);
+  }
+
+  .theme-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+  }
+
+  .theme-name {
+    flex: 1;
+  }
+
+  .theme-badge {
+    font-size: var(--text-sm);
+    padding: 2px var(--space-sm);
+    background: var(--accent-primary-alpha);
+    color: var(--accent-primary);
+    border-radius: var(--radius-full);
+    font-weight: var(--weight-medium);
+  }
+
+  @media (max-width: 640px) {
+    .theme-label {
+      display: none;
+    }
+    .theme-btn {
+      padding: var(--space-sm);
+    }
+  }
+</style>
+
+<script>
+  // Theme switcher logic
+  const themeBtn = document.getElementById('theme-btn');
+  const themeDropdown = document.getElementById('theme-dropdown');
+  const themeOptions = document.querySelectorAll('.theme-option');
+
+  // Load saved theme from localStorage
+  const savedTheme = localStorage.getItem('theme-preference') || 'purple-blue';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  // Mark active theme
+  function updateActiveTheme(theme) {
+    themeOptions.forEach(option => {
+      if (option.dataset.theme === theme) {
+        option.classList.add('active');
+      } else {
+        option.classList.remove('active');
+      }
+    });
+  }
+
+  updateActiveTheme(savedTheme);
+
+  // Toggle dropdown
+  themeBtn?.addEventListener('click', () => {
+    const isExpanded = themeBtn.getAttribute('aria-expanded') === 'true';
+    themeBtn.setAttribute('aria-expanded', String(!isExpanded));
+    themeDropdown?.setAttribute('aria-hidden', String(isExpanded));
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!themeBtn?.contains(e.target as Node) && !themeDropdown?.contains(e.target as Node)) {
+      themeBtn?.setAttribute('aria-expanded', 'false');
+      themeDropdown?.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  // Handle theme selection
+  themeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const theme = option.dataset.theme;
+      if (theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme-preference', theme);
+        updateActiveTheme(theme);
+        themeBtn?.setAttribute('aria-expanded', 'false');
+        themeDropdown?.setAttribute('aria-hidden', 'true');
+      }
+    });
+  });
+
+  // Keyboard navigation
+  themeDropdown?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      themeBtn?.setAttribute('aria-expanded', 'false');
+      themeDropdown?.setAttribute('aria-hidden', 'true');
+      themeBtn?.focus();
+    }
+  });
+</script>

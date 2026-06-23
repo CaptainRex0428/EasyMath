@@ -1,0 +1,246 @@
+/* ============================================
+   EasyMath Demo - Theme System
+   8 preset themes with complete design tokens
+   ============================================ */
+
+/* Design Tokens - Spacing */
+:root {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+}
+
+/* Design Tokens - Typography */
+:root {
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+
+  --text-xs: 0.65rem;
+  --text-sm: 0.7rem;
+  --text-base: 0.75rem;
+  --text-md: 0.78rem;
+  --text-lg: 0.85rem;
+  --text-xl: 1rem;
+  --text-2xl: 1.1rem;
+  --text-3xl: 2.4rem;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+}
+
+/* Design Tokens - Border Radius */
+:root {
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
+}
+
+/* Design Tokens - Shadows */
+:root {
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Design Tokens - Transitions */
+:root {
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-pulse: 0.4s ease;
+  --transition-flow: 0.8s ease;
+}
+
+/* Design Tokens - Z-Index */
+:root {
+  --z-base: 1;
+  --z-resizer: 10;
+  --z-header: 50;
+  --z-sidebar-mobile: 100;
+  --z-dropdown: 200;
+  --z-modal: 1000;
+}
+
+/* Design Tokens - Layout */
+:root {
+  --header-height: 60px;
+  --sidebar-width-default: 280px;
+  --sidebar-width-min: 200px;
+  --sidebar-width-max: 900px;
+  --matrix-panel-height-default: 240px;
+  --matrix-panel-height-min: 200px;
+  --matrix-panel-height-max: 600px;
+  --resizer-width: 4px;
+}
+
+/* ============================================
+   Theme 1: Default Purple-Blue Gradient
+   ============================================ */
+:root,
+:root[data-theme="purple-blue"] {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #121218;
+  --bg-tertiary: #1a1a24;
+  --bg-quaternary: #252532;
+  --border-color: #2d2d3d;
+  --border-subtle: #1e1e2a;
+  --text-primary: #e8e8f0;
+  --text-secondary: #9898b0;
+  --text-muted: #6e6e88;
+  --accent-primary: #8b7aff;
+  --accent-primary-hover: #a393ff;
+  --accent-primary-alpha: rgba(139, 122, 255, 0.1);
+  --accent-gradient: linear-gradient(135deg, #8b7aff 0%, #5eb3ff 100%);
+}
+
+/* ============================================
+   Theme 2: Cyan Tech
+   ============================================ */
+:root[data-theme="cyan-tech"] {
+  --bg-primary: #0a0e12;
+  --bg-secondary: #0f161d;
+  --bg-tertiary: #1a2430;
+  --bg-quaternary: #24323f;
+  --border-color: #2d3f4f;
+  --border-subtle: #1a2835;
+  --text-primary: #e6f1f5;
+  --text-secondary: #8fa5b0;
+  --text-muted: #6a7f8a;
+  --accent-primary: #00d9ff;
+  --accent-primary-hover: #33e0ff;
+  --accent-primary-alpha: rgba(0, 217, 255, 0.1);
+  --accent-gradient: linear-gradient(135deg, #00d9ff 0%, #00ffa3 100%);
+}
+
+/* ============================================
+   Theme 3: Matrix Green
+   ============================================ */
+:root[data-theme="matrix-green"] {
+  --bg-primary: #0a0f0a;
+  --bg-secondary: #0d140d;
+  --bg-tertiary: #152015;
+  --bg-quaternary: #1f2c1f;
+  --border-color: #2a3f2a;
+  --border-subtle: #1a281a;
+  --text-primary: #e0ffe0;
+  --text-secondary: #90d090;
+  --text-muted: #608060;
+  --accent-primary: #00ff41;
+  --accent-primary-hover: #33ff66;
+  --accent-primary-alpha: rgba(0, 255, 65, 0.1);
+  --accent-gradient: linear-gradient(135deg, #00ff41 0%, #00ff88 100%);
+}
+
+/* ============================================
+   Theme 4: Warm Orange
+   ============================================ */
+:root[data-theme="warm-orange"] {
+  --bg-primary: #0f0a08;
+  --bg-secondary: #1a120e;
+  --bg-tertiary: #281e18;
+  --bg-quaternary: #382a22;
+  --border-color: #4a3830;
+  --border-subtle: #2a1e18;
+  --text-primary: #fff0e6;
+  --text-secondary: #d0a890;
+  --text-muted: #a0806a;
+  --accent-primary: #ff8c42;
+  --accent-primary-hover: #ffa366;
+  --accent-primary-alpha: rgba(255, 140, 66, 0.1);
+  --accent-gradient: linear-gradient(135deg, #ff8c42 0%, #ffb366 100%);
+}
+
+/* ============================================
+   Theme 5: Alert Red
+   ============================================ */
+:root[data-theme="alert-red"] {
+  --bg-primary: #120a0a;
+  --bg-secondary: #1c0f0f;
+  --bg-tertiary: #2a1818;
+  --bg-quaternary: #382424;
+  --border-color: #4f2d2d;
+  --border-subtle: #2a1616;
+  --text-primary: #ffe6e6;
+  --text-secondary: #d09090;
+  --text-muted: #a06868;
+  --accent-primary: #ff4757;
+  --accent-primary-hover: #ff6b78;
+  --accent-primary-alpha: rgba(255, 71, 87, 0.1);
+  --accent-gradient: linear-gradient(135deg, #ff4757 0%, #ff6b9d 100%);
+}
+
+/* ============================================
+   Theme 6: Cyberpunk Pink
+   ============================================ */
+:root[data-theme="cyberpunk-pink"] {
+  --bg-primary: #0f0a12;
+  --bg-secondary: #180f1f;
+  --bg-tertiary: #271a30;
+  --bg-quaternary: #362640;
+  --border-color: #4a3550;
+  --border-subtle: #261a30;
+  --text-primary: #ffe6ff;
+  --text-secondary: #d090d0;
+  --text-muted: #a068a0;
+  --accent-primary: #ff6bcb;
+  --accent-primary-hover: #ff8dd6;
+  --accent-primary-alpha: rgba(255, 107, 203, 0.1);
+  --accent-gradient: linear-gradient(135deg, #ff6bcb 0%, #a78bfa 100%);
+}
+
+/* ============================================
+   Theme 7: Luxury Gold
+   ============================================ */
+:root[data-theme="luxury-gold"] {
+  --bg-primary: #0f0e0a;
+  --bg-secondary: #1a1710;
+  --bg-tertiary: #282218;
+  --bg-quaternary: #383020;
+  --border-color: #4f4530;
+  --border-subtle: #2a2418;
+  --text-primary: #fff8e6;
+  --text-secondary: #d0b890;
+  --text-muted: #a09068;
+  --accent-primary: #ffd700;
+  --accent-primary-hover: #ffe033;
+  --accent-primary-alpha: rgba(255, 215, 0, 0.1);
+  --accent-gradient: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+}
+
+/* ============================================
+   Theme 8: Light Minimal
+   ============================================ */
+:root[data-theme="light-minimal"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-quaternary: #dee2e6;
+  --border-color: #ced4da;
+  --border-subtle: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --accent-primary: #5856d6;
+  --accent-primary-hover: #7371e0;
+  --accent-primary-alpha: rgba(88, 86, 214, 0.1);
+  --accent-gradient: linear-gradient(135deg, #5856d6 0%, #007aff 100%);
+}
+
+/* Dynamic shadow variables that use accent color */
+:root {
+  --shadow-glow: 0 0 12px var(--accent-primary-alpha);
+  --shadow-glow-strong: 0 4px 12px var(--accent-primary-alpha);
+}

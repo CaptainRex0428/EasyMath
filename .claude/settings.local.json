@@ -9,7 +9,8 @@
       "Bash(npx astro:*)",
       "Bash(curl:*)",
       "Bash(cat:*)",
-      "Bash(cd E:/Private/EasyMath && git status --short 2>&1 | grep -E \"node_modules|/dist|\\\\.astro\" | head -5 && echo \"=== ignored check ===\" && git check-ignore -v demo/node_modules demo/dist demo/.astro 2>&1)"
+      "Bash(cd E:/Private/EasyMath && git status --short 2>&1 | grep -E \"node_modules|/dist|\\\\.astro\" | head -5 && echo \"=== ignored check ===\" && git check-ignore -v demo/node_modules demo/dist demo/.astro 2>&1)",
+      "Bash(cd demo:*)"
     ]
   }
 }
