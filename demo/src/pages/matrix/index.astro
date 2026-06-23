@@ -790,34 +790,8 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   transition: color var(--transition-fast);
 }
 
-.matrix-arrow.active {
-  color: var(--accent-primary);
-  animation: arrowFlow 0.05s ease-in-out infinite;
-}
-
-/* Equals connector — Projection = MVP (semantic result, not a transform).
-   No translateX flow (not a movement); breathes opacity instead. */
-.matrix-eq.active {
-  color: var(--accent-primary);
-  animation: eqBreath 0.05s ease-in-out infinite;
-}
-
-/* Divide connector — Clip ÷ w = NDC (per-vertex divide, not a matrix).
-   Same opacity breath as equals, no flow. */
-.matrix-div.active {
-  color: var(--accent-primary);
-  animation: eqBreath 0.05s ease-in-out infinite;
-}
-
-@keyframes arrowFlow {
-  0%, 100% { opacity: 0.4; transform: translateX(0); }
-  50% { opacity: 1; transform: translateX(4px); }
-}
-
-@keyframes eqBreath {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
+/* Arrow connector — animation now driven by Web Animations API
+   (startPulse/stopPulse in JS), not CSS classes. */
 
 /* ===== SHAPE SELECTOR ===== */
 .shape-selector {
@@ -1494,7 +1468,7 @@ function updateViewportSize(w, h) {
   lastViewportLabel = label;
 }
 const DIFF_EPS = 1e-4;
-const CELL_HIGHLIGHT_MS = 300;
+const CELL_HIGHLIGHT_MS = 350;
 let cellHighlightUntil = 0;
 
 function diffMatrix(prev, curr) {
@@ -1510,14 +1484,98 @@ function diffMatrix(prev, curr) {
 // ============================================================
 // CONNECTOR HIGHLIGHT LIFECYCLE (shared by slider / wheel / orbit)
 // ============================================================
-// Removes .highlight (cards) and .active (SVG connectors). Used both for
-// immediate clear (orbit mouseup) and for auto-expire after a delay
-// (slider drag, wheel notch — neither has a clean "release" event).
-let connectorClearTimer = null;
+// SVG connectors use a 3-phase Web Animations API pulse:
+//   enter (0.1s, once)  : muted → accent, opacity 0.5 → 1   (lerp in)
+//   loop  (0.6s/∞)      : arrow = flow (translateX), eq/div = breath (opacity)
+//   exit  (0.3s, once)  : accent → muted, opacity 1 → 0.5   (lerp out)
+// Cards keep their CSS-transition highlight (.highlight class) unchanged.
+const PULSE_ENTER_MS = 100;
+const PULSE_LOOP_MS  = 600;
+const PULSE_EXIT_MS  = 300;
+
+// Per-element animation handles (enter/loop/exit). Stored on the element.
+function pulseVar(el, name) {
+  return getComputedStyle(el).getPropertyValue(name).trim();
+}
+
+function startPulse(el) {
+  // Don't restart if already pulsing
+  if(el.dataset.pulsing === '1') return;
+  el.dataset.pulsing = '1';
+
+  const accent = pulseVar(el, '--accent-primary') || '#8b7aff';
+  const muted  = pulseVar(el, '--text-muted')     || '#6e6e88';
+  const isArrow = el.classList.contains('matrix-arrow');
+
+  // Cancel any in-flight exit animation from a previous pulse
+  const prev = el._pulseExit;
+  if(prev) { prev.cancel(); el._pulseExit = null; }
+
+  // Phase 1: enter (0.1s) — lerp color + opacity to accent
+  const enter = el.animate([
+    { color: muted,  opacity: 0.5 },
+    { color: accent, opacity: 1   }
+  ], { duration: PULSE_ENTER_MS, easing: 'ease-out', fill: 'forwards' });
+
+  enter.onfinish = () => {
+    if(el.dataset.pulsing !== '1') return;  // released during enter
+    // Phase 2: loop (0.6s/∞) — type-specific motion at accent color
+    const loopFrames = isArrow
+      ? [{ opacity: 0.6, transform: 'translateX(0)' },
+         { opacity: 1,   transform: 'translateX(4px)' },
+         { opacity: 0.6, transform: 'translateX(0)' }]
+      : [{ opacity: 0.6 },
+         { opacity: 1   },
+         { opacity: 0.6 }];
+    el._pulseLoop = el.animate(loopFrames, {
+      duration: PULSE_LOOP_MS,
+      easing: 'ease-in-out',
+      iterations: Infinity
+    });
+  };
+  el._pulseEnter = enter;
+}
+
+function stopPulse(el) {
+  if(el.dataset.pulsing !== '1') return;
+  el.dataset.pulsing = '0';
+
+  const accent = pulseVar(el, '--accent-primary') || '#8b7aff';
+  const muted  = pulseVar(el, '--text-muted')     || '#6e6e88';
+
+  // Cancel enter + loop
+  if(el._pulseEnter) { el._pulseEnter.cancel(); el._pulseEnter = null; }
+  if(el._pulseLoop)  { el._pulseLoop.cancel();  el._pulseLoop  = null; }
+
+  // Phase 3: exit (0.3s) — lerp color + opacity back to muted
+  el._pulseExit = el.animate([
+    { color: accent, opacity: 1   },
+    { color: muted,  opacity: 0.5 }
+  ], { duration: PULSE_EXIT_MS, easing: 'ease-in', fill: 'forwards' });
+  el._pulseExit.onfinish = () => { el._pulseExit = null; };
+}
+
+// Cards: CSS transition highlight (unchanged).
+// Connectors: WAAPI pulse.
 function clearConnectorHighlight() {
   document.querySelectorAll('.matrix-card').forEach(c => c.classList.remove('highlight'));
-  document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => stopPulse(c));
 }
+function activateConnectors(chain) {
+  // chain: array of matrix names in order; activate connectors whose
+  // data-from/data-to is an adjacent pair in the chain.
+  if(chain.length < 2) return;
+  document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => {
+    for(let i = 0; i < chain.length - 1; i++) {
+      if(c.dataset.from === chain[i] && c.dataset.to === chain[i+1]) {
+        startPulse(c);
+        return;
+      }
+    }
+  });
+}
+
+let connectorClearTimer = null;
 // Schedule an auto-expire: resets the timer on every call, so continuous
 // input (dragging a slider, scrolling) keeps the highlight alive, and it
 // fires once CELL_HIGHLIGHT_MS after the last input.
@@ -2594,47 +2652,37 @@ document.querySelectorAll('input[type=range]').forEach(input => {
 document.querySelectorAll('.matrix-card').forEach(card => {
   card.classList.remove('highlight');
 });
-document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => {
-  c.classList.remove('active');
-});
 
 function highlightMatrixForParameter(paramId) {
-  // Remove all existing highlights immediately
+  // Clear existing card highlights (force reflow to restart CSS transition)
   document.querySelectorAll('.matrix-card').forEach(card => {
     card.classList.remove('highlight');
-    // Force reflow to restart CSS animation
     void card.offsetWidth;
-  });
-  const connectors = document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div');
-  connectors.forEach(c => {
-    c.classList.remove('active');
-    void c.offsetWidth;
   });
 
   // Determine which matrices to highlight based on parameter
   const matricesToHighlight = getMatricesForParameter(paramId);
 
-  // Apply highlights (CSS will auto-fade after 2 seconds)
+  // Apply card highlights
   matricesToHighlight.forEach(matrixName => {
     const card = document.querySelector(`.matrix-card[data-matrix="${matrixName}"]`);
-    if (card) {
-      card.classList.add('highlight');
-    }
+    if (card) card.classList.add('highlight');
   });
 
-  // Activate every connector whose data-from/data-to is an adjacent pair in the chain.
-  // Chain can start at view or projection (not always model), so match by pair, not by index.
-  if (matricesToHighlight.length >= 2) {
-    for (let i = 0; i < matricesToHighlight.length - 1; i++) {
-      const from = matricesToHighlight[i];
-      const to   = matricesToHighlight[i + 1];
-      connectors.forEach(c => {
-        if (c.dataset.from === from && c.dataset.to === to) {
-          c.classList.add('active');
-        }
-      });
-    }
+  // Activate connectors via WAAPI. Connectors already pulsing keep their
+  // loop animation (don't restart enter). Only stop+restart when the chain
+  // changes (different connectors should activate now).
+  // First: stop any pulsing connector that is NOT in the new chain.
+  const newChain = new Set();
+  for(let i = 0; i < matricesToHighlight.length - 1; i++) {
+    newChain.add(matricesToHighlight[i] + '>' + matricesToHighlight[i+1]);
   }
+  document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => {
+    const key = c.dataset.from + '>' + c.dataset.to;
+    if(c.dataset.pulsing === '1' && !newChain.has(key)) stopPulse(c);
+  });
+  // Then: activate (startPulse internally skips already-pulsing elements).
+  activateConnectors(matricesToHighlight);
 }
 
 function getMatricesForParameter(paramId) {
