@@ -47,6 +47,43 @@ E:\Private\EasyMath
 #endif
 ```
 
+## CPU / GPU 共用算法（2026-06-24 讨论结论）
+
+**核心结论**：算法语义可以共用，实现不能。
+
+| 层面 | 是否共用 |
+|--|--|
+| 数学语义（公式、定义） | ✅ 共用 |
+| API 命名风格（`MTXLookAt(eye, target, up)`） | ✅ 共用 |
+| 算法文档 / 教学概念 | ✅ 共用 |
+| CPU 字节码 / GPU 指令 | ❌ 不共用 |
+| C++ 模板实例 vs GLSL shader 代码 | ❌ 不共用 |
+
+**为什么不能"一份代码两边跑"**：
+- C++ 模板在编译期实例化，类型 `Matrix<float,4,4>` 是 C++ 对象
+- GLSL 的 `mat4` 是另一套类型系统，编译进 GPU 指令
+- CPU 计算结果通过 `glUniformMatrix4fv` / UBO 上传给 GPU，**中间是数据交换，不是代码共享**
+
+**实际工程中的三种模式**：
+1. **手写两份，靠纪律同步** — C++ 一份，GLSL 一份，公式必须一致。Unreal / Unity 大部分代码这么做。
+2. **代码生成** — 写一份 DSL，工具链吐 C++ + GLSL + HLSL + MSL。工业级方案。
+3. **CPU SIMD stub + GPU 精确实现** — CPU 端用 intrinsics，GPU 端用 GLSL 精确版。
+
+**EasyMath 现状**：模式 1 的起点。已命名 `EM::MTXLookAt` / `EM::MTXPerspective` 等 CPU 实现。
+
+**未来若加 GLSL 端**（最低成本路径）：
+- 新建 `shaders/em_math.glsl`
+- 从 `include/Matrix.h` 复制 `MTXLookAt / MTXPerspective / MTXRotationX/Y/Z / MTXTranslation / MTXScale` 的 GLSL 实现
+- 命名一致（`emLookAt` / `emPerspective`）
+- 文件头注释："This file mirrors include/Matrix.h, keep formulas in sync"
+- 不进 Premake 编译（着色器是字符串资源），但可加 Python 脚本做两边公式对照检查
+
+**反面清单（明确不共用的）**：
+- GPU 着色器里的特殊优化（分支避免、向量合并）
+- CPU 端的 SIMD 加速
+- GLSL 精度限定（`mediump` / `highp`）
+- 模板元编程（GLSL 不支持）
+
 ## 技术栈
 - **语言标准**: C++17+
 - **构建系统**: Premake5 (Lua)

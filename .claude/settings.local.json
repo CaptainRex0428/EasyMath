@@ -10,7 +10,19 @@
       "Bash(curl:*)",
       "Bash(cat:*)",
       "Bash(cd E:/Private/EasyMath && git status --short 2>&1 | grep -E \"node_modules|/dist|\\\\.astro\" | head -5 && echo \"=== ignored check ===\" && git check-ignore -v demo/node_modules demo/dist demo/.astro 2>&1)",
-      "Bash(cd demo:*)"
+      "Bash(cd demo:*)",
+      "Bash(xxd \"D:/Project/Code/EasyMath/sandbox/sandbox.cpp\")",
+      "Bash(xxd \"D:/Project/Code/EasyMath/bin/windows-x86_64/Debug/sandbox.log\")",
+      "Bash(cmd //c \"Sandbox.exe > sandbox.log 2>&1\")",
+      "Bash(echo \"EXIT_FAIL_$?\")",
+      "Bash(cmd //c \"cd /d \\\\\"D:\\\\\\\\Project\\\\\\\\Code\\\\\\\\EasyMath\\\\\\\\bin\\\\\\\\windows-x86_64\\\\\\\\Debug\\\\\" && Sandbox.exe > sandbox.log 2>&1\")",
+      "Bash(echo \"exit=$?\")",
+      "Bash(powershell -NoProfile -Command 'Set-Location '\\\\''D:\\\\Project\\\\Code\\\\EasyMath\\\\bin\\\\windows-x86_64\\\\Debug'\\\\''; $OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; chcp 65001 | Out-Null; $proc = Start-Process -FilePath '\\\\''.\\\\Sandbox.exe'\\\\'' -RedirectStandardOutput '\\\\''sandbox.log'\\\\'' -RedirectStandardError '\\\\''sandbox.err'\\\\'' -NoNewWindow -PassThru -Wait; Write-Host \"exit=$\\($proc.ExitCode\\)\"')",
+      "PowerShell(npx astro build 2>&1 | Select-Object -Last 12)",
+      "PowerShell(npx astro build 2>&1 | Select-Object -Last 8)",
+      "PowerShell(npx astro build 2>&1 | Select-Object -Last 6)",
+      "PowerShell(npx astro build 2>&1 | Select-Object -Last 4)",
+      "PowerShell(npx astro build 2>&1 | Select-Object -Last 5)"
     ]
   }
 }

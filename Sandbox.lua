@@ -31,7 +31,7 @@ project "Sandbox"
 
     -- vectorextensions  "SSE"               -- Necessary to run x32.
 
-    buildoptions { "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus"}
+    buildoptions { "/EHsc", "/Zc:preprocessor", "/Zc:__cplusplus", "/utf-8" }
 
     -- warnings "off"
 

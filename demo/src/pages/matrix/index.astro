@@ -150,42 +150,42 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
             <label>ex</label>
             <span id="ex-v">0.0</span>
           </div>
-          <input type="range" id="ex" min="-10" max="10" step="0.1" value="0">
+          <input type="range" id="ex" min="-10" max="10" step="0.01" value="0">
         </div>
         <div class="row">
           <div class="row-header">
             <label>ey</label>
             <span id="ey-v">3.0</span>
           </div>
-          <input type="range" id="ey" min="-10" max="10" step="0.1" value="3">
+          <input type="range" id="ey" min="-10" max="10" step="0.01" value="3">
         </div>
         <div class="row">
           <div class="row-header">
             <label>ez</label>
             <span id="ez-v">6.0</span>
           </div>
-          <input type="range" id="ez" min="-10" max="10" step="0.1" value="6">
+          <input type="range" id="ez" min="-10" max="10" step="0.01" value="6">
         </div>
         <div class="row">
           <div class="row-header">
             <label>ltx</label>
             <span id="ltx-v">0.0</span>
           </div>
-          <input type="range" id="ltx" min="-5" max="5" step="0.1" value="0">
+          <input type="range" id="ltx" min="-5" max="5" step="0.01" value="0">
         </div>
         <div class="row">
           <div class="row-header">
             <label>lty</label>
             <span id="lty-v">0.0</span>
           </div>
-          <input type="range" id="lty" min="-5" max="5" step="0.1" value="0">
+          <input type="range" id="lty" min="-5" max="5" step="0.01" value="0">
         </div>
         <div class="row">
           <div class="row-header">
             <label>ltz</label>
             <span id="ltz-v">0.0</span>
           </div>
-          <input type="range" id="ltz" min="-5" max="5" step="0.1" value="0">
+          <input type="range" id="ltz" min="-5" max="5" step="0.01" value="0">
         </div>
       </div>
     </details>
@@ -236,6 +236,12 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
 
   <!-- ===== CANVAS AREA ===== -->
   <div id="canvas-area">
+    <!-- Orbit sensitivity control (top-right corner) -->
+    <div id="sensitivity-control">
+      <span class="sensitivity-label">Speed</span>
+      <input type="range" id="orbit-sensitivity" min="0.1" max="3" step="0.1" value="1">
+      <span class="sensitivity-value" id="orbit-sensitivity-v">1.0×</span>
+    </div>
     <!-- WebGL tab -->
     <div id="tab-webgl" class="tab-content active">
       <canvas id="gl-canvas"></canvas>
@@ -262,16 +268,14 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
   </div>
 
   <!-- ===== MATRIX PANEL ===== -->
+  <div id="matrix-resize-handle" class="resize-handle-horizontal" role="separator" aria-orientation="horizontal" aria-label="Resize matrix panel"></div>
   <div id="matrix-panel">
-    <div id="matrix-resize-handle" class="resize-handle-horizontal" aria-label="Resize matrix panel"></div>
-
     <div class="matrix-pipeline">
       <!-- Model Matrix Card -->
       <div class="matrix-card" data-matrix="model">
         <div class="matrix-card-header">
-          <span class="matrix-stage-from">Local</span>
-          <span class="matrix-operation">× Model</span>
-          <span class="matrix-stage-to">World</span>
+          <span class="matrix-card-title">Model</span>
+          <span class="matrix-card-space">Local → World</span>
         </div>
         <div class="matrix-formula">T · Ry · Rx · Rz · S</div>
         <div class="matrix-values-wrapper">
@@ -282,7 +286,7 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
       </div>
 
       <!-- Arrow Connector -->
-      <div class="matrix-arrow">
+      <div class="matrix-arrow" data-from="model" data-to="view">
         <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
           <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -291,9 +295,8 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
       <!-- View Matrix Card -->
       <div class="matrix-card" data-matrix="view">
         <div class="matrix-card-header">
-          <span class="matrix-stage-from">World</span>
-          <span class="matrix-operation">× View</span>
-          <span class="matrix-stage-to">Camera</span>
+          <span class="matrix-card-title">View</span>
+          <span class="matrix-card-space">World → Camera</span>
         </div>
         <div class="matrix-formula">LookAt</div>
         <div class="matrix-values-wrapper">
@@ -304,7 +307,7 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
       </div>
 
       <!-- Arrow Connector -->
-      <div class="matrix-arrow">
+      <div class="matrix-arrow" data-from="view" data-to="projection">
         <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
           <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -313,9 +316,8 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
       <!-- Projection Matrix Card -->
       <div class="matrix-card" data-matrix="projection">
         <div class="matrix-card-header">
-          <span class="matrix-stage-from">Camera</span>
-          <span class="matrix-operation" id="proj-mat-label">× Projection</span>
-          <span class="matrix-stage-to">Clip</span>
+          <span class="matrix-card-title" id="proj-mat-title">Projection</span>
+          <span class="matrix-card-space">Camera → Clip</span>
         </div>
         <div class="matrix-formula">Perspective</div>
         <div class="matrix-values-wrapper">
@@ -325,19 +327,18 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
         </div>
       </div>
 
-      <!-- Arrow Connector -->
-      <div class="matrix-arrow">
+      <!-- Equals connector (Projection = MVP, semantic result, not a transform) -->
+      <div class="matrix-eq" data-from="projection" data-to="mvp">
         <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-          <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 9h32M4 15h32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
 
       <!-- MVP Matrix Card -->
       <div class="matrix-card" data-matrix="mvp">
         <div class="matrix-card-header">
-          <span class="matrix-stage-from">Local</span>
-          <span class="matrix-operation">× MVP</span>
-          <span class="matrix-stage-to">Clip</span>
+          <span class="matrix-card-title">MVP</span>
+          <span class="matrix-card-space">Local → Clip</span>
         </div>
         <div class="matrix-formula">P · V · M</div>
         <div class="matrix-values-wrapper">
@@ -345,6 +346,42 @@ import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
           <div class="matrix-grid" id="mat-mvp"></div>
           <span class="matrix-bracket right">]</span>
         </div>
+      </div>
+
+      <!-- Divide connector — Clip ÷ w = NDC (per-vertex perspective divide) -->
+      <div class="matrix-div" data-from="mvp" data-to="ndc">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+          <circle cx="20" cy="6" r="1.5" fill="currentColor"/>
+          <path d="M8 12h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="20" cy="18" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <!-- NDC Card (not a 4×4 matrix — perspective divide is per-vertex, w varies) -->
+      <div class="matrix-card matrix-card-formula" data-matrix="ndc">
+        <div class="matrix-card-header">
+          <span class="matrix-card-title">NDC</span>
+          <span class="matrix-card-space">Clip → Normalized</span>
+        </div>
+        <div class="matrix-formula">clip.xyz ÷ clip.w</div>
+        <div class="ndc-range">ndc ∈ [-1, 1]³</div>
+      </div>
+
+      <!-- Arrow connector — NDC → Viewport (viewport transform) -->
+      <div class="matrix-arrow" data-from="ndc" data-to="viewport">
+        <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+          <path d="M0 12h32M24 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Viewport Card — NDC [-1,1] → screen pixels [0,w]×[0,h] (structure shown, not values) -->
+      <div class="matrix-card matrix-card-formula" data-matrix="viewport">
+        <div class="matrix-card-header">
+          <span class="matrix-card-title">Viewport</span>
+          <span class="matrix-card-space">NDC → Screen</span>
+        </div>
+        <div class="matrix-formula">(ndc + 1) × size / 2</div>
+        <div class="ndc-range" id="viewport-size">canvas: — × —</div>
       </div>
     </div>
   </div>
@@ -386,7 +423,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 #app {
   display: grid;
   grid-template-columns: var(--sidebar-width, 280px) 4px 1fr;
-  grid-template-rows: var(--header-height) 1fr auto 280px;
+  grid-template-rows: var(--header-height) 1fr auto 6px 280px;
   height: 100vh;
   overflow: hidden;
 }
@@ -414,7 +451,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 /* Sidebar resizer */
 #sidebar-resizer {
   grid-column: 2;
-  grid-row: 2 / 5;
+  grid-row: 2 / 6;
   background: transparent;
   cursor: col-resize;
   transition: background var(--transition-fast);
@@ -429,7 +466,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 /* Controls sidebar — scrolls internally */
 #controls {
   grid-column: 1;
-  grid-row: 2 / 5;
+  grid-row: 2 / 6;
   background: var(--bg-secondary);
   overflow-y: auto;
   overflow-x: hidden;
@@ -458,6 +495,63 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 #threejs-badge {
   position: absolute; top: 8px; right: 10px;
   font-size: 0.7rem; color: var(--text-muted); pointer-events: none;
+}
+
+/* Orbit sensitivity control — top-right of canvas, below the badge */
+#sensitivity-control {
+  position: absolute;
+  top: 28px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  z-index: var(--z-base);
+  backdrop-filter: blur(4px);
+}
+.sensitivity-label {
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+#sensitivity-control input[type=range] {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-quaternary);
+  border-radius: 2px;
+  cursor: pointer;
+}
+#sensitivity-control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 1px solid var(--bg-secondary);
+  cursor: pointer;
+}
+#sensitivity-control input[type=range]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 1px solid var(--bg-secondary);
+  cursor: pointer;
+}
+.sensitivity-value {
+  font-family: var(--font-mono);
+  color: var(--accent-primary);
+  font-weight: var(--weight-medium);
+  min-width: 32px;
+  text-align: right;
 }
 
 /* Pipeline bar */
@@ -513,9 +607,8 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 
 /* ===== MATRIX PANEL ===== */
 #matrix-panel {
-  position: relative;
   grid-column: 3;
-  grid-row: 4;
+  grid-row: 5;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   overflow-x: auto;
@@ -523,37 +616,19 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   height: 100%;
 }
 
-/* Resize handle for matrix panel */
+/* Resize handle for matrix panel — independent grid row, same style as sidebar resizer */
 .resize-handle-horizontal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
+  grid-column: 3;
+  grid-row: 4;
+  background: transparent;
   cursor: ns-resize;
-  z-index: 10;
+  z-index: var(--z-resizer);
   transition: background var(--transition-fast);
 }
 
-.resize-handle-horizontal::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 4px;
-  background: var(--border-color);
-  border-radius: var(--radius-full);
-  transition: all var(--transition-fast);
-}
-
-.resize-handle-horizontal:hover::before,
-.resize-handle-horizontal.dragging::before {
+.resize-handle-horizontal:hover,
+.resize-handle-horizontal.dragging {
   background: var(--accent-primary);
-  width: 64px;
-  height: 5px;
-  box-shadow: var(--shadow-glow);
 }
 
 /* Matrix pipeline flowchart layout */
@@ -590,53 +665,31 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   border-color: var(--accent-primary);
   background: var(--accent-primary-alpha);
   box-shadow: var(--shadow-glow-strong);
-  animation: matrixPulse 0.6s ease-out, matrixFadeOut 0.4s ease-in 1.6s forwards;
-}
-
-@keyframes matrixPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-}
-
-@keyframes matrixFadeOut {
-  0% {
-    border-color: var(--accent-primary);
-    background: var(--accent-primary-alpha);
-    box-shadow: var(--shadow-glow-strong);
-  }
-  100% {
-    border-color: var(--border-color);
-    background: var(--bg-tertiary);
-    box-shadow: none;
-  }
 }
 
 /* Matrix card header */
 .matrix-card-header {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--text-md);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   line-height: 1.3;
   margin-bottom: var(--space-md);
 }
 
-.matrix-stage-from {
-  color: var(--accent-secondary);
+.matrix-card-title {
+  color: var(--text-primary);
   font-weight: var(--weight-bold);
   font-size: var(--text-lg);
+  letter-spacing: 0.02em;
 }
 
-.matrix-operation {
+.matrix-card-space {
   color: var(--text-muted);
-  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  font-size: var(--text-xs);
   font-family: var(--font-mono);
-}
-
-.matrix-stage-to {
-  color: var(--accent-primary);
-  font-weight: var(--weight-bold);
-  font-size: var(--text-lg);
+  letter-spacing: 0.04em;
 }
 
 /* Matrix formula */
@@ -649,6 +702,16 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   padding: 6px var(--space-md);
   background: var(--bg-quaternary);
   border-radius: var(--radius-sm);
+}
+
+/* Formula card (NDC) — no 4x4 grid, just text. Same outer shell as .matrix-card. */
+.ndc-range {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px var(--space-md);
+  letter-spacing: 0.04em;
 }
 
 /* Matrix values with brackets */
@@ -693,10 +756,10 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   text-align: right;
   padding: 5px 10px;
   border-radius: var(--radius-xs);
-  background: var(--bg-primary);
-  color: var(--accent-primary);
+  background: transparent;
+  color: var(--text-primary);
   white-space: nowrap;
-  transition: all var(--transition-fast);
+  transition: color 0.2s ease-out, background 0.2s ease-out, font-weight 0.2s ease-out, text-shadow 0.2s ease-out;
   font-size: 1.125rem;
   font-weight: var(--weight-medium);
   font-variant-numeric: tabular-nums;
@@ -705,19 +768,23 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 }
 
 .mat-cell.hl {
-  color: var(--accent-secondary);
-  background: var(--accent-secondary-alpha);
-  font-weight: var(--weight-semibold);
-  animation: cellHighlight 0.4s ease-out;
+  color: var(--accent-primary);
+  background: var(--accent-primary-alpha);
+  font-weight: var(--weight-bold);
+  text-shadow: 0 0 6px var(--accent-primary-alpha);
+  animation: cellHighlight 0.2s ease-out;
 }
 
 @keyframes cellHighlight {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 var(--accent-primary-alpha); }
+  50%  { transform: scale(1.15); box-shadow: 0 0 12px 2px var(--accent-primary-alpha); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 var(--accent-primary-alpha); }
 }
 
 /* Arrow connector */
-.matrix-arrow {
+.matrix-arrow,
+.matrix-eq,
+.matrix-div {
   color: var(--text-muted);
   flex-shrink: 0;
   transition: color var(--transition-fast);
@@ -725,12 +792,31 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 
 .matrix-arrow.active {
   color: var(--accent-primary);
-  animation: arrowFlow 1s ease-in-out 3;
+  animation: arrowFlow 0.05s ease-in-out infinite;
+}
+
+/* Equals connector — Projection = MVP (semantic result, not a transform).
+   No translateX flow (not a movement); breathes opacity instead. */
+.matrix-eq.active {
+  color: var(--accent-primary);
+  animation: eqBreath 0.05s ease-in-out infinite;
+}
+
+/* Divide connector — Clip ÷ w = NDC (per-vertex divide, not a matrix).
+   Same opacity breath as equals, no flow. */
+.matrix-div.active {
+  color: var(--accent-primary);
+  animation: eqBreath 0.05s ease-in-out infinite;
 }
 
 @keyframes arrowFlow {
   0%, 100% { opacity: 0.4; transform: translateX(0); }
   50% { opacity: 1; transform: translateX(4px); }
+}
+
+@keyframes eqBreath {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }
 
 /* ===== SHAPE SELECTOR ===== */
@@ -1152,9 +1238,10 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
 @media (max-width: 768px) {
   #app {
     grid-template-columns: 1fr;
-    grid-template-rows: var(--header-height, 44px) minmax(300px, 1fr) auto 200px;
+    grid-template-rows: var(--header-height, 44px) minmax(300px, 1fr) auto 0 200px;
   }
   #sidebar-resizer { display: none; }
+  #matrix-resize-handle { display: none; }
   #controls {
     position: fixed; top: 0; left: 0; height: 100vh;
     width: 280px !important; z-index: 100;
@@ -1167,7 +1254,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   #controls.is-open { transform: translateX(0); }
   #canvas-area { grid-column: 1; grid-row: 2; }
   #pipeline-bar { grid-column: 1; grid-row: 3; }
-  #matrix-panel { grid-column: 1; grid-row: 4; }
+  #matrix-panel { grid-column: 1; grid-row: 5; }
   #mobile-menu-btn { display: flex; }
   #sidebar-backdrop.visible { display: block; }
 
@@ -1190,13 +1277,12 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
     gap: 2px;
   }
 
-  .matrix-stage-from,
-  .matrix-stage-to {
+  .matrix-card-title {
     font-size: var(--text-base);
   }
 
-  .matrix-operation {
-    font-size: var(--text-sm);
+  .matrix-card-space {
+    font-size: var(--text-xs);
   }
 
   .matrix-formula {
@@ -1252,11 +1338,6 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
   .pa .arr {
     font-size: 1rem;
   }
-
-  /* Hide matrix panel resize handle on mobile */
-  #matrix-resize-handle {
-    display: none;
-  }
 }
 
 /* Small mobile devices (< 480px) */
@@ -1297,8 +1378,7 @@ html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }</style>
     font-size: var(--text-md);
   }
 
-  .matrix-stage-from,
-  .matrix-stage-to {
+  .matrix-card-title {
     font-size: var(--text-base);
   }
 
@@ -1392,6 +1472,64 @@ function transpose(m) { return [m[0],m[4],m[8],m[12],m[1],m[5],m[9],m[13],m[2],m
 function g(id) { return parseFloat(document.getElementById(id).value); }
 
 // ============================================================
+// MATRIX DIFF (for cell-level highlight)
+// prev[name] stores the last matrix array per card; on each
+// displayMatrix call we compare element-wise with a small epsilon
+// and only flag indices that actually changed since last frame.
+// First call (no prev) flags nothing — default state is unhighlighted.
+// Cell highlight is gated by cellHighlightUntil: only fires while
+// the user has touched a slider within the last 2 seconds.
+// ============================================================
+const MATRIX_KEYS = ['model', 'view', 'proj', 'mvp'];
+const matrixPrev = { model: null, view: null, proj: null, mvp: null };
+
+// Viewport card: shows the current canvas size (the only thing that varies).
+// The transform itself is structural: (ndc + 1) * size / 2 — shown in the card formula.
+let lastViewportLabel = '';
+function updateViewportSize(w, h) {
+  const label = `canvas: ${w} × ${h}`;
+  if (label === lastViewportLabel) return;
+  const el = document.getElementById('viewport-size');
+  if (el) el.textContent = label;
+  lastViewportLabel = label;
+}
+const DIFF_EPS = 1e-4;
+const CELL_HIGHLIGHT_MS = 300;
+let cellHighlightUntil = 0;
+
+function diffMatrix(prev, curr) {
+  if (!prev) return null;  // no previous frame → no highlights
+  const allow = performance.now() < cellHighlightUntil;
+  const out = new Array(16).fill(false);
+  for (let i = 0; i < 16; i++) {
+    if (allow && Math.abs(prev[i] - curr[i]) > DIFF_EPS) out[i] = true;
+  }
+  return out;
+}
+
+// ============================================================
+// CONNECTOR HIGHLIGHT LIFECYCLE (shared by slider / wheel / orbit)
+// ============================================================
+// Removes .highlight (cards) and .active (SVG connectors). Used both for
+// immediate clear (orbit mouseup) and for auto-expire after a delay
+// (slider drag, wheel notch — neither has a clean "release" event).
+let connectorClearTimer = null;
+function clearConnectorHighlight() {
+  document.querySelectorAll('.matrix-card').forEach(c => c.classList.remove('highlight'));
+  document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => c.classList.remove('active'));
+}
+// Schedule an auto-expire: resets the timer on every call, so continuous
+// input (dragging a slider, scrolling) keeps the highlight alive, and it
+// fires once CELL_HIGHLIGHT_MS after the last input.
+function scheduleConnectorClear() {
+  if(connectorClearTimer) clearTimeout(connectorClearTimer);
+  connectorClearTimer = setTimeout(clearConnectorHighlight, CELL_HIGHLIGHT_MS);
+}
+function cancelConnectorClear() {
+  if(connectorClearTimer) { clearTimeout(connectorClearTimer); connectorClearTimer = null; }
+}
+
+// ============================================================
 // SHARED: compute matrices from current slider state
 // ============================================================
 function computeMatrices(aspect) {
@@ -1417,21 +1555,39 @@ function computeMatrices(aspect) {
 
 // ============================================================
 // SHARED: display matrix in DOM
+// Default state: no cell highlight (changedIdx omitted \u2192 no .hl).
+// Only changedIdx[i] === true cells get the .hl class.
+// Cells are created once and reused across frames so CSS transitions
+// on color/background/font-weight fire on subsequent updates.
 // ============================================================
-function displayMatrix(id, m) {
+const matrixCells = {}; // id -> array of 16 .mat-cell divs
+function ensureMatrixCells(id) {
+  if (matrixCells[id]) return matrixCells[id];
   const el = document.getElementById(id);
-  if(!el) return;
-  el.innerHTML = '';
-  for(let i=0;i<16;i++) {
+  if (!el) return null;
+  const cells = [];
+  for (let i = 0; i < 16; i++) {
     const d = document.createElement('div');
-    d.className = 'mat-cell' + (i%5===0?' hl':'');
+    d.className = 'mat-cell';
+    el.appendChild(d);
+    cells.push(d);
+  }
+  matrixCells[id] = cells;
+  return cells;
+}
+
+function displayMatrix(id, m, changedIdx) {
+  const cells = ensureMatrixCells(id);
+  if (!cells) return;
+  for (let i = 0; i < 16; i++) {
+    const isHl = changedIdx && changedIdx[i];
+    cells[i].className = 'mat-cell' + (isHl ? ' hl' : '');
     const val = m[i];
     // Format with fixed width: always show 2 decimal places, pad to consistent width
     const formatted = val >= 0
       ? '\u00A0' + val.toFixed(2)  // Add space for positive numbers
       : val.toFixed(2);
-    d.textContent = formatted;
-    el.appendChild(d);
+    cells[i].textContent = formatted;
   }
 }
 
@@ -1449,9 +1605,7 @@ function setProj(mode) {
   document.getElementById('ortho-params').style.display = mode==='ortho'?'':'none';
   const fn = mode==='persp' ? 'MTXPerspective(fov,aspect,near,far)' : 'MTXOrtho(l,r,b,t,near,far)';
   document.getElementById('proj-fn-label').textContent = '× ' + fn;
-  const matName = mode==='persp' ? 'MTXPerspective' : 'MTXOrtho';
-  document.getElementById('proj-mat-label').innerHTML =
-    '<span class="sf">Camera</span><span class="sa"> →×' + matName + '→ </span><span class="st">Clip</span>';
+  document.getElementById('proj-mat-title').textContent = mode==='persp' ? 'Projection (Perspective)' : 'Projection (Orthographic)';
 }
 
 // Apply saved projection mode on load
@@ -1659,10 +1813,15 @@ let currentShape = STORAGE.get('shape', 'cube');
     drawBuf(shapeVBO, shapeIBO, 0, shapeIdxCount, mvp, gl.TRIANGLES);
     drawBuf(axisVBO, null, axisVerts.length/6, 0, vp, gl.LINES);
 
-    displayMatrix('mat-model', model);
-    displayMatrix('mat-view', view);
-    displayMatrix('mat-proj', proj);
-    displayMatrix('mat-mvp', mvp);
+    displayMatrix('mat-model', model, diffMatrix(matrixPrev.model, model));
+    displayMatrix('mat-view',  view,  diffMatrix(matrixPrev.view,  view));
+    displayMatrix('mat-proj',  proj,  diffMatrix(matrixPrev.proj,  proj));
+    displayMatrix('mat-mvp',   mvp,   diffMatrix(matrixPrev.mvp,   mvp));
+    updateViewportSize(w, h);
+    matrixPrev.model = model;
+    matrixPrev.view  = view;
+    matrixPrev.proj  = proj;
+    matrixPrev.mvp   = mvp;
     requestAnimationFrame(renderWebGL);
   }
   renderWebGL();
@@ -1752,10 +1911,15 @@ let currentShape = STORAGE.get('shape', 'cube');
     renderer.render(scene, threeCamera);
 
     const { model, view, proj, mvp } = computeMatrices(aspect);
-    displayMatrix('mat-model', model);
-    displayMatrix('mat-view', view);
-    displayMatrix('mat-proj', proj);
-    displayMatrix('mat-mvp', mvp);
+    displayMatrix('mat-model', model, diffMatrix(matrixPrev.model, model));
+    displayMatrix('mat-view',  view,  diffMatrix(matrixPrev.view,  view));
+    displayMatrix('mat-proj',  proj,  diffMatrix(matrixPrev.proj,  proj));
+    displayMatrix('mat-mvp',   mvp,   diffMatrix(matrixPrev.mvp,   mvp));
+    updateViewportSize(w, h);
+    matrixPrev.model = model;
+    matrixPrev.view  = view;
+    matrixPrev.proj  = proj;
+    matrixPrev.mvp   = mvp;
   }
   renderThreeJS();
 })();
@@ -1791,15 +1955,31 @@ let currentShape = STORAGE.get('shape', 'cube');
     el.dispatchEvent(new Event('input'));
   }
 
+  // Silent variant for orbit-driven updates: writes the value and refreshes
+  // the label, but does NOT fire 'input' (which would re-trigger matrix
+  // highlight + cellHighlightUntil every frame while dragging).
+  function setSliderSilent(id, val) {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const mn = parseFloat(el.min), mx = parseFloat(el.max);
+    el.value = Math.max(mn, Math.min(mx, val));
+    const span = document.getElementById(id+'-v');
+    if(span) {
+      const v = parseFloat(el.value);
+      const isDeg = ['rx','ry','rz','fov'].includes(id);
+      span.textContent = isDeg ? v+'°' : v.toFixed(2);
+    }
+  }
+
   function applyOrbit() {
     // spherical → cartesian, offset by target
     const tx = g('ltx'), ty = g('lty'), tz = g('ltz');
     const x = orbit.radius * Math.sin(orbit.phi) * Math.sin(orbit.theta);
     const y = orbit.radius * Math.cos(orbit.phi);
     const z = orbit.radius * Math.sin(orbit.phi) * Math.cos(orbit.theta);
-    setSlider('ex', tx + x);
-    setSlider('ey', ty + y);
-    setSlider('ez', tz + z);
+    setSliderSilent('ex', tx + x);
+    setSliderSilent('ey', ty + y);
+    setSliderSilent('ez', tz + z);
   }
 
   // Init orbit state from current sliders
@@ -1811,16 +1991,59 @@ let currentShape = STORAGE.get('shape', 'cube');
     radius: Math.max(0.5, initSph.radius)
   };
 
+  // When the user drags a camera/target slider directly, re-derive orbit
+  // spherical state from the new eye-target pair so the next mouse orbit
+  // doesn't jump back to the stale theta/phi/radius.
+  function resyncOrbitFromSliders() {
+    const ex = g('ex'), ey = g('ey'), ez = g('ez');
+    const dx = ex - g('ltx'), dy = ey - g('lty'), dz = ez - g('ltz');
+    const sph = cartToSpherical(dx, dy, dz);
+    orbit.theta  = sph.theta;
+    orbit.phi    = Math.max(0.05, Math.min(Math.PI - 0.05, sph.phi));
+    orbit.radius = Math.max(0.5, sph.radius);
+  }
+  ['ex','ey','ez','ltx','lty','ltz'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', resyncOrbitFromSliders);
+  });
+
+  // Orbit sensitivity — multiplies orbit/pan/zoom speed. Persisted.
+  let sensitivity = STORAGE.get('orbit-sensitivity', 1);
+  const sensInput = document.getElementById('orbit-sensitivity');
+  const sensValue = document.getElementById('orbit-sensitivity-v');
+  function applySensitivity(v) {
+    sensitivity = v;
+    if(sensInput) sensInput.value = v;
+    if(sensValue) sensValue.textContent = v.toFixed(1) + '×';
+  }
+  applySensitivity(Math.min(Math.max(sensitivity, 0.1), 3));
+  if(sensInput) sensInput.addEventListener('input', () => {
+    const v = parseFloat(sensInput.value);
+    applySensitivity(v);
+    STORAGE.set('orbit-sensitivity', v);
+  });
+
   let isDragging = false;
   let isRightDrag = false;
   let lastX = 0, lastY = 0;
 
   canvasArea.addEventListener('mousedown', e => {
+    // Ignore mousedown on the sensitivity control (let the slider work)
+    if(e.target.closest('#sensitivity-control')) return;
     isDragging = true;
     isRightDrag = e.button === 2;
     lastX = e.clientX;
     lastY = e.clientY;
     e.preventDefault();
+
+    // Trigger matrix highlight once at drag start:
+    // - left-drag (orbit) → camera param 'ex' → highlights view/projection/mvp
+    // - right-drag (pan)  → target param 'ltx' → same chain
+    // Card pulse plays once here; during the drag only cellHighlightUntil
+    // is refreshed (in mousemove) so cell diff highlights keep working
+    // without re-triggering the card pulse animation.
+    cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+    highlightMatrixForParameter(isRightDrag ? 'ltx' : 'ex');
   });
 
   canvasArea.addEventListener('contextmenu', e => e.preventDefault());
@@ -1832,32 +2055,54 @@ let currentShape = STORAGE.get('shape', 'cube');
     lastX = e.clientX;
     lastY = e.clientY;
 
+    // Keep cell diff highlights alive while dragging (refresh the time window
+    // every frame). Card pulse is NOT re-triggered here — it played once on
+    // mousedown and will fade out naturally.
+    if(dx !== 0 || dy !== 0) {
+      cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+    }
+
     if(isRightDrag) {
       // Pan: move target in camera-right / camera-up plane
-      const panSpeed = orbit.radius * 0.002;
+      const panSpeed = orbit.radius * 0.002 * sensitivity;
       // approximate right direction from theta
       const rightX =  Math.cos(orbit.theta);
       const rightZ = -Math.sin(orbit.theta);
       const upX = -Math.cos(orbit.phi) * Math.sin(orbit.theta);
       const upY =  Math.sin(orbit.phi);
       const upZ = -Math.cos(orbit.phi) * Math.cos(orbit.theta);
-      setSlider('ltx', g('ltx') - dx * rightX * panSpeed + dy * upX * panSpeed);
-      setSlider('lty', g('lty') + dy * upY * panSpeed);
-      setSlider('ltz', g('ltz') - dx * rightZ * panSpeed + dy * upZ * panSpeed);
+      setSliderSilent('ltx', g('ltx') - dx * rightX * panSpeed + dy * upX * panSpeed);
+      setSliderSilent('lty', g('lty') + dy * upY * panSpeed);
+      setSliderSilent('ltz', g('ltz') - dx * rightZ * panSpeed + dy * upZ * panSpeed);
     } else {
       // Orbit
-      orbit.theta -= dx * 0.008;
-      orbit.phi    = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi + dy * 0.008));
+      const orbSpeed = 0.008 * sensitivity;
+      orbit.theta -= dx * orbSpeed;
+      orbit.phi    = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi - dy * orbSpeed));
     }
     applyOrbit();
   });
 
-  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('mouseup', () => {
+    if(!isDragging) return;
+    isDragging = false;
+    // End the sustained highlight: remove .active (SVG) and .highlight (cards).
+    // CSS transitions fade them back to default smoothly. Cell diff highlights
+    // expire on their own via cellHighlightUntil (within CELL_HIGHLIGHT_MS).
+    clearConnectorHighlight();
+    cancelConnectorClear();
+  });
 
   canvasArea.addEventListener('wheel', e => {
     e.preventDefault();
-    orbit.radius = Math.max(0.5, Math.min(50, orbit.radius * (1 + e.deltaY * 0.001)));
+    orbit.radius = Math.max(0.5, Math.min(50, orbit.radius * (1 + e.deltaY * 0.001 * sensitivity)));
     applyOrbit();
+    // Zoom changes the camera (radius), so trigger the camera-chain highlight.
+    // Wheel is discrete (one notch per event) with no mouseup, so we auto-expire
+    // via the shared scheduleConnectorClear (same timer as slider).
+    cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+    highlightMatrixForParameter('ex');
+    scheduleConnectorClear();
   }, { passive: false });
 
   // Touch support
@@ -1868,10 +2113,15 @@ let currentShape = STORAGE.get('shape', 'cube');
     if(e.touches.length === 1) {
       lastTouchX = e.touches[0].clientX;
       lastTouchY = e.touches[0].clientY;
+      // Trigger matrix highlight once at touch start (camera chain)
+      cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+      highlightMatrixForParameter('ex');
     } else if(e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+      cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+      highlightMatrixForParameter('ex');
     }
     e.preventDefault();
   }, { passive: false });
@@ -1882,21 +2132,30 @@ let currentShape = STORAGE.get('shape', 'cube');
       const dy = e.touches[0].clientY - lastTouchY;
       lastTouchX = e.touches[0].clientX;
       lastTouchY = e.touches[0].clientY;
-      orbit.theta -= dx * 0.008;
-      orbit.phi = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi + dy * 0.008));
+      const orbSpeed = 0.008 * sensitivity;
+      orbit.theta -= dx * orbSpeed;
+      orbit.phi = Math.max(0.05, Math.min(Math.PI - 0.05, orbit.phi - dy * orbSpeed));
+      if(dx !== 0 || dy !== 0) cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
       applyOrbit();
     } else if(e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.sqrt(dx*dx + dy*dy);
-      orbit.radius = Math.max(0.5, Math.min(50, orbit.radius * (lastTouchDist / dist)));
+      // sensitivity scales how aggressively pinch changes radius
+      const ratio = 1 + (lastTouchDist / dist - 1) * sensitivity;
+      orbit.radius = Math.max(0.5, Math.min(50, orbit.radius / ratio));
       lastTouchDist = dist;
+      cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
       applyOrbit();
     }
     e.preventDefault();
   }, { passive: false });
 
-  canvasArea.addEventListener('touchend', () => {}, { passive: true });
+  canvasArea.addEventListener('touchend', () => {
+    // End sustained highlight (mirror of mouseup)
+    clearConnectorHighlight();
+    cancelConnectorClear();
+  }, { passive: true });
 })();
 
 // ============================================================
@@ -1972,7 +2231,7 @@ switchTab(activeTab);
   savedHeight = Math.min(Math.max(savedHeight, MIN), MAX);
 
   function setHeight(h) {
-    app.style.gridTemplateRows = `var(--header-height) 1fr auto ${h}px`;
+    app.style.gridTemplateRows = `var(--header-height) 1fr auto 6px ${h}px`;
   }
   setHeight(savedHeight);
 
@@ -2299,20 +2558,33 @@ document.querySelectorAll('.cs[data-key]').forEach(details => {
 // ============================================================
 document.querySelectorAll('input[type=range]').forEach(input => {
   const id = input.id;
+  // Skip the orbit sensitivity slider — it has its own handler in the orbit
+  // IIFE and shouldn't trigger matrix highlighting.
+  if(id === 'orbit-sensitivity') return;
   const span = document.getElementById(id+'-v');
   if(!span) return;
   const isDeg = ['rx','ry','rz','fov'].includes(id);
+  const isPrecise = ['ex','ey','ez','ltx','lty','ltz'].includes(id);
+  const formatVal = v => isDeg ? v+'°' : isPrecise ? v.toFixed(2) : v.toFixed(1);
   const update = () => {
     const v = parseFloat(input.value);
-    span.textContent = isDeg ? v+'°' : v.toFixed(1);
+    span.textContent = formatVal(v);
 
-    // Trigger matrix highlighting based on parameter (only on user input)
+    // Gate cell-level highlights: only mark cells as "changed"
+    // for the next 2 seconds. After that, default = no .hl.
+    cellHighlightUntil = performance.now() + CELL_HIGHLIGHT_MS;
+
+    // Trigger card-level matrix highlighting based on parameter
     highlightMatrixForParameter(id);
+
+    // Auto-expire: dragging keeps resetting the timer (stays highlighted),
+    // releasing lets it fire CELL_HIGHLIGHT_MS later. Shared with wheel/orbit.
+    scheduleConnectorClear();
   };
   input.addEventListener('input', update);
   // Initialize display without highlighting
   const v = parseFloat(input.value);
-  span.textContent = isDeg ? v+'°' : v.toFixed(1);
+  span.textContent = formatVal(v);
 });
 
 // ============================================================
@@ -2322,8 +2594,8 @@ document.querySelectorAll('input[type=range]').forEach(input => {
 document.querySelectorAll('.matrix-card').forEach(card => {
   card.classList.remove('highlight');
 });
-document.querySelectorAll('.matrix-arrow').forEach(arrow => {
-  arrow.classList.remove('active');
+document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div').forEach(c => {
+  c.classList.remove('active');
 });
 
 function highlightMatrixForParameter(paramId) {
@@ -2333,9 +2605,10 @@ function highlightMatrixForParameter(paramId) {
     // Force reflow to restart CSS animation
     void card.offsetWidth;
   });
-  document.querySelectorAll('.matrix-arrow').forEach(arrow => {
-    arrow.classList.remove('active');
-    void arrow.offsetWidth;
+  const connectors = document.querySelectorAll('.matrix-arrow, .matrix-eq, .matrix-div');
+  connectors.forEach(c => {
+    c.classList.remove('active');
+    void c.offsetWidth;
   });
 
   // Determine which matrices to highlight based on parameter
@@ -2349,14 +2622,18 @@ function highlightMatrixForParameter(paramId) {
     }
   });
 
-  // Highlight arrows between matrices
+  // Activate every connector whose data-from/data-to is an adjacent pair in the chain.
+  // Chain can start at view or projection (not always model), so match by pair, not by index.
   if (matricesToHighlight.length >= 2) {
-    const arrows = document.querySelectorAll('.matrix-arrow');
-    matricesToHighlight.forEach((_, index) => {
-      if (index < matricesToHighlight.length - 1 && arrows[index]) {
-        arrows[index].classList.add('active');
-      }
-    });
+    for (let i = 0; i < matricesToHighlight.length - 1; i++) {
+      const from = matricesToHighlight[i];
+      const to   = matricesToHighlight[i + 1];
+      connectors.forEach(c => {
+        if (c.dataset.from === from && c.dataset.to === to) {
+          c.classList.add('active');
+        }
+      });
+    }
   }
 }
 
