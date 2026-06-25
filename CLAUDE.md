@@ -16,12 +16,24 @@ EasyMath 是一个为实时图形与渲染场景打造的现代 C++ 数学库（
 ```bash
 Scripts/GenerateWIN.bat
 ```
-该脚本调用 `Scripts/Premake/premake5.exe --file=Build.lua vs2022` 在仓库根目录生成 `EasyMath.sln`。
+该脚本调用 `Scripts/premake/premake5.exe --file=Build.lua vs2022` 在仓库根目录生成 `EasyMath.sln`。
+
+### 运行 Sandbox（运行时验证）
+唯一运行时验证入口是 `Sandbox` 控制台程序：
+```bash
+# 1. 用 Visual Studio 打开 EasyMath.sln，选择 "Sandbox" 项目 → 生成 → 运行
+#    或在仓库根目录：
+msbuild EasyMath.sln /p:Configuration=Debug /p:Platform=x64
+
+# 2. 直接执行
+./bin/windows-x86_64/Debug/Sandbox.exe
+```
+输出 MVP（Model-View-Projection）管线结果到控制台，可作为 API 行为的活文档。
 
 ### 生成物位置
 - 输出根目录：`bin/{system}-{arch}/{Debug|Release|Dist}/`
   - 库 DLL/LIB：`bin/windows-x86_64/Debug/EasyMath/`
-  - Sandbox 可执行文件：`bin/windows-x86_64/Debug/`
+  - Sandbox 可执行文件：`bin/windows-x86_64/Debug/Sandbox.exe`
 - 中间对象文件：`bin/obj/{system}-{arch}/{Config}/{ProjectName}/`
 - Visual Studio 配置：`settings/`
 
@@ -35,6 +47,15 @@ Scripts/GenerateWIN.bat
 
 ### 重新生成项目文件
 修改任何 `*.lua` 后必须重新运行 `GenerateWIN.bat`，否则 Visual Studio 工程不会更新。
+
+### 开发文档站（demo/）
+`demo/` 是一个独立的 Astro（Node.js）站点，用于文档展示与可视化：
+```bash
+cd demo
+npm install        # 一次性
+npm run dev        # 本地开发服务器
+npm run build      # 静态站点构建到 demo/dist/
+```
 
 ## 目录结构
 
@@ -148,10 +169,14 @@ auto MVP   = proj * view * model;
 - `docs/Swizzle.md` / `docs/Swizzle.en.md` - Swizzle 运算符与边界
 - `.claude/memory/design-principles.md` - Swizzle/Color 类型安全机制详解
 - `.claude/memory/code-conventions.md` - 完整代码规范
-- `.claude/memory/development-status.md` - 各模块完成度��Vector/Matrix/Color 95%、Quaternion 30%）
+- `.claude/memory/development-status.md` - 各模块完成度（Vector/Matrix/Color 95%、Quaternion 30%）
 - `.claude/memory/roadmap.md` - v1.1.0 待办（Quaternion 完善 / 欧拉角 / 旋转互转 / Color 运算）
 - `.claude/memory/optimization-summary.md` - 投影矩阵性能优化细节
 - `.claude/memory/matrix-optimization-analysis.md` - 矩阵优化分析
+- `.claude/memory/project-context.md` - 项目背景与定位
+- `.claude/DEMO_INTEGRATION.md` - 文档站（Astro）与库源码的协作约定
+- `.claude/easymath-design-system.md` - 文档站视觉/设计规范
+- `.claude/agents/` `.claude/skills/` `.claude/mcp/` - Claude Code 配套资源（agents、slash 命令、MCP 配置）
 - `README.md` - 项目说明、构建步骤、特性列表（中英文）
 
 ## 验证
@@ -160,3 +185,10 @@ auto MVP   = proj * view * model;
 - **类型测试**：通过 SFINAE 在编译期捕获错误（如错误颜色空间调用、错误矩阵维度）
 - **没有自动化单元测试框架**（v1.1.0 路线图中计划添加）
 - **没有 Lint 配置**（`warnings "off"` 已在 `EasyMath.lua` 中）
+
+## 已知陷阱
+
+- **Matrix × Vector**：矩阵乘向量返回 `Matrix<T, rows, 1>`（列向量），不是 `Vector`；要得到 Vector3 结果需显式 `.template get<>()` 或提取分量
+- **`Vector3 × Matrix4x4`** 不直接支持：先把 Vector3 通过 `toHomogeneous()` 提升到 Vector4
+- **Matrix 存储顺序**：`data[row * cols + col]` 行主序（DirectX 风格），与 GLSL 列主序相反
+- **Quaternion 输出顺序**：`[w, x, y, z]`，不是 xyzw

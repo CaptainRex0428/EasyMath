@@ -12,7 +12,7 @@
 
 EasyMath is a modern C++ math library for real-time graphics and rendering. It provides dimension-generic vectors and matrices, quaternions, colors, and practical utilities like byte-size conversion. The API emphasizes type safety, readability, and ease of integration.
 
-- Namespace: `EM`
+- Namespace: `EasyMath`
 - Core types are header-first; a small amount of implementation lives in `src/`
 - Recommended standard: C++17 or newer
 
@@ -55,7 +55,7 @@ E:.\EasyMath
 - Generated DLL and import library are under `bin/windows-x86_64/Debug/EasyMath/` (e.g., `EasyMath.dll`, `.lib`) for linking from other projects
 
 ### Features
-- Namespace: `EM`
+- Namespace: `EasyMath`
 - Vectors: `Vector<T, N>` with arithmetic, swizzle, length/normalize, dot/cross, distance/angle, lerp/slerp, homogeneous conversions, projection/reflection, skew-symmetric matrix, and common aliases (`Vector2/3/4`, `Vector2f/d/i`, ...)
 - Matrices: `Matrix<T, R, C>` with element access, transpose, determinant/cofactor/adjugate/inverse, arithmetic (+, unary -, scalar ×), matrix×matrix, matrix×vector, and helpers (identity, rotations X/Y/Z, translation, scale)
 - Quaternions: `Quaternion<T>` based on `Vector<T,4>`, with length, normalization and output
@@ -72,7 +72,7 @@ E:.\EasyMath
 #include "Color.h"
 
 int main() {
-    using namespace EM;
+    using namespace EasyMath;
 
     Vector3 a{1.0f, 2.0f, 3.0f};
     Vector3 b{2.0f, 0.0f, 1.0f};
@@ -127,7 +127,7 @@ Please see the English license `LICENSE`. A Chinese reference translation is ava
 
 EasyMath 是一个为实时图形与渲染场景打造的现代 C++ 数学库。它提供维度泛化的向量与矩阵、四元数、颜色类型，以及实用的字节大小转换工具。API 强调类型安全、可读性与高可用性。
 
- - 命名空间：`EM`
+ - 命名空间：`EasyMath`
  - 核心类型以头文件为主，少量实现位于 `src/`
  - 建议使用 C++17 及以上
 
@@ -170,7 +170,7 @@ E:.\EasyMath
 - 生成的 DLL 与导入库位于 `bin/windows-x86_64/Debug/EasyMath/`（如 `EasyMath.dll`、`.lib`），可直接供其他项目链接使用
 
 ### 特性
-- 命名空间：`EM`
+- 命名空间：`EasyMath`
 - 向量：`Vector<T, N>`，支持算术运算、swizzle、长度与归一化、点积/叉积、距离/角度、线性/球面插值、齐次坐标转换、投影/反射、反对称矩阵、常用别名（`Vector2/3/4`、`Vector2f/d/i` 等）
 - 矩阵：`Matrix<T, R, C>`，支持元素访问、转置、行列式/代数余子式/伴随/逆，算术运算（加减、取负、标量乘），矩阵×矩阵、矩阵×向量，常用构造（单位矩阵、绕 X/Y/Z 旋转、平移、缩放）
 - 四元数：`Quaternion<T>` 基于 `Vector<T,4>`，提供长度、归一化与输出等功能
@@ -189,7 +189,7 @@ E:.\EasyMath
 #include "Color.h"
 
 int main() {
-    using namespace EM;
+    using namespace EasyMath;
 
     Vector3 a{1.0f, 2.0f, 3.0f};
     Vector3 b{2.0f, 0.0f, 1.0f};

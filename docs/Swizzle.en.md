@@ -11,7 +11,7 @@ Swizzle is a template struct that implements a vector component access mechanism
 
 | Attribute     | Value                                                              |
 | ------------- | ------------------------------------------------------------------ |
-| **Namespace** | **`EM`**                                                           |
+| **Namespace** | **`EasyMath`**                                                     |
 | **File**      | [**`include\Vector.h`**](../include/Vector.h)                      |
 | **Parent**    | -                                                                  |
 | **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
@@ -54,7 +54,7 @@ struct Swizzle
 ### Coordinate System Access (xyzw)
 
 ```C++
-EM::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
+EasyMath::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
 
 // Single component access
 float x = vec.x;    // 1.0f
@@ -63,22 +63,22 @@ float z = vec.z;    // 3.0f
 float w = vec.w;    // 4.0f
 
 // Two-component access
-EM::Vector<float, 2> xy = vec.xy;   // {1.0f, 2.0f}
-EM::Vector<float, 2> yx = vec.yx;   // {2.0f, 1.0f}
-EM::Vector<float, 2> xz = vec.xz;   // {1.0f, 3.0f}
+EasyMath::Vector<float, 2> xy = vec.xy;   // {1.0f, 2.0f}
+EasyMath::Vector<float, 2> yx = vec.yx;   // {2.0f, 1.0f}
+EasyMath::Vector<float, 2> xz = vec.xz;   // {1.0f, 3.0f}
 
 // Three-component access
-EM::Vector<float, 3> xyz = vec.xyz; // {1.0f, 2.0f, 3.0f}
-EM::Vector<float, 3> zyx = vec.zyx; // {3.0f, 2.0f, 1.0f}
+EasyMath::Vector<float, 3> xyz = vec.xyz; // {1.0f, 2.0f, 3.0f}
+EasyMath::Vector<float, 3> zyx = vec.zyx; // {3.0f, 2.0f, 1.0f}
 
 // Four-component access
-EM::Vector<float, 4> wzyx = vec.wzyx; // {4.0f, 3.0f, 2.0f, 1.0f}
+EasyMath::Vector<float, 4> wzyx = vec.wzyx; // {4.0f, 3.0f, 2.0f, 1.0f}
 ```
 
 ### Color System Access (rgba)
 
 ```C++
-EM::Vector<float, 4> color{0.5f, 0.7f, 0.9f, 1.0f};
+EasyMath::Vector<float, 4> color{0.5f, 0.7f, 0.9f, 1.0f};
 
 // Single component access
 float r = color.r;    // 0.5f
@@ -87,9 +87,9 @@ float b = color.b;    // 0.9f
 float a = color.a;    // 1.0f
 
 // Multi-component access
-EM::Vector<float, 3> rgb = color.rgb;   // {0.5f, 0.7f, 0.9f}
-EM::Vector<float, 3> bgr = color.bgr;   // {0.9f, 0.7f, 0.5f}
-EM::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
+EasyMath::Vector<float, 3> rgb = color.rgb;   // {0.5f, 0.7f, 0.9f}
+EasyMath::Vector<float, 3> bgr = color.bgr;   // {0.9f, 0.7f, 0.5f}
+EasyMath::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
 ```
 
 ## Operator Overloading
@@ -124,14 +124,14 @@ EM::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
 ## Assignment Operations
 
 ```C++
-EM::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
+EasyMath::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
 
 // Single component assignment
 vec.x = 5.0f;        // vec = {5.0f, 2.0f, 3.0f, 4.0f}
 vec.w = 10.0f;       // vec = {5.0f, 2.0f, 3.0f, 10.0f}
 
 // Multi-component assignment
-vec.xy = EM::Vector<float, 2>{7.0f, 8.0f};  // vec = {7.0f, 8.0f, 3.0f, 10.0f}
+vec.xy = EasyMath::Vector<float, 2>{7.0f, 8.0f};  // vec = {7.0f, 8.0f, 3.0f, 10.0f}
 vec.zw = vec.xy;     // vec = {7.0f, 8.0f, 7.0f, 8.0f}
 
 // Rearrangement assignment
@@ -146,11 +146,11 @@ Swizzle allows developers to manipulate vectors using syntax similar to GLSL/HLS
 
 ```C++
 // Traditional approach
-EM::Vector<float, 3> position{10.0f, 20.0f, 30.0f};
-EM::Vector<float, 2> screenPos{position[0], position[1]};
+EasyMath::Vector<float, 3> position{10.0f, 20.0f, 30.0f};
+EasyMath::Vector<float, 2> screenPos{position[0], position[1]};
 
 // Swizzle approach
-EM::Vector<float, 2> screenPos = position.xy;  // More concise and intuitive
+EasyMath::Vector<float, 2> screenPos = position.xy;  // More concise and intuitive
 ```
 
 ### 2. Color Channel Operations
@@ -159,17 +159,17 @@ In graphics programming, Swizzle is particularly suitable for handling color dat
 
 ```C++
 // Color processing example
-EM::Vector<float, 4> color{1.0f, 0.5f, 0.3f, 0.8f};  // RGBA
+EasyMath::Vector<float, 4> color{1.0f, 0.5f, 0.3f, 0.8f};  // RGBA
 
 // Extract RGB components (ignore Alpha)
-EM::Vector<float, 3> rgb = color.rgb;
+EasyMath::Vector<float, 3> rgb = color.rgb;
 
 // Swap red and green channels
 color.rg = color.gr;  // color = {0.5f, 1.0f, 0.3f, 0.8f}
 
 // Create grayscale value
 float gray = (color.r + color.g + color.b) / 3.0f;
-color.rgb = EM::Vector<float, 3>{gray, gray, gray};
+color.rgb = EasyMath::Vector<float, 3>{gray, gray, gray};
 
 // Premultiply Alpha
 color.rgb = color.rgb * color.a;
@@ -178,18 +178,18 @@ color.rgb = color.rgb * color.a;
 ### 3. Vector Normalization and Projection
 
 ```C++
-EM::Vector<float, 4> vec4{3.0f, 4.0f, 5.0f, 1.0f};
+EasyMath::Vector<float, 4> vec4{3.0f, 4.0f, 5.0f, 1.0f};
 
 // Normalize only xyz components (keep w unchanged)
-EM::Vector<float, 3> xyz = vec4.xyz;
+EasyMath::Vector<float, 3> xyz = vec4.xyz;
 xyz = xyz.normalized();
 vec4.xyz = xyz;
 
 // 2D projection (ignore z component)
-EM::Vector<float, 2> projected2D = vec4.xy / vec4.z;
+EasyMath::Vector<float, 2> projected2D = vec4.xy / vec4.z;
 
 // Homogeneous coordinate conversion
-EM::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
+EasyMath::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
 ```
 
 ### 4. Fast Vector Reorganization
@@ -197,17 +197,17 @@ EM::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
 Swizzle provides an efficient way to reorganize vector elements, avoiding manual creation of temporary vectors.
 
 ```C++
-EM::Vector<float, 3> velocity{10.0f, 20.0f, 30.0f};
+EasyMath::Vector<float, 3> velocity{10.0f, 20.0f, 30.0f};
 
 // Create different permutations
-EM::Vector<float, 3> reversed = velocity.zyx;     // {30.0f, 20.0f, 10.0f}
-EM::Vector<float, 3> repeated = velocity.xxx;     // {10.0f, 10.0f, 10.0f}
-EM::Vector<float, 3> mixed = velocity.xzy;        // {10.0f, 30.0f, 20.0f}
+EasyMath::Vector<float, 3> reversed = velocity.zyx;     // {30.0f, 20.0f, 10.0f}
+EasyMath::Vector<float, 3> repeated = velocity.xxx;     // {10.0f, 10.0f, 10.0f}
+EasyMath::Vector<float, 3> mixed = velocity.xzy;        // {10.0f, 30.0f, 20.0f}
 
 // Used for cross product optimization
-EM::Vector<float, 3> a{1.0f, 2.0f, 3.0f};
-EM::Vector<float, 3> b{4.0f, 5.0f, 6.0f};
-EM::Vector<float, 3> cross_result = a.yzx * b.zxy - a.zxy * b.yzx;
+EasyMath::Vector<float, 3> a{1.0f, 2.0f, 3.0f};
+EasyMath::Vector<float, 3> b{4.0f, 5.0f, 6.0f};
+EasyMath::Vector<float, 3> cross_result = a.yzx * b.zxy - a.zxy * b.yzx;
 ```
 
 ### 5. Texture Coordinate Operations
@@ -216,19 +216,19 @@ In graphics rendering, Swizzle simplifies texture coordinate handling.
 
 ```C++
 // UV coordinate processing
-EM::Vector<float, 4> texCoord{0.5f, 0.7f, 0.0f, 1.0f};
+EasyMath::Vector<float, 4> texCoord{0.5f, 0.7f, 0.0f, 1.0f};
 
 // Extract UV components
-EM::Vector<float, 2> uv = texCoord.xy;
+EasyMath::Vector<float, 2> uv = texCoord.xy;
 
 // UV flip
-texCoord.xy = EM::Vector<float, 2>{texCoord.x, 1.0f - texCoord.y};
+texCoord.xy = EasyMath::Vector<float, 2>{texCoord.x, 1.0f - texCoord.y};
 
 // UV scaling
 texCoord.xy = texCoord.xy * 2.0f;
 
 // Create cube map coordinates
-EM::Vector<float, 3> cubeMapCoord = texCoord.xyz;
+EasyMath::Vector<float, 3> cubeMapCoord = texCoord.xyz;
 ```
 
 ### 6. Applications in Physics Simulation
@@ -236,8 +236,8 @@ EM::Vector<float, 3> cubeMapCoord = texCoord.xyz;
 ```C++
 // Particle system
 struct Particle {
-    EM::Vector<float, 4> positionAndMass;  // xyz=position, w=mass
-    EM::Vector<float, 4> velocityAndLife;  // xyz=velocity, w=lifetime
+    EasyMath::Vector<float, 4> positionAndMass;  // xyz=position, w=mass
+    EasyMath::Vector<float, 4> velocityAndLife;  // xyz=velocity, w=lifetime
 };
 
 Particle particle;
@@ -262,17 +262,17 @@ When used with the Matrix class, Swizzle can simplify matrix column and row oper
 
 ```C++
 // Extract information from transformation matrix
-EM::Matrix<float, 4, 4> transform = GetTransformMatrix();
-EM::Vector<float, 4> column0 = GetColumn(transform, 0);
+EasyMath::Matrix<float, 4, 4> transform = GetTransformMatrix();
+EasyMath::Vector<float, 4> column0 = GetColumn(transform, 0);
 
 // Extract scale factor
 float scaleX = column0.xyz.length();
 
 // Extract direction vector (normalized first three components)
-EM::Vector<float, 3> forward = column0.xyz.normalized();
+EasyMath::Vector<float, 3> forward = column0.xyz.normalized();
 
 // Construct new transformation
-EM::Vector<float, 4> newColumn;
+EasyMath::Vector<float, 4> newColumn;
 newColumn.xyz = forward * scaleX;
 newColumn.w = 0.0f;  // w component of direction vector is 0
 ```
@@ -284,11 +284,11 @@ Swizzle is very useful in data packing and unpacking scenarios, especially when 
 ```C++
 // Pack normal and tangent information
 struct CompressedVertex {
-    EM::Vector<float, 4> normalAndTangentSign;  // xyz=normal, w=tangent sign
+    EasyMath::Vector<float, 4> normalAndTangentSign;  // xyz=normal, w=tangent sign
 };
 
 CompressedVertex vertex;
-EM::Vector<float, 3> normal{0.0f, 1.0f, 0.0f};
+EasyMath::Vector<float, 3> normal{0.0f, 1.0f, 0.0f};
 float tangentSign = 1.0f;
 
 // Pack
@@ -296,11 +296,11 @@ vertex.normalAndTangentSign.xyz = normal;
 vertex.normalAndTangentSign.w = tangentSign;
 
 // Unpack
-EM::Vector<float, 3> unpackedNormal = vertex.normalAndTangentSign.xyz;
+EasyMath::Vector<float, 3> unpackedNormal = vertex.normalAndTangentSign.xyz;
 float unpackedSign = vertex.normalAndTangentSign.w;
 
 // Reconstruct tangent
-EM::Vector<float, 3> tangent = CalculateTangent(unpackedNormal) * unpackedSign;
+EasyMath::Vector<float, 3> tangent = CalculateTangent(unpackedNormal) * unpackedSign;
 ```
 
 ## Performance Optimization Recommendations
@@ -324,21 +324,21 @@ vec.z *= 2.0f;
 
 1. **Index out of bounds**: Accessing components beyond the vector dimension will result in a compile-time error
 ```C++
-EM::Vector<float, 2> vec2{1.0f, 2.0f};
+EasyMath::Vector<float, 2> vec2{1.0f, 2.0f};
 // float z = vec2.z;  // Compile error
 ```
 
 2. **Duplicate index assignment**: Certain Swizzle patterns do not support assignment operations
 ```C++
-EM::Vector<float, 3> vec{1.0f, 2.0f, 3.0f};
+EasyMath::Vector<float, 3> vec{1.0f, 2.0f, 3.0f};
 // vec.xxx = Vector3{4.0f, 5.0f, 6.0f}; // Compile error
 ```
 
 3. **Type compatibility**: The dimension of the Swizzle result must match the target type
 ```C++
-EM::Vector<float, 4> vec4{1.0f, 2.0f, 3.0f, 4.0f};
-// EM::Vector<float, 3> vec3 = vec4.xy; // Compile error
-EM::Vector<float, 2> vec2 = vec4.xy;
+EasyMath::Vector<float, 4> vec4{1.0f, 2.0f, 3.0f, 4.0f};
+// EasyMath::Vector<float, 3> vec3 = vec4.xy; // Compile error
+EasyMath::Vector<float, 2> vec2 = vec4.xy;
 ```
 
 

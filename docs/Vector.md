@@ -13,7 +13,7 @@ Vector是一个长度可变、类型可变的泛型向量
 
 | Attribute     | Value                                                              |
 | ------------- | ------------------------------------------------------------------ |
-| **Namespace** | **`EM`**                                                           |
+| **Namespace** | **`EasyMath`**                                                     |
 | **File**      | [**`include\Vector.h`**](../include/Vector.h)                      |
 | **Parent**    | -                                                                  |
 | **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
@@ -42,9 +42,9 @@ class Vector
 | `public` | `template<typename T2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>` |        | `Vector(const Vector<T2, dimension>&)` | `const Vector<T2, dimension>& other`-另一不同类型但同维度的向量 | -                                                                |
 
 ```C++
-EM::Vector<float,2> vectorA;
-EM::Vector<float,3> vectorB(1);
-EM::Vector<float,4> vectorC{ 1, 2, 3, 4};
+EasyMath::Vector<float,2> vectorA;
+EasyMath::Vector<float,3> vectorB(1);
+EasyMath::Vector<float,4> vectorC{ 1, 2, 3, 4};
 ```
 
 ## 数据访问
@@ -71,11 +71,11 @@ EM::Vector<float,4> vectorC{ 1, 2, 3, 4};
 ### Swizzle
 向量元素的访问支持像glsl、hlsl等语言中使用xyzw或者rgba访问和修改元素
 ```C++
-EM::Vector<float,4> vectorA{1,2,3,4};
+EasyMath::Vector<float,4> vectorA{1,2,3,4};
 std::cout << vectorA << std::endl;
 
 vectorA.x = 5;
-vectorA.zy = EM::Vector<float,2> {6,7};
+vectorA.zy = EasyMath::Vector<float,2> {6,7};
 std::cout << vectorA << std::endl;
 
 std::cout << vectorA.xyz << std::endl;
@@ -104,30 +104,30 @@ std::cout << vectorA.xyz << std::endl;
 | `public` | `virtual` | `Vector<T, dimension>&` | `operator/=(const T&)`                    | `const T& scalar`-同类型的常量                               | -           |
 
 ```C++
-EM::Vector<float,2> vectorA{ 1, 2};
+EasyMath::Vector<float,2> vectorA{ 1, 2};
 
 vectorA += 1;
 std::cout << vectorA << std::endl;
 
-vectorA += EM::Vector<float,2>{1,2};
+vectorA += EasyMath::Vector<float,2>{1,2};
 std::cout << vectorA << std::endl;
 
 vectorA -= 1;
 std::cout << vectorA << std::endl;
 	
-vectorA -= EM::Vector<float,2>{1,2};
+vectorA -= EasyMath::Vector<float,2>{1,2};
 std::cout << vectorA << std::endl;
 
 vectorA *= 3;
 std::cout << vectorA << std::endl;
 	
-vectorA *= EM::Vector<float,2>{2,4};
+vectorA *= EasyMath::Vector<float,2>{2,4};
 std::cout << vectorA << std::endl;
 
 vectorA /= 3;
 std::cout << vectorA << std::endl;
 	
-vectorA /= EM::Vector<float,2>{2,4};
+vectorA /= EasyMath::Vector<float,2>{2,4};
 std::cout << vectorA << std::endl;
 ```
 
@@ -146,8 +146,8 @@ std::cout << vectorA << std::endl;
 | `private` `friend` | -        | `Vector<T, dimension>` | `operator/(const Vector<T, dimension>&, const T&)`                    | `const Vector<T, dimension>& vec`-向量,<br>`const T& scalar`-标量                 | -           |
 
 ```C++
-EM::Vector<float,2> vectorA{ 1, 2};
-EM::Vector<float,2> vectorB{ 3, 4};
+EasyMath::Vector<float,2> vectorA{ 1, 2};
+EasyMath::Vector<float,2> vectorB{ 3, 4};
 
 std::cout << vectorA+vectorB << std::endl;
 std::cout << vectorA-vectorB << std::endl;
@@ -162,7 +162,7 @@ std::cout << vectorA/vectorB << std::endl;
 | `private` `friend` | -        | `Vector<T, dimension>` | `operator-(const Vector<T, dimension>&)` | `const Vector<T, dimension>& vec`-向量 | 向量支持直接取反 |
 
 ```C++
-EM::Vector<float,2> vectorA{ 1, 2};
+EasyMath::Vector<float,2> vectorA{ 1, 2};
 std::cout << -vectorA << std::endl;
 ```
 
@@ -180,7 +180,7 @@ std::cout << -vectorA << std::endl;
 | -        | `template<typename T, size_t dimension>` | `std::ostream&` | `operator<<(std::ostream&, const Vector<T,dimension>&)` | `std::ostream& out`-输出流,<br>`const Vector<T,dimension>& vec`-输出向量 | 在控制台输出（这个函数为全局函数） |
 
 ```C++
-EM::Vector<float,2> vectorA{8,9};
+EasyMath::Vector<float,2> vectorA{8,9};
 std::cout << vectorA << std::endl;
 ```
 
@@ -206,9 +206,9 @@ std::cout << vectorA << std::endl;
 | `public` | `template<size_t D = dimension>` `const`                | `Matrix<T, 3, 3>`                 | `skewSymmetric_2D()`                   | -                                                                                                                                        | 获得当前2D向量的反对称矩阵(非2D向量不可访问这个函数) |
 
 ```C++
-EM::Vector<float,2> vectorA{ 1, 2};
-EM::Vector<float,3> vectorB{ 3, 4, 5};
-EM::Vector<float,4> vectorC{ 6, 7, 8, 9};
+EasyMath::Vector<float,2> vectorA{ 1, 2};
+EasyMath::Vector<float,3> vectorB{ 3, 4, 5};
+EasyMath::Vector<float,4> vectorC{ 6, 7, 8, 9};
 
 std::cout << vectorB.toColMatrix() << std::endl;
 std::cout << vectorB.toRowMatrix() << std::endl;
@@ -216,9 +216,9 @@ std::cout << vectorB.length() << std::endl;
 std::cout << vectorB.normalized() << std::endl;
 std::cout << vectorB.isNormalized() << std::endl;
 std::cout << vectorB.isZero() << std::endl;
-std::cout << vectorB.lerp(EM::Vector<float,3>{1,1,1},0.5f) << std::endl;
-std::cout << vectorB.reflect(EM::Vector<float,3>{1,1,1}.normalize()) << std::endl;
-std::cout << vectorB.project(EM::Vector<float,3>{1,1,1}.normalize()) << std::endl;
+std::cout << vectorB.lerp(EasyMath::Vector<float,3>{1,1,1},0.5f) << std::endl;
+std::cout << vectorB.reflect(EasyMath::Vector<float,3>{1,1,1}.normalize()) << std::endl;
+std::cout << vectorB.project(EasyMath::Vector<float,3>{1,1,1}.normalize()) << std::endl;
 std::cout << vectorB.toHomogeneous(1) << std::endl;
 std::cout << vectorB.toTranslationMatrix() << std::endl;
 std::cout << vectorB.skewSymmetric() << std::endl;
@@ -240,8 +240,8 @@ std::cout << vectorC.fromHomogeneous() << std::endl;
 | -      | `template<typename T, size_t D>` | `Vector<T, D>` | `slerp(const Vector<T, D>&, const Vector<T, D>&, T)`              | `const Vector<T, D>& a`-向量A,<br> `const Vector<T, D>& b`-向量B,<br> `T t`-插值权重                                                                  | 球面线性插值 |
 
 ```C++
-EM::Vector<float,3> vectorA{ 1, 2, 3};
-EM::Vector<float,3> vectorB{ 4, 5, 6};
+EasyMath::Vector<float,3> vectorA{ 1, 2, 3};
+EasyMath::Vector<float,3> vectorB{ 4, 5, 6};
 
 std::cout << dot(vectorA,vectorB) << std::endl;
 std::cout << cross(vectorA,vectorB) << std::endl;

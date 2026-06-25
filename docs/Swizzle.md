@@ -11,7 +11,7 @@ Swizzle是一个模板结构体，实现了类似GLSL/HLSL中的向量分量访�
 
 | Attribute     | Value                                                              |
 | ------------- | ------------------------------------------------------------------ |
-| **Namespace** | **`EM`**                                                           |
+| **Namespace** | **`EasyMath`**                                                     |
 | **File**      | [**`include\Vector.h`**](../include/Vector.h)                      |
 | **Parent**    | -                                                                  |
 | **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
@@ -54,7 +54,7 @@ struct Swizzle
 ### 坐标系访问 (xyzw)
 
 ```C++
-EM::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
+EasyMath::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
 
 // 单分量访问
 float x = vec.x;    // 1.0f
@@ -63,22 +63,22 @@ float z = vec.z;    // 3.0f
 float w = vec.w;    // 4.0f
 
 // 双分量访问
-EM::Vector<float, 2> xy = vec.xy;   // {1.0f, 2.0f}
-EM::Vector<float, 2> yx = vec.yx;   // {2.0f, 1.0f}
-EM::Vector<float, 2> xz = vec.xz;   // {1.0f, 3.0f}
+EasyMath::Vector<float, 2> xy = vec.xy;   // {1.0f, 2.0f}
+EasyMath::Vector<float, 2> yx = vec.yx;   // {2.0f, 1.0f}
+EasyMath::Vector<float, 2> xz = vec.xz;   // {1.0f, 3.0f}
 
 // 三分量访问
-EM::Vector<float, 3> xyz = vec.xyz; // {1.0f, 2.0f, 3.0f}
-EM::Vector<float, 3> zyx = vec.zyx; // {3.0f, 2.0f, 1.0f}
+EasyMath::Vector<float, 3> xyz = vec.xyz; // {1.0f, 2.0f, 3.0f}
+EasyMath::Vector<float, 3> zyx = vec.zyx; // {3.0f, 2.0f, 1.0f}
 
 // 四分量访问
-EM::Vector<float, 4> wzyx = vec.wzyx; // {4.0f, 3.0f, 2.0f, 1.0f}
+EasyMath::Vector<float, 4> wzyx = vec.wzyx; // {4.0f, 3.0f, 2.0f, 1.0f}
 ```
 
 ### 颜色系访问 (rgba)
 
 ```C++
-EM::Vector<float, 4> color{0.5f, 0.7f, 0.9f, 1.0f};
+EasyMath::Vector<float, 4> color{0.5f, 0.7f, 0.9f, 1.0f};
 
 // 单分量访问
 float r = color.r;    // 0.5f
@@ -87,9 +87,9 @@ float b = color.b;    // 0.9f
 float a = color.a;    // 1.0f
 
 // 多分量访问
-EM::Vector<float, 3> rgb = color.rgb;   // {0.5f, 0.7f, 0.9f}
-EM::Vector<float, 3> bgr = color.bgr;   // {0.9f, 0.7f, 0.5f}
-EM::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
+EasyMath::Vector<float, 3> rgb = color.rgb;   // {0.5f, 0.7f, 0.9f}
+EasyMath::Vector<float, 3> bgr = color.bgr;   // {0.9f, 0.7f, 0.5f}
+EasyMath::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
 ```
 
 ## 运算符重载
@@ -124,14 +124,14 @@ EM::Vector<float, 4> argb = color.argb; // {1.0f, 0.5f, 0.7f, 0.9f}
 ## 赋值操作
 
 ```C++
-EM::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
+EasyMath::Vector<float, 4> vec{1.0f, 2.0f, 3.0f, 4.0f};
 
 // 单分量赋值
 vec.x = 5.0f;        // vec = {5.0f, 2.0f, 3.0f, 4.0f}
 vec.w = 10.0f;       // vec = {5.0f, 2.0f, 3.0f, 10.0f}
 
 // 多分量赋值
-vec.xy = EM::Vector<float, 2>{7.0f, 8.0f};  // vec = {7.0f, 8.0f, 3.0f, 10.0f}
+vec.xy = EasyMath::Vector<float, 2>{7.0f, 8.0f};  // vec = {7.0f, 8.0f, 3.0f, 10.0f}
 vec.zw = vec.xy;     // vec = {7.0f, 8.0f, 7.0f, 8.0f}
 
 // 重排赋值
@@ -146,11 +146,11 @@ Swizzle允许开发者使用类似GLSL/HLSL着色器语言的语法来操作向�
 
 ```C++
 // 传统方式
-EM::Vector<float, 3> position{10.0f, 20.0f, 30.0f};
-EM::Vector<float, 2> screenPos{position[0], position[1]};
+EasyMath::Vector<float, 3> position{10.0f, 20.0f, 30.0f};
+EasyMath::Vector<float, 2> screenPos{position[0], position[1]};
 
 // Swizzle方式
-EM::Vector<float, 2> screenPos = position.xy;  // 更简洁直观
+EasyMath::Vector<float, 2> screenPos = position.xy;  // 更简洁直观
 ```
 
 ### 2. 颜色通道操作
@@ -159,17 +159,17 @@ EM::Vector<float, 2> screenPos = position.xy;  // 更简洁直观
 
 ```C++
 // 颜色处理示例
-EM::Vector<float, 4> color{1.0f, 0.5f, 0.3f, 0.8f};  // RGBA
+EasyMath::Vector<float, 4> color{1.0f, 0.5f, 0.3f, 0.8f};  // RGBA
 
 // 提取RGB分量（忽略Alpha）
-EM::Vector<float, 3> rgb = color.rgb;
+EasyMath::Vector<float, 3> rgb = color.rgb;
 
 // 交换红绿通道
 color.rg = color.gr;  // color = {0.5f, 1.0f, 0.3f, 0.8f}
 
 // 创建灰度值
 float gray = (color.r + color.g + color.b) / 3.0f;
-color.rgb = EM::Vector<float, 3>{gray, gray, gray};
+color.rgb = EasyMath::Vector<float, 3>{gray, gray, gray};
 
 // 预乘Alpha
 color.rgb = color.rgb * color.a;
@@ -178,18 +178,18 @@ color.rgb = color.rgb * color.a;
 ### 3. 向量归一化和投影
 
 ```C++
-EM::Vector<float, 4> vec4{3.0f, 4.0f, 5.0f, 1.0f};
+EasyMath::Vector<float, 4> vec4{3.0f, 4.0f, 5.0f, 1.0f};
 
 // 只归一化xyz分量（保持w不变）
-EM::Vector<float, 3> xyz = vec4.xyz;
+EasyMath::Vector<float, 3> xyz = vec4.xyz;
 xyz = xyz.normalized();
 vec4.xyz = xyz;
 
 // 2D投影（忽略z分量）
-EM::Vector<float, 2> projected2D = vec4.xy / vec4.z;
+EasyMath::Vector<float, 2> projected2D = vec4.xy / vec4.z;
 
 // 齐次坐标转换
-EM::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
+EasyMath::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
 ```
 
 ### 4. 快速向量重组
@@ -197,17 +197,17 @@ EM::Vector<float, 3> cartesian = vec4.xyz / vec4.w;
 Swizzle提供了一种高效的向量元素重组方式，避免了手动创建临时向量。
 
 ```C++
-EM::Vector<float, 3> velocity{10.0f, 20.0f, 30.0f};
+EasyMath::Vector<float, 3> velocity{10.0f, 20.0f, 30.0f};
 
 // 创建不同的排列组合
-EM::Vector<float, 3> reversed = velocity.zyx;     // {30.0f, 20.0f, 10.0f}
-EM::Vector<float, 3> repeated = velocity.xxx;     // {10.0f, 10.0f, 10.0f}
-EM::Vector<float, 3> mixed = velocity.xzy;        // {10.0f, 30.0f, 20.0f}
+EasyMath::Vector<float, 3> reversed = velocity.zyx;     // {30.0f, 20.0f, 10.0f}
+EasyMath::Vector<float, 3> repeated = velocity.xxx;     // {10.0f, 10.0f, 10.0f}
+EasyMath::Vector<float, 3> mixed = velocity.xzy;        // {10.0f, 30.0f, 20.0f}
 
 // 用于叉乘优化
-EM::Vector<float, 3> a{1.0f, 2.0f, 3.0f};
-EM::Vector<float, 3> b{4.0f, 5.0f, 6.0f};
-EM::Vector<float, 3> cross_result = a.yzx * b.zxy - a.zxy * b.yzx;
+EasyMath::Vector<float, 3> a{1.0f, 2.0f, 3.0f};
+EasyMath::Vector<float, 3> b{4.0f, 5.0f, 6.0f};
+EasyMath::Vector<float, 3> cross_result = a.yzx * b.zxy - a.zxy * b.yzx;
 ```
 
 ### 5. 纹理坐标操作
@@ -216,19 +216,19 @@ EM::Vector<float, 3> cross_result = a.yzx * b.zxy - a.zxy * b.yzx;
 
 ```C++
 // UV坐标处理
-EM::Vector<float, 4> texCoord{0.5f, 0.7f, 0.0f, 1.0f};
+EasyMath::Vector<float, 4> texCoord{0.5f, 0.7f, 0.0f, 1.0f};
 
 // 提取UV分量
-EM::Vector<float, 2> uv = texCoord.xy;
+EasyMath::Vector<float, 2> uv = texCoord.xy;
 
 // UV翻转
-texCoord.xy = EM::Vector<float, 2>{texCoord.x, 1.0f - texCoord.y};
+texCoord.xy = EasyMath::Vector<float, 2>{texCoord.x, 1.0f - texCoord.y};
 
 // UV缩放
 texCoord.xy = texCoord.xy * 2.0f;
 
 // 创建立方体贴图坐标
-EM::Vector<float, 3> cubeMapCoord = texCoord.xyz;
+EasyMath::Vector<float, 3> cubeMapCoord = texCoord.xyz;
 ```
 
 ### 6. 物理模拟中的应用
@@ -236,8 +236,8 @@ EM::Vector<float, 3> cubeMapCoord = texCoord.xyz;
 ```C++
 // 粒子系统
 struct Particle {
-    EM::Vector<float, 4> positionAndMass;  // xyz=位置, w=质量
-    EM::Vector<float, 4> velocityAndLife;  // xyz=速度, w=生命值
+    EasyMath::Vector<float, 4> positionAndMass;  // xyz=位置, w=质量
+    EasyMath::Vector<float, 4> velocityAndLife;  // xyz=速度, w=生命值
 };
 
 Particle particle;
@@ -262,17 +262,17 @@ float kineticEnergy = 0.5f * particle.positionAndMass.w *
 
 ```C++
 // 从变换矩阵中提取信息
-EM::Matrix<float, 4, 4> transform = GetTransformMatrix();
-EM::Vector<float, 4> column0 = GetColumn(transform, 0);
+EasyMath::Matrix<float, 4, 4> transform = GetTransformMatrix();
+EasyMath::Vector<float, 4> column0 = GetColumn(transform, 0);
 
 // 提取缩放因子
 float scaleX = column0.xyz.length();
 
 // 提取方向向量（归一化后的前三个分量）
-EM::Vector<float, 3> forward = column0.xyz.normalized();
+EasyMath::Vector<float, 3> forward = column0.xyz.normalized();
 
 // 构建新的变换
-EM::Vector<float, 4> newColumn;
+EasyMath::Vector<float, 4> newColumn;
 newColumn.xyz = forward * scaleX;
 newColumn.w = 0.0f;  // 方向向量的w分量为0
 ```
@@ -284,11 +284,11 @@ Swizzle在数据打包和解包场景中非常有用，特别是在与GPU通信�
 ```C++
 // 打包法线和切线信息
 struct CompressedVertex {
-    EM::Vector<float, 4> normalAndTangentSign;  // xyz=法线, w=切线符号
+    EasyMath::Vector<float, 4> normalAndTangentSign;  // xyz=法线, w=切线符号
 };
 
 CompressedVertex vertex;
-EM::Vector<float, 3> normal{0.0f, 1.0f, 0.0f};
+EasyMath::Vector<float, 3> normal{0.0f, 1.0f, 0.0f};
 float tangentSign = 1.0f;
 
 // 打包
@@ -296,11 +296,11 @@ vertex.normalAndTangentSign.xyz = normal;
 vertex.normalAndTangentSign.w = tangentSign;
 
 // 解包
-EM::Vector<float, 3> unpackedNormal = vertex.normalAndTangentSign.xyz;
+EasyMath::Vector<float, 3> unpackedNormal = vertex.normalAndTangentSign.xyz;
 float unpackedSign = vertex.normalAndTangentSign.w;
 
 // 重建切线
-EM::Vector<float, 3> tangent = CalculateTangent(unpackedNormal) * unpackedSign;
+EasyMath::Vector<float, 3> tangent = CalculateTangent(unpackedNormal) * unpackedSign;
 ```
 
 ## 性能优化建议
@@ -324,21 +324,21 @@ vec.z *= 2.0f;
 
 1. **索引越界**：访问超出向量维度的分量会在编译期报错
 ```C++
-EM::Vector<float, 2> vec2{1.0f, 2.0f};
+EasyMath::Vector<float, 2> vec2{1.0f, 2.0f};
 // float z = vec2.z;  // 编译错误
 ```
 
 2. **重复索引赋值**：某些Swizzle模式不支持赋值操作
 ```C++
-EM::Vector<float, 3> vec{1.0f, 2.0f, 3.0f};
+EasyMath::Vector<float, 3> vec{1.0f, 2.0f, 3.0f};
 // vec.xxx = Vector3{4.0f, 5.0f, 6.0f}; // 编译错误
 ```
 
 3. **类型兼容性**：Swizzle结果的维度必须与目标类型匹配
 ```C++
-EM::Vector<float, 4> vec4{1.0f, 2.0f, 3.0f, 4.0f};
-// EM::Vector<float, 3> vec3 = vec4.xy; // 编译错误
-EM::Vector<float, 2> vec2 = vec4.xy;
+EasyMath::Vector<float, 4> vec4{1.0f, 2.0f, 3.0f, 4.0f};
+// EasyMath::Vector<float, 3> vec3 = vec4.xy; // 编译错误
+EasyMath::Vector<float, 2> vec2 = vec4.xy;
 ```
 
 

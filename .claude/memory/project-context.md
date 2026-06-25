@@ -6,7 +6,7 @@
 - **目标版本**: 1.1.0
 - **开发者**: CaptainRex
 - **项目类型**: C++17 实时渲染数学库
-- **命名空间**: `EM`
+- **命名空间**: `EasyMath`
 
 ## 核心定位
 为实时图形与渲染场景打造的现代 C++ 数学库，支持：
@@ -69,7 +69,7 @@ E:\Private\EasyMath
 2. **代码生成** — 写一份 DSL，工具链吐 C++ + GLSL + HLSL + MSL。工业级方案。
 3. **CPU SIMD stub + GPU 精确实现** — CPU 端用 intrinsics，GPU 端用 GLSL 精确版。
 
-**EasyMath 现状**：模式 1 的起点。已命名 `EM::MTXLookAt` / `EM::MTXPerspective` 等 CPU 实现。
+**EasyMath 现状**：模式 1 的起点。已命名 `EasyMath::MTXLookAt` / `EasyMath::MTXPerspective` 等 CPU 实现。
 
 **未来若加 GLSL 端**（最低成本路径）：
 - 新建 `shaders/em_math.glsl`

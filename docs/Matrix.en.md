@@ -12,7 +12,7 @@
 
 | Attribute     | Value                                                              |
 | ------------- | ------------------------------------------------------------------ |
-| **Namespace** | **`EM`**                                                           |
+| **Namespace** | **`EasyMath`**                                                     |
 | **File**      | [**`include\Matrix.h`**](../include/Matrix.h)                      |
 | **Parent**    | -                                                                  |
 | **Feature**   | ![Static Badge](https://img.shields.io/badge/Feature-template-red) |
@@ -37,21 +37,21 @@ class Matrix
 | `public` | -                                                                              |        | `Matrix(std::initializer_list<Vector<T,cols>>)` | `std::initializer_list<Vector<T,cols>> InitializeList`-Initializer list of `Vector<T,cols>` | If the number of vector elements in the list is not equal to `rows`, it will error           |
 | `public` | `template<typename T2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>` |        | `Matrix(const Matrix<T2,rows,cols>&)`           | `const Matrix<T2,rows,cols>& other`-Matrix of the same dimension but different element type |                                                                                              |
 ```C++
-EM::Matrix<float,3,3> MatrixA;
-EM::Matrix<float,4,4> MatrixB{ 1, 2, 3, 4,
+EasyMath::Matrix<float,3,3> MatrixA;
+EasyMath::Matrix<float,4,4> MatrixB{ 1, 2, 3, 4,
                                5, 6, 7, 8,
                                9,10,11,12,
                               13,14,15,16};
 
-EM::Vector<float,4> VectorA{1,2,3,4};
-EM::Vector<float,4> VectorB{5,6,7,8};
-EM::Vector<float,4> VectorC{9,10,11,12};
-EM::Vector<float,4> VectorD{13,14,15,16};
+EasyMath::Vector<float,4> VectorA{1,2,3,4};
+EasyMath::Vector<float,4> VectorB{5,6,7,8};
+EasyMath::Vector<float,4> VectorC{9,10,11,12};
+EasyMath::Vector<float,4> VectorD{13,14,15,16};
 
-EM::Matrix<float,4,4> MatrixC{VectorA,VectorB,VectorC,VectorD};
+EasyMath::Matrix<float,4,4> MatrixC{VectorA,VectorB,VectorC,VectorD};
 
-EM::Matrix<float,3,4> MatrixD_T{VectorA,VectorB,VectorC};
-EM::Matrix<float,4,3> MatrixD = MatrixD_T.transpose();
+EasyMath::Matrix<float,3,4> MatrixD_T{VectorA,VectorB,VectorC};
+EasyMath::Matrix<float,4,3> MatrixD = MatrixD_T.transpose();
 ```
 ## Data access
 | Access   | Modifier                        | Return     | Name                        | Parameter                                                   | Description                                     |
@@ -95,11 +95,11 @@ EM::Matrix<float,4,3> MatrixD = MatrixD_T.transpose();
 | `private` `friend` | -                                    | `Matrix<T, rows, cols>`  | `operator-(const Matrix<T, rows, cols>&, const Matrix<T, rows, cols>&)`  | `const Matrix<T, rows, cols>& lhs`-Matrix A,<br>`const Matrix<T, rows, cols>& rhs`-Matrix B  | -                                                                              |
 | `private` `friend` | -                                    | `Matrix<T, rows, cols>`  | `operator－(const Matrix<T, rows, cols>&, const T&)`                     | `const Matrix<T, rows, cols>& lhs`-matrix,<br>`const T& scalar`-scalar                  | -                                                                                  |
 ```C++
-EM::Vector<float,4> VectorA{1,2,3,4};
-EM::Vector<float,4> VectorB{5,6,7,8};
-EM::Vector<float,4> VectorC{9,10,11,12};
-EM::Vector<float,4> VectorD{13,14,15,16};
-EM::Matrix<float,4,4> MatrixC{VectorA,VectorB,VectorC,VectorD};
+EasyMath::Vector<float,4> VectorA{1,2,3,4};
+EasyMath::Vector<float,4> VectorB{5,6,7,8};
+EasyMath::Vector<float,4> VectorC{9,10,11,12};
+EasyMath::Vector<float,4> VectorD{13,14,15,16};
+EasyMath::Matrix<float,4,4> MatrixC{VectorA,VectorB,VectorC,VectorD};
 
 std::cout << VectorA * MatrixC << std::endl;
 std::cout << MatrixC * VectorA  << std::endl;
@@ -125,7 +125,7 @@ Matrix 4x1
 | ------------------ | -------- | ----------------------- | ----------------------------------------- | ------------------------------------------ | ----------- |
 | `private` `friend` | -        | `Matrix<T, rows, cols>` | `operator-(const Matrix<T, rows, cols>&)` | `const Matrix<T, rows, cols>& matrix`-matrix | -           |
 ```C++
-EM::Matrix<float,2,2> matrixA {1,2,3,4};
+EasyMath::Matrix<float,2,2> matrixA {1,2,3,4};
 std::cout << -matrixA << std::endl;
 ```
 ### Comparison
@@ -139,7 +139,7 @@ std::cout << -matrixA << std::endl;
 | `public` | `virtual` `const`                        | `std::ostream&` | `print(std::ostream&)`                                   | `std::ostream& out`-output                                                   | Output to console (this is a member function) |
 | -        | `template<typename T, size_t dimension>` | `std::ostream&` | `operator<<(std::ostream&, const Matrix<T,rows, cols>&)` | `std::ostream& out`-output,<br>`const Matrix<T,rows, cols>& matrix`-matrix   | Output to console (this is a global function) |
 ```C++
-EM::Matrix<float,4,4> MatrixA{ 1, 2, 3, 4,
+EasyMath::Matrix<float,4,4> MatrixA{ 1, 2, 3, 4,
                                5, 6, 7, 8,
                                9,10,11,12,
                               13,14,15,16};
@@ -167,8 +167,8 @@ Matrix 4x4
 | `public` | `template<size_t R = rows, size_t C = cols> typename std::enable_if_t<R == C, Matrix<T, rows, cols>>` `const` | `Matrix<T, rows, cols>`         | `adjugate()`                | -                                                                   | Compute the adjugate matrix (transpose of the cofactor matrix) <br>**Matrix must be square**                                                             |
 | `public` | `template<size_t R = rows, size_t C = cols> typename std::enable_if_t<R == C, Matrix<T, rows, cols>>` `const` | `Matrix<T, rows, cols>`         | `inverse()`                 | -                                                                   | Compute the inverse matrix (using the adjugate method) <br>**Matrix must be square**                                                                     |
 ```C++
-EM::Matrix<double,4,3> matrixA {1,2,3,4,5,6,7,8,9,10,11,12};
-EM::Matrix<double,4,4> matrixB {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+EasyMath::Matrix<double,4,3> matrixA {1,2,3,4,5,6,7,8,9,10,11,12};
+EasyMath::Matrix<double,4,4> matrixB {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 
 matrixA.submatrix(0,1);
 matrixA.transpose();
