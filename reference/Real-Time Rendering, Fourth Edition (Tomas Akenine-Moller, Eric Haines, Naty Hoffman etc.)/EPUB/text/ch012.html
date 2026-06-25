@@ -1,0 +1,1236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <meta charset='UTF-8'/>
+  <meta name='viewport' content='width=device-width initial-scale=1'/>
+  <title>Chapter 12 Image-Space Effects 图像空间特效</title>
+</head>
+
+<body>
+  <h1 id='chapter-12-image-space-effects-图像空间特效'>Chapter 12 Image-Space Effects 图像空间特效</h1>
+
+  <blockquote>
+    <p>Ernest Hemingway——“The world was not wheeling anymore. It was just very clear and bright and inclined to blur at the edges.”</p>
+  </blockquote>
+
+  <blockquote>
+    <p>欧内斯特·海明威——“世界不再转动，它变得清晰而明亮，边缘似乎变得有些模糊。”（美国著名作家；1899—1961）</p>
+  </blockquote>
+
+  <p>制作一副图像要比简单地描绘（portray）物体复杂得多，想要让图像看起来具有真实感，其中一方面是让它看起来像一张照片。就像摄影师对他们的摄影作品进行后期调整一样，我们也希望能够对渲染出的图像进行修改调整，例如色彩平衡等。在渲染图像中添加胶片颗粒（film grain）、暗角（vignetting）以及其他细节变化，可以使其看起来更有说服力。此外，一些更加引人注目（dramatic）的效果，例如镜头光晕（lens flare）和泛光（bloom）可以增加艺术感。塑造景深（depth of field）和运动模糊（motion blur）等效果还可以增加真实感，也可以用于生成一些艺术效果。</p>
+
+  <p>利用GPU可以高效地对图像进行采样和处理。本章节将首先讨论如何使用图像处理技术（image processing technique）来修改渲染后的图像。还可以使用深度、法线等额外数据来对这些操作进行增强，例如：对噪声区域进行平滑的同时，仍然保留尖锐的边缘。重投影（reprojection）方法可用于节省着色的计算，或者快速创建缺失的帧。最后，我们会介绍各种基于样本的技术，来产生镜头光晕、泛光、景深、运动模糊以及其他效果。</p>
+
+  <h2 id='121-图像处理'>12.1 图像处理</h2>
+
+  <p>图形加速器通常用于从几何描述和着色描述中创建人工场景，而图像处理则不同，我们输入一副图像，并使用各种方式对其进行它修改。有了可编程的着色器，以及使用输出图像作为输入纹理的能力，我们将二者相结合，为使用GPU进行各种各样的图像处理操作开辟了道路。这种效果可以与图像合成（image synthesis）相结合。通常，我们会生成一个图像，然后对其执行一个或者多个图像处理操作。在渲染之后对图像进行修改的过程叫做后处理（post-processing）。在渲染一帧的时候，可以执行大量访问图像、深度以及其他缓冲区的pass [46, 1918]，例如：游戏《战地4》拥有超过50种不同类型的渲染pass，尽管在一帧中不会同时执行所有的这些pass [1313]。</p>
+
+  <p>使用GPU进行后处理操作有几个关键技术。场景以某种形式渲染到离屏缓冲区中，例如颜色图像和z-buffer等。这些渲染得到的图像会被视为纹理，这些纹理会被应用到填充屏幕的四边形上。后处理实际上就是通过渲染这个四边形来执行的，会为每个像素调用像素着色器程序。大多数图像处理效果，都依赖于在相应的屏幕像素处检索图像纹素的信息。根据系统限制和具体算法，可以通过从GPU检索像素位置，或者将 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.526ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 2000.7 1000" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.566ex;"><defs><path id="MJX-5376-TEX-N-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"/>
+
+  <path id="MJX-5376-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-5376-TEX-N-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+
+  <path id="MJX-5376-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+  <path id="MJX-5376-TEX-N-5D" d="M22 710V750H159V-250H22V-210H119V710H22Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><use data-c="5B" xlink:href="#MJX-5376-TEX-N-5B"/></g>
+
+  <g data-mml-node="mn" transform="translate(278,0)"><use data-c="30" xlink:href="#MJX-5376-TEX-N-30"/></g>
+
+  <g data-mml-node="mo" transform="translate(778,0)"><use data-c="2C" xlink:href="#MJX-5376-TEX-N-2C"/></g>
+
+  <g data-mml-node="mn" transform="translate(1222.7,0)"><use data-c="31" xlink:href="#MJX-5376-TEX-N-31"/></g>
+
+  <g data-mml-node="mo" transform="translate(1722.7,0)"><use data-c="5D" xlink:href="#MJX-5376-TEX-N-5D"/></g></g></g></svg></mjx-container>
+
+ 范围内的纹理坐标分配给这个屏幕四边形，并按照传入图像的大小进行缩放来实现这个过程。</p>
+
+  <p>实际上，使用一个填充屏幕的三角形，可能要比四边形更加高效。例如：当使用单个屏幕三角形而不是两个三角形组成的屏幕四边形时，由于更好的缓存一致性（cache coherency）[381]，在AMD GCN架构上的图像处理速度提高了近10%。这个三角形被设计得足够大，可以填满整个屏幕[146]，如图12.1所示。无论使用什么基本几何物体，其目的都是一样的：对屏幕上的每个像素都运行一遍像素着色器。这种类型的渲染称为全屏pass（full screen pass）。如果可以的话，我们还可以使用计算着色器来执行这些图像处理操作，这样做有几个优点，我们会在之后进行介绍。</p>
+
+  <p><img src="../media/202307061135551.png" referrerpolicy="no-referrer" alt="图12.1：左边使用了一个屏幕填充的四边形，并展示了对应的 (u, v) 纹理坐标。右边则使用了一个三角形来填满整个屏幕，并对其纹理坐标进行了适当的调整，从而提供与左图相同的映射效果。" title="图12.1：左边使用了一个屏幕填充的四边形，并展示了对应的 (u, v) 纹理坐标。右边则使用了一个三角形来填满整个屏幕，并对其纹理坐标进行了适当的调整，从而提供与左图相同的映射效果。"/></p>
+
+  <p>使用传统的渲染管线，像素着色器阶段可以访问图像数据，检索所有相关的相邻样本并对其进行操作，相邻样本的贡献度会根据它与待评估像素的相对位置来进行加权。有些操作，例如边缘检测（edge detection），具有一个固定大小的邻域（例如 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-5373-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-5373-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-5373-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 像素），邻域内每个像素都有不同的权重（有时也可能是负的）。每个纹素值乘上其相应的权重，并将邻域内的结果相加，从而获得最终结果。</p>
+
+  <p>如章节5.4.1所述，可以使用各种各样的滤波核来重建信号，使用类似的方式，还可以使用滤波核对图像进行模糊操作。一个旋转不变的滤波核（rotation-invariant filter kernel）是指，它在为纹素分配权重的时候不依赖于径向夹角。也就是说，这样的滤波核，其权重完全取决于纹素到滤波中心的距离。方程5.22所展示的 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.179ex" height="1.52ex" role="img" focusable="false" viewBox="0 -661 1847 672" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6495-TEX-I-1D460" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"/>
+
+  <path id="MJX-6495-TEX-I-1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/>
+
+  <path id="MJX-6495-TEX-I-1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+
+  <path id="MJX-6495-TEX-I-1D450" d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D460" xlink:href="#MJX-6495-TEX-I-1D460"/></g>
+
+  <g data-mml-node="mi" transform="translate(469,0)"><use data-c="1D456" xlink:href="#MJX-6495-TEX-I-1D456"/></g>
+
+  <g data-mml-node="mi" transform="translate(814,0)"><use data-c="1D45B" xlink:href="#MJX-6495-TEX-I-1D45B"/></g>
+
+  <g data-mml-node="mi" transform="translate(1414,0)"><use data-c="1D450" xlink:href="#MJX-6495-TEX-I-1D450"/></g></g></g></svg></mjx-container>
+
+ 滤波器就是这样的一个例子。高斯滤波器是一种常用的滤波核，其形状是著名的钟形曲线：</p>
+
+  <div contenteditable="false" spellcheck="false" class="mathjax-block md-end-block md-math-block md-rawblock" id="mathjax-n32" cid="n32" mdtype="math_block" data-math-tag-before="0" data-math-tag-after="0" data-math-labels="[]">
+    <div class="md-rawblock-container md-math-container" tabindex="-1">
+      <mjx-container class="MathJax" jax="SVG" display="true" width="full" style="min-width: 45.253ex; position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="5.587ex" role="img" focusable="false" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -2.228ex; min-width: 45.253ex;"><defs><path id="MJX-6486-TEX-N-47" d="M56 342Q56 428 89 500T174 615T283 681T391 705Q394 705 400 705T408 704Q499 704 569 636L582 624L612 663Q639 700 643 704Q644 704 647 704T653 705H657Q660 705 666 699V419L660 413H626Q620 419 619 430Q610 512 571 572T476 651Q457 658 426 658Q401 658 376 654T316 633T254 592T205 519T177 411Q173 369 173 335Q173 259 192 201T238 111T302 58T370 31T431 24Q478 24 513 45T559 100Q562 110 562 160V212Q561 213 557 216T551 220T542 223T526 225T502 226T463 227H437V273H449L609 270Q715 270 727 273H735V227H721Q674 227 668 215Q666 211 666 108V6Q660 0 657 0Q653 0 639 10Q617 25 600 42L587 54Q571 27 524 3T406 -22Q317 -22 238 22T108 151T56 342Z"/>
+
+      <path id="MJX-6486-TEX-N-61" d="M137 305T115 305T78 320T63 359Q63 394 97 421T218 448Q291 448 336 416T396 340Q401 326 401 309T402 194V124Q402 76 407 58T428 40Q443 40 448 56T453 109V145H493V106Q492 66 490 59Q481 29 455 12T400 -6T353 12T329 54V58L327 55Q325 52 322 49T314 40T302 29T287 17T269 6T247 -2T221 -8T190 -11Q130 -11 82 20T34 107Q34 128 41 147T68 188T116 225T194 253T304 268H318V290Q318 324 312 340Q290 411 215 411Q197 411 181 410T156 406T148 403Q170 388 170 359Q170 334 154 320ZM126 106Q126 75 150 51T209 26Q247 26 276 49T315 109Q317 116 318 175Q318 233 317 233Q309 233 296 232T251 223T193 203T147 166T126 106Z"/>
+
+      <path id="MJX-6486-TEX-N-75" d="M383 58Q327 -10 256 -10H249Q124 -10 105 89Q104 96 103 226Q102 335 102 348T96 369Q86 385 36 385H25V408Q25 431 27 431L38 432Q48 433 67 434T105 436Q122 437 142 438T172 441T184 442H187V261Q188 77 190 64Q193 49 204 40Q224 26 264 26Q290 26 311 35T343 58T363 90T375 120T379 144Q379 145 379 161T380 201T380 248V315Q380 361 370 372T320 385H302V431Q304 431 378 436T457 442H464V264Q464 84 465 81Q468 61 479 55T524 46H542V0Q540 0 467 -5T390 -11H383V58Z"/>
+
+      <path id="MJX-6486-TEX-N-73" d="M295 316Q295 356 268 385T190 414Q154 414 128 401Q98 382 98 349Q97 344 98 336T114 312T157 287Q175 282 201 278T245 269T277 256Q294 248 310 236T342 195T359 133Q359 71 321 31T198 -10H190Q138 -10 94 26L86 19L77 10Q71 4 65 -1L54 -11H46H42Q39 -11 33 -5V74V132Q33 153 35 157T45 162H54Q66 162 70 158T75 146T82 119T101 77Q136 26 198 26Q295 26 295 104Q295 133 277 151Q257 175 194 187T111 210Q75 227 54 256T33 318Q33 357 50 384T93 424T143 442T187 447H198Q238 447 268 432L283 424L292 431Q302 440 314 448H322H326Q329 448 335 442V310L329 304H301Q295 310 295 316Z"/>
+
+      <path id="MJX-6486-TEX-N-69" d="M69 609Q69 637 87 653T131 669Q154 667 171 652T188 609Q188 579 171 564T129 549Q104 549 87 564T69 609ZM247 0Q232 3 143 3Q132 3 106 3T56 1L34 0H26V46H42Q70 46 91 49Q100 53 102 60T104 102V205V293Q104 345 102 359T88 378Q74 385 41 385H30V408Q30 431 32 431L42 432Q52 433 70 434T106 436Q123 437 142 438T171 441T182 442H185V62Q190 52 197 50T232 46H255V0H247Z"/>
+
+      <path id="MJX-6486-TEX-N-6E" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q450 438 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"/>
+
+      <path id="MJX-6486-TEX-N-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/>
+
+      <path id="MJX-6486-TEX-I-1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"/>
+
+      <path id="MJX-6486-TEX-N-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/>
+
+      <path id="MJX-6486-TEX-N-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/>
+
+      <path id="MJX-6486-TEX-S3-28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"/>
+
+      <path id="MJX-6486-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+      <path id="MJX-6486-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/>
+
+      <path id="MJX-6486-TEX-N-221A" d="M95 178Q89 178 81 186T72 200T103 230T169 280T207 309Q209 311 212 311H213Q219 311 227 294T281 177Q300 134 312 108L397 -77Q398 -77 501 136T707 565T814 786Q820 800 834 800Q841 800 846 794T853 782V776L620 293L385 -193Q381 -200 366 -200Q357 -200 354 -197Q352 -195 256 15L160 225L144 214Q129 202 113 190T95 178Z"/>
+
+      <path id="MJX-6486-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+
+      <path id="MJX-6486-TEX-I-1D70B" d="M132 -11Q98 -11 98 22V33L111 61Q186 219 220 334L228 358H196Q158 358 142 355T103 336Q92 329 81 318T62 297T53 285Q51 284 38 284Q19 284 19 294Q19 300 38 329T93 391T164 429Q171 431 389 431Q549 431 553 430Q573 423 573 402Q573 371 541 360Q535 358 472 358H408L405 341Q393 269 393 222Q393 170 402 129T421 65T431 37Q431 20 417 5T381 -10Q370 -10 363 -7T347 17T331 77Q330 86 330 121Q330 170 339 226T357 318T367 358H269L268 354Q268 351 249 275T206 114T175 17Q164 -11 132 -11Z"/>
+
+      <path id="MJX-6486-TEX-S3-29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"/>
+
+      <path id="MJX-6486-TEX-I-1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/>
+
+      <path id="MJX-6486-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+      <path id="MJX-6486-TEX-I-1D45F" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+
+      <path id="MJX-6486-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/></defs>
+
+      <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(0.019382,-0.019382) translate(0, -1484.8)"><g data-mml-node="math"><g data-mml-node="mtable" transform="translate(3356,0) translate(-3356,0)"><g transform="translate(0 1484.8) matrix(1 0 0 -1 0 0) scale(51.6)"><svg data-table="true" preserveAspectRatio="xMidYMid" viewBox="6644.9 -1484.8 1 2469.5"><g transform="matrix(1 0 0 -1 0 0)"><g data-mml-node="mlabeledtr" transform="translate(0,35.3)"><g data-mml-node="mtd"><g data-mml-node="mi"><use data-c="47" xlink:href="#MJX-6486-TEX-N-47"/>
+
+      <use data-c="61" xlink:href="#MJX-6486-TEX-N-61" transform="translate(785,0)"/>
+
+      <use data-c="75" xlink:href="#MJX-6486-TEX-N-75" transform="translate(1285,0)"/>
+
+      <use data-c="73" xlink:href="#MJX-6486-TEX-N-73" transform="translate(1841,0)"/>
+
+      <use data-c="73" xlink:href="#MJX-6486-TEX-N-73" transform="translate(2235,0)"/>
+
+      <use data-c="69" xlink:href="#MJX-6486-TEX-N-69" transform="translate(2629,0)"/>
+
+      <use data-c="61" xlink:href="#MJX-6486-TEX-N-61" transform="translate(2907,0)"/>
+
+      <use data-c="6E" xlink:href="#MJX-6486-TEX-N-6E" transform="translate(3407,0)"/></g>
+
+      <g data-mml-node="mo" transform="translate(3963,0)"><use data-c="28" xlink:href="#MJX-6486-TEX-N-28"/></g>
+
+      <g data-mml-node="mi" transform="translate(4352,0)"><use data-c="1D465" xlink:href="#MJX-6486-TEX-I-1D465"/></g>
+
+      <g data-mml-node="mo" transform="translate(4924,0)"><use data-c="29" xlink:href="#MJX-6486-TEX-N-29"/></g>
+
+      <g data-mml-node="mo" transform="translate(5590.8,0)"><use data-c="3D" xlink:href="#MJX-6486-TEX-N-3D"/></g>
+
+      <g data-mml-node="mrow" transform="translate(6646.6,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6486-TEX-S3-28"/></g>
+
+      <g data-mml-node="mfrac" transform="translate(736,0)"><g data-mml-node="mn" transform="translate(1217,676)"><use data-c="31" xlink:href="#MJX-6486-TEX-N-31"/></g>
+
+      <g data-mml-node="mrow" transform="translate(220,-915)"><g data-mml-node="mi"><use data-c="1D70E" xlink:href="#MJX-6486-TEX-I-1D70E"/></g>
+
+      <g data-mml-node="msqrt" transform="translate(571,0)"><g transform="translate(853,0)"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6486-TEX-N-32"/></g>
+
+      <g data-mml-node="mi" transform="translate(500,0)"><use data-c="1D70B" xlink:href="#MJX-6486-TEX-I-1D70B"/></g></g>
+
+      <g data-mml-node="mo" transform="translate(0,95)"><use data-c="221A" xlink:href="#MJX-6486-TEX-N-221A"/></g>
+
+      <rect width="1070" height="60" x="853" y="835"/></g></g>
+
+      <rect width="2694" height="60" x="120" y="220"/></g>
+
+      <g data-mml-node="mo" transform="translate(3670,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6486-TEX-S3-29"/></g></g>
+
+      <g data-mml-node="msup" transform="translate(11052.6,0)"><g data-mml-node="mi"><use data-c="1D452" xlink:href="#MJX-6486-TEX-I-1D452"/></g>
+
+      <g data-mml-node="TeXAtom" transform="translate(499,480.4) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mo"><use data-c="2212" xlink:href="#MJX-6486-TEX-N-2212"/></g>
+
+      <g data-mml-node="mfrac" transform="translate(778,0)"><g data-mml-node="msup" transform="translate(439.2,394) scale(0.707)"><g data-mml-node="mi"><use data-c="1D45F" xlink:href="#MJX-6486-TEX-I-1D45F"/></g>
+
+      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(484,363)"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6486-TEX-N-32"/></g></g></g>
+
+      <g data-mml-node="mrow" transform="translate(220,-515.3) scale(0.707)"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6486-TEX-N-32"/></g>
+
+      <g data-mml-node="msup" transform="translate(500,0)"><g data-mml-node="mi"><use data-c="1D70E" xlink:href="#MJX-6486-TEX-I-1D70E"/></g>
+
+      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(604,289)"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6486-TEX-N-32"/></g></g></g></g>
+
+      <rect width="1369.6" height="60" x="120" y="220"/></g></g></g></g></g></g></svg>
+
+      <svg data-labels="true" preserveAspectRatio="xMaxYMid" viewBox="2556 -1484.8 1 2469.5"><g data-labels="true" transform="matrix(1 0 0 -1 0 0)"><g data-mml-node="mtd" id="mjx-eqn:12.1" transform="translate(0,785.3)"><text data-id-align="true"/>
+
+      <g data-idbox="true" transform="translate(0,-750)"><g data-mml-node="mtext"><use data-c="28" xlink:href="#MJX-6486-TEX-N-28"/>
+
+      <use data-c="31" xlink:href="#MJX-6486-TEX-N-31" transform="translate(389,0)"/>
+
+      <use data-c="32" xlink:href="#MJX-6486-TEX-N-32" transform="translate(889,0)"/>
+
+      <use data-c="2E" xlink:href="#MJX-6486-TEX-N-2E" transform="translate(1389,0)"/>
+
+      <use data-c="31" xlink:href="#MJX-6486-TEX-N-31" transform="translate(1667,0)"/>
+
+      <use data-c="29" xlink:href="#MJX-6486-TEX-N-29" transform="translate(2167,0)"/></g></g></g></g></svg></g></g></g></g></svg></mjx-container>
+    </div>
+  </div>
+
+  <p>其中 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.02ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 451 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5333-TEX-I-1D45F" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D45F" xlink:href="#MJX-5333-TEX-I-1D45F"/></g></g></g></svg></mjx-container>
+
+ 是到纹素中心的距离， 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.292ex" height="1ex" role="img" focusable="false" viewBox="0 -431 571 442" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6491-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D70E" xlink:href="#MJX-6491-TEX-I-1D70E"/></g></g></g></svg></mjx-container>
+
+ 为标准差（standard deviation）， 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.28ex" height="1.912ex" role="img" focusable="false" viewBox="0 -833.9 1007.6 844.9" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6490-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/>
+
+  <path id="MJX-6490-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mi"><use data-c="1D70E" xlink:href="#MJX-6490-TEX-I-1D70E"/></g>
+
+  <g data-mml-node="mn" transform="translate(604,363) scale(0.707)"><use data-c="32" xlink:href="#MJX-6490-TEX-N-32"/></g></g></g></g></svg></mjx-container>
+
+ 是方差（variance）。标准差 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.292ex" height="1ex" role="img" focusable="false" viewBox="0 -431 571 442" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6491-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D70E" xlink:href="#MJX-6491-TEX-I-1D70E"/></g></g></g></svg></mjx-container>
+
+ 越大，所形成的钟形曲线就越宽。一个粗略的经验法则是，使用大小为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.423ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1071 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6493-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-6493-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-6493-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="1D70E" xlink:href="#MJX-6493-TEX-I-1D70E"/></g></g></g></svg></mjx-container>
+
+ 或者更宽的滤波核（ 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.423ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1071 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6493-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-6493-TEX-I-1D70E" d="M184 -11Q116 -11 74 34T31 147Q31 247 104 333T274 430Q275 431 414 431H552Q553 430 555 429T559 427T562 425T565 422T567 420T569 416T570 412T571 407T572 401Q572 357 507 357Q500 357 490 357T476 358H416L421 348Q439 310 439 263Q439 153 359 71T184 -11ZM361 278Q361 358 276 358Q152 358 115 184Q114 180 114 178Q106 141 106 117Q106 67 131 47T188 26Q242 26 287 73Q316 103 334 153T356 233T361 278Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-6493-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="1D70E" xlink:href="#MJX-6493-TEX-I-1D70E"/></g></g></g></svg></mjx-container>
+
+ 原则）[1795]。更大的滤波范围会使图像变得更加模糊，相应也会带来更多的内存访问和开销。</p>
+
+  <p><mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.054ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 466 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6494-TEX-I-1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D452" xlink:href="#MJX-6494-TEX-I-1D452"/></g></g></g></svg></mjx-container>
+
+ 前面的系数项使得连续曲线下的面积为1。然而，在构建离散滤波核的时候，这一项是不相关的。将滤波核内的每个纹素权重相加，然后再让权重除以这个和，就可以让最终的权重之和为1。由于这个归一化过程，因此方程前面的常数项是没有任何作用的，它通常也不会出现在滤波核的数学描述中。图12.2展示了二维高斯滤波器和一维高斯滤波器的形成过程。</p>
+
+  <p><img src="../media/image_EyiNW92NBT.png" referrerpolicy="no-referrer" alt="图12.2：执行高斯模糊的一种方法是，对一个 5 × 5 的区域进行采样，并对每个贡献加权求和。上图的（a）部分展示了 σ = 1 时，滤波核中的各个权重。第二种方法则是使用分离的滤波器。连续执行两个一维高斯模糊（b）和（c），可以得到相同的结果。第一次pass，会使用图（b）中所展示的一行权重，在每行中使用5个样本来对像素进行水平模糊。第二个pass，将第一个pass中所生成的图像作为输入，会使用图（c）中所展示的一列权重，在每列中使用5个样本来对像素进行垂直模糊，从而获得最终结果。将（b）中的权重乘上（c）中的权重，可以得到与（a）相同的权重，这表明两个滤波器实际上是等效的，因此是可分离的。使用（a）对一个像素进行滤波需要25个样本，而单独使用（b）和（c）对一个像素进行滤波分别只要5个样本，总共10个样本，这大大降低了计算量。" title="图12.2：执行高斯模糊的一种方法是，对一个 5 × 5 的区域进行采样，并对每个贡献加权求和。上图的（a）部分展示了 σ = 1 时，滤波核中的各个权重。第二种方法则是使用分离的滤波器。连续执行两个一维高斯模糊（b）和（c），可以得到相同的结果。第一次pass，会使用图（b）中所展示的一行权重，在每行中使用5个样本来对像素进行水平模糊。第二个pass，将第一个pass中所生成的图像作为输入，会使用图（c）中所展示的一列权重，在每列中使用5个样本来对像素进行垂直模糊，从而获得最终结果。将（b）中的权重乘上（c）中的权重，可以得到与（a）相同的权重，这表明两个滤波器实际上是等效的，因此是可分离的。使用（a）对一个像素进行滤波需要25个样本，而单独使用（b）和（c）对一个像素进行滤波分别只要5个样本，总共10个样本，这大大降低了计算量。"/></p>
+
+  <p><mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.179ex" height="1.52ex" role="img" focusable="false" viewBox="0 -661 1847 672" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6495-TEX-I-1D460" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"/>
+
+  <path id="MJX-6495-TEX-I-1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/>
+
+  <path id="MJX-6495-TEX-I-1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/>
+
+  <path id="MJX-6495-TEX-I-1D450" d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D460" xlink:href="#MJX-6495-TEX-I-1D460"/></g>
+
+  <g data-mml-node="mi" transform="translate(469,0)"><use data-c="1D456" xlink:href="#MJX-6495-TEX-I-1D456"/></g>
+
+  <g data-mml-node="mi" transform="translate(814,0)"><use data-c="1D45B" xlink:href="#MJX-6495-TEX-I-1D45B"/></g>
+
+  <g data-mml-node="mi" transform="translate(1414,0)"><use data-c="1D450" xlink:href="#MJX-6495-TEX-I-1D450"/></g></g></g></svg></mjx-container>
+
+ 滤波器和高斯滤波器的一个问题是，这两个函数会无限延申。一种变通方法是将这样的滤波器clamp到一个特定的直径或者正方形区域内，超出范围的函数部分直接将其视为0。不同的滤波核针对不同的特性来进行设计，例如易于控制、平滑或者易于计算等。Bjorke [156]和Mitchell等人[1218]提供了一些常见的旋转不变滤波器，以及在GPU上进行图像处理的其他信息。</p>
+
+  <p>任何全屏滤波操作都会试图从图像边界以外的地方来采样像素，例如：如果我们正在为屏幕左上角像素收集 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6496-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-6496-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-6496-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-6496-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-6496-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 的滤波样本，那么实际上我们正在尝试检索一些不存在的纹素。一个基本的解决方案是将纹理采样器设置为clamp到屏幕边缘，当请求屏幕外不存在的纹素时，将会检索距离最近的边缘纹素。这会导致图像边缘的出现一些滤波错误，但是这些错误通常都是不明显的。另一种解决方案是以一个略高于显示区域的分辨率来生成要过滤的图像，从而使得这些屏幕外像素存在，在进行滤波的时候，只对屏幕内的纹素执行滤波操作。</p>
+
+  <p>使用GPU的一个优点在于，可以使用内置的插值硬件和mipmap硬件来帮助最小化要访问的纹素数量。例如：假设我们使用的是一个box滤波器，即对给定纹素周围 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-5373-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-5373-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-5373-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 网格内的9个纹素求平均值，并显示这个模糊后结果。像素着色器会对这9个纹素样本进行加权求和，并将模糊后的结果输出到对应像素上。</p>
+
+  <p>然而，其实我们并不需要显式地访问这9个样本。通过对纹理进行双线性插值，一次纹理访问可以检索最多四个相邻纹素的加权和[1638]。使用这个想法， 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-5373-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-5373-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-5373-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 的滤波网格实际上只需要进行四次纹理访问就可以完成采样，如图12.3所示。对于一个权重相等的box滤波器，可以将单个样本可以放在四个纹素的中间，从而获得这四个纹素的平均值。对于像高斯滤波器这样权重不同的滤波器，使用四个样本之间的双线性插值是不准确的，可以将每个样本仍然放置在两个纹素之间，但是会更加偏向其中的某一个纹素。例如：假设其中一个纹素的权重为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1778 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6497-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6497-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6497-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6497-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6497-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="30" xlink:href="#MJX-6497-TEX-N-30" transform="translate(778,0)"/>
+
+  <use data-c="31" xlink:href="#MJX-6497-TEX-N-31" transform="translate(1278,0)"/></g></g></g></svg></mjx-container>
+
+ ，其相邻纹素的权重为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.581ex" role="img" focusable="false" viewBox="0 -677 1778 699" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6498-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6498-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6498-TEX-N-34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6498-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6498-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="30" xlink:href="#MJX-6498-TEX-N-30" transform="translate(778,0)"/>
+
+  <use data-c="34" xlink:href="#MJX-6498-TEX-N-34" transform="translate(1278,0)"/></g></g></g></svg></mjx-container>
+
+ 。那么样本可以这样放置，使其与第一个纹素的距离为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.891ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1278 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6499-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6499-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6499-TEX-N-38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6499-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6499-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="38" xlink:href="#MJX-6499-TEX-N-38" transform="translate(778,0)"/></g></g></g></svg></mjx-container>
+
+ ，与第二个纹素的距离为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.891ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1278 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6505-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6505-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6505-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6505-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6505-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="32" xlink:href="#MJX-6505-TEX-N-32" transform="translate(778,0)"/></g></g></g></svg></mjx-container>
+
+ ，从而使得每个纹素都具有适当的比例。这样一来，这个样本的权重将是两个纹素权重之和，即 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1778 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6501-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6501-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6501-TEX-N-35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6501-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6501-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="30" xlink:href="#MJX-6501-TEX-N-30" transform="translate(778,0)"/>
+
+  <use data-c="35" xlink:href="#MJX-6501-TEX-N-35" transform="translate(1278,0)"/></g></g></g></svg></mjx-container>
+
+ 。或者，还可以对每四个纹素使用双线性插值样本，并找到最接近理想权重的偏移量，从而对高斯函数进行近似。</p>
+
+  <p><img src="../media/202307061349068.png" referrerpolicy="no-referrer" alt="图12.3：左侧：通过执行9次纹理采样，并将贡献值进行求和平均，从而构建一个box滤波器。中间：使用了5个样本的对称模式，其中位于外部的样本分别代表了2个纹素，因此每个样本的权重都是中心样本的两倍。这种类型的模式也可以用于其他滤波核，其中通过在两个纹素之间移动外部样本，使得这些外部样本更加靠近或者远离其中一个纹素，从而改变每个纹素的相对贡献。右侧：使用了更加高效的四样本模式。其中左上角的样本用于在四个纹素之间进行插值。右上角和左下角的样本各自插值了两个纹素。每个样本被赋予的权重大小，与它所代表的纹素数量成比例。" title="图12.3：左侧：通过执行9次纹理采样，并将贡献值进行求和平均，从而构建一个box滤波器。中间：使用了5个样本的对称模式，其中位于外部的样本分别代表了2个纹素，因此每个样本的权重都是中心样本的两倍。这种类型的模式也可以用于其他滤波核，其中通过在两个纹素之间移动外部样本，使得这些外部样本更加靠近或者远离其中一个纹素，从而改变每个纹素的相对贡献。右侧：使用了更加高效的四样本模式。其中左上角的样本用于在四个纹素之间进行插值。右上角和左下角的样本各自插值了两个纹素。每个样本被赋予的权重大小，与它所代表的纹素数量成比例。"/></p>
+
+  <p>有些滤波核是可分离的（separable）。最典型的两个例子是高斯滤波器和box滤波器，这意味着它们可以使用两个独立的一维滤波操作来代替一次二维滤波操作。这样做可以使得总体上需要访问的纹素大大减少。时间复杂度从 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.164ex" height="1.909ex" role="img" focusable="false" viewBox="0 -833.9 956.6 843.9" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.023ex;"><defs><path id="MJX-6502-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/>
+
+  <path id="MJX-6502-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mi"><use data-c="1D451" xlink:href="#MJX-6502-TEX-I-1D451"/></g>
+
+  <g data-mml-node="mn" transform="translate(553,363) scale(0.707)"><use data-c="32" xlink:href="#MJX-6502-TEX-N-32"/></g></g></g></g></svg></mjx-container>
+
+ 降低到 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.308ex" height="1.593ex" role="img" focusable="false" viewBox="0 -694 1020 704" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.023ex;"><defs><path id="MJX-6503-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+
+  <path id="MJX-6503-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6503-TEX-N-32"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="1D451" xlink:href="#MJX-6503-TEX-I-1D451"/></g></g></g></svg></mjx-container>
+
+ ，其中 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.176ex" height="1.593ex" role="img" focusable="false" viewBox="0 -694 520 704" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.023ex;"><defs><path id="MJX-6418-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D451" xlink:href="#MJX-6418-TEX-I-1D451"/></g></g></g></svg></mjx-container>
+
+ 是滤波核直径或者支持范围[815, 1218, 1289]。例如：假设box滤波器将应用在图像中每个像素周围的 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1778 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6504-TEX-N-35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/>
+
+  <path id="MJX-6504-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="35" xlink:href="#MJX-6504-TEX-N-35"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-6504-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="35" xlink:href="#MJX-6504-TEX-N-35"/></g></g></g></svg></mjx-container>
+
+ 区域中。首先，可以对图像进行水平过滤：每个像素左侧的两个相邻纹素与右侧的两个相邻纹素，以及滤波像素本身，都具有相等的权重 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.891ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1278 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6505-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6505-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6505-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="30" xlink:href="#MJX-6505-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6505-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="32" xlink:href="#MJX-6505-TEX-N-32" transform="translate(778,0)"/></g></g></g></svg></mjx-container>
+
+ ，然后再将这五个纹素的值进行加权求和。然后，再将得到的图像在垂直方向上进行模糊，使用上面两个相邻纹素和下面两个相邻纹素，再加上滤波像素本身，进行加权求和。最终，我们不是在一次pass中访问25个纹素，而是在两次pass中总共访问了10个纹素，如图12.2所示。宽度越宽的滤波核，所节省的开销就越多，因为节省了 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="7.238ex" height="2.072ex" role="img" focusable="false" viewBox="0 -833.9 3199 915.9" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6506-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/>
+
+  <path id="MJX-6506-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+
+  <path id="MJX-6506-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mi"><use data-c="1D451" xlink:href="#MJX-6506-TEX-I-1D451"/></g>
+
+  <g data-mml-node="mn" transform="translate(553,363) scale(0.707)"><use data-c="32" xlink:href="#MJX-6506-TEX-N-32"/></g></g>
+
+  <g data-mml-node="mo" transform="translate(1178.8,0)"><use data-c="2212" xlink:href="#MJX-6506-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(2179,0)"><use data-c="32" xlink:href="#MJX-6506-TEX-N-32"/></g>
+
+  <g data-mml-node="mi" transform="translate(2679,0)"><use data-c="1D451" xlink:href="#MJX-6506-TEX-I-1D451"/></g></g></g></svg></mjx-container>
+
+ 。</p>
+
+  <p>圆形的圆盘滤波器，对于背景虚化（bokeh）效果很有用（章节12.4），但是其计算成本通常会很高，因为该滤波器在实数域中是不可分离的。然而，可以通过使用复数来解决这个问题，复数的使用打开了一个广泛的函数家族。Wronski [1923]对这类可分离滤波器的实现细节进行了讨论。</p>
+
+  <p>计算着色器很适合进行过滤操作，与像素着色器相比，滤波核的尺寸越大，在计算着色器中进行滤波操作的性能就越好[1102, 1710]。例如：线程组的内存可以在不同像素的滤波计算之间共享图像访问，从而减少带宽压力[1971]。通过使用计算着色器的分散写入（scattered write）操作，可以以常量开销实现任意半径的box滤波器。对于水平和垂直的滤波pass，可以提前计算好一行或者一列中第一个像素的滤波核值。后续的每个像素，通过在滤波核的前端添加下一个样本，并在减去在远端留下的样本，从而确定当前像素的滤波值。这种“移动平均（moving average）”技术可以用于在常数时间内近似任意大小的高斯模糊[531, 588, 817]。</p>
+
+  <p>下采样是另一种在模糊处理时常用的GPU技术。下采样是指要为当前操作的图像生成一个较小分辨率的版本，例如：沿着两个轴将分辨率减半，创建四分之一屏幕的图像。根据输入数据和算法的需要，原始图像可以被滤波为一个较低的分辨率，或者也可以简单地以这个较低的分辨率来创建一个图像。当这个下采样的图像被混合到最终的完整分辨率图像中时，纹理的放大操作将会使用双线性插值来在样本之间进行混合，这会产生进一步的模糊效果。在原始图像的低分辨率版本上执行相关操作，会大大减少需要访问的纹素数量。此外，任何应用于这个低分辨率图像的滤波核，都会增加它的相对大小，例如：在低分辨率图像上应用宽度为5的滤波核（即中心像素的每侧分别还有两个纹素），其效果类似于在原始图像上应用宽度为9的滤波核。这样做的质量会稍微低一些，但是对于大面积相似颜色的模糊而言（这种情况经常出现在光晕效果和其他现象中），大多数瑕疵都很小，难以察觉[815]。还可以通过减少每个像素所存储的bit数，来降低内存访问的开销。下采样操作还可以用于其他缓慢变化的现象，例如：许多粒子系统可以以屏幕半分辨率进行渲染[1391]。这种下采样的思想可以扩展到创建图像mipmap，并从多个层进行采样，从而提高模糊过程的计算速度[937, 1120]。</p>
+
+  <h3 id='1211-双边滤波'>12.1.1 双边滤波</h3>
+
+  <p>通过使用某种形式的双边滤波[378, 1355]，可以改善上采样的结果以及其他图像处理操作。其核心思想是丢弃或者降低与中心样本表面无关的样本贡献值，它可以用于保持边缘。想象一下，我们将相机对准一个红色物体，其背后还有一个距离很远的蓝色物体，背景是灰色的。那么这个蓝色物体应当是模糊的，而红色物体应当是清晰的。一个简单的双边滤波器会对像素的颜色进行检查，如果是红色，则不会出现模糊，物体会保持清晰；否则，这个像素就会被模糊处理，所有非红色的样本都将用于模糊像素。如图12.4所示。</p>
+
+  <p><img src="../media/202307061555689.png" referrerpolicy="no-referrer" alt="图12.4：双边滤波。左上角是原始图像。在左下角，我们会对非红色的样本进行模糊，并且在模糊的过程中也仅使用非红色的样本。右侧展示了一个像素的滤波核，在计算高斯模糊的时候，滤波核中的红色像素会被忽略。剩余像素的颜色会乘以相应的滤波器权重并进行求和，然后再计算这些滤波器权重的和。在这个例子中，权重的总和为0.8755，因此计算得到的颜色还要除以这个值。" title="图12.4：双边滤波。左上角是原始图像。在左下角，我们会对非红色的样本进行模糊，并且在模糊的过程中也仅使用非红色的样本。右侧展示了一个像素的滤波核，在计算高斯模糊的时候，滤波核中的红色像素会被忽略。剩余像素的颜色会乘以相应的滤波器权重并进行求和，然后再计算这些滤波器权重的和。在这个例子中，权重的总和为0.8755，因此计算得到的颜色还要除以这个值。"/></p>
+
+  <p>在这个例子中，我们可以通过检查像素颜色来决定忽略哪些像素。联合双边滤波（joint bilateral filter）或者交叉双边滤波（cross bilateral filter）会使用一些额外的信息，例如深度、法线、识别值、速度或者其他数据，来确定是否使用邻近的样本。例如：Ownby等人[1343]展示了仅使用少量样本进行阴影映射时，对生成的结果进行模糊会使它看起来会变得更好。然而，一个物体上的阴影不应当对另一个不相关的物体产生影响，这种模糊处理会使得物体的阴影从边缘溢出。他们使用了一个双边滤波器，通过比较给定像素的深度与其邻域像素的深度，来丢弃属于不同表面上的样本。以这种方式来减少区域内的可变性被称为降噪（denoising），通常会被用于屏幕空间环境光遮蔽等算法中（章节11.3.6） [1971]。</p>
+
+  <p>接近使用到相机的距离来寻找边缘通常来说是不够的，例如：一个软阴影跨越了两个立方体表面所形成的边缘，这个阴影可能只会落在一个表面上，另一个表面则背对光源。仅仅使用深度信息，可能会导致阴影在模糊时从一个表面溢出到另一个表面上，因为这个边缘并不会被检测到。我们可以在进行模糊处理的时候，只使用那些深度和表面法线与中心样本相似的邻居样本，从而解决这个问题，使得阴影不会溢出到其他表面上。这样做对跨越共享边缘的样本进行了限制，因此这种双边滤波器也称为边缘保持滤波器（edge-preserving filters）。是否削弱或者忽略邻近样本的影响，以及在多大程度上削弱或者忽略邻近样本的影响，这取决于开发人员的决定，还取决于模型、渲染算法和观察条件等因素。</p>
+
+  <p>除了花费在检查邻居样本和对权重求和上的额外时间，双边滤波还有一些其他的性能开销。一些常见的滤波优化操作，例如将滤波操作变成两pass的分离滤波，或者使用双线性插值进行加权采样，这些优化操作是难以在双边滤波中使用的。由于我们事先无法知道应该忽略哪些样本或者削弱哪些样本的影响，因此我们无法使用GPU在一次“tap”中收集多个图像纹素的技术。也就是说，由于可分离的两pass滤波器具有明显的速度优势，因此导致了人们致力于开发双边滤波的近似方法[1396, 1971]。</p>
+
+  <p>Paris等人[1355]讨论了双边滤波器的许多其他应用。在必须保留边缘信息但可以重复使用样本从而减少噪声的地方，可以应用双边滤波器。它还可以用于将着色频率与几何图形的渲染频率相解耦。例如：Yang等人[1944]在较低的分辨率下进行着色处理，然后通过使用法线信息和深度信息，在上采样期间进行双边滤波从而形成最终帧。另一种方法是使用最近深度滤波（nearest-depth filtering），该方法会检索低分辨率图像中的四个样本，并使用深度最接近高分辨率图像的那个样本[816]。Hennessy [717]和Pesce [1396]对这些方法和其他图像上采样方法进行了对比和比较。低分辨率渲染的一个问题是，可能会丢失部分精细尺度的细节。Herzog等人[733]通过利用时间一致性和重投影技术进一步提高了图像质量。需要注意的是，双边滤波器是不可分离的，因为每个像素所采样的样本数量会发生变化。Green [589]则指出，将双边滤波视为可分离滤波器所带来的瑕疵，能够被其他着色效果所隐藏。</p>
+
+  <p>实现后处理管线的一种常见方法是使用乒乓缓冲区（ping-pong buffer）[1303]。这是在两个离屏缓冲区之间应用操作的想法，其中每个缓冲区都用于保存中间结果或者最终结果。对于第一个pass而言，第一个缓冲区是输入纹理，第二个缓冲区则是纹理输出的地方。在下一个pass中，这两个缓冲区的角色会被颠倒，第二个缓冲区现在会作为输入纹理，而第一个缓冲区则被用于输出。在第二个pass中，第一个缓冲区中的原始内容会被覆盖，这个过程是暂时的，它被作为一个处理pass的临时存储区域。对临时资源的管理和重用，是设计现代渲染系统的关键组成部分[1313]。从架构的角度来看，让每个独立的pass执行特定的效果是很方便的；然而，为了提高效率和性能表现，最好在一个pass中结合尽可能多的后处理效果[1918]。</p>
+
+  <p>在前面的章节中，访问其邻居的像素着色器会被用于形态学抗锯齿（morphological antialiasing）、软阴影、屏幕空间环境光遮蔽和其他技术。后处理效果一般会针对最终图像进行操作，它可以模拟热成像效果（thermal imaging）[734]，重建胶片颗粒（film grain）[1273]和色差（chromatic aberration）[539]，进行边缘检测[156, 506, 1218]，生成热浪（heat shimmer）[1273]和波纹效果（ripple）[58]，对图像进行色调分离（posterize）[58]，帮助渲染云雾效果[90]，以及执行大量的其他操作[156, 539, 814, 1216, 1217, 1289]。章节15.2.3中介绍了一些用于非真实感渲染（non-photorealistic rendering）的图像处理技术，图12.5则给出了一些例子，它们都使用彩色图像作为唯一的输入。</p>
+
+  <p><img src="../media/202307131302667.png" referrerpolicy="no-referrer" alt="图12.5：使用像素着色器进行图像处理操作。其中左上角为原始图像，在其基础上进行了各种处理。右上角为高斯差分运算（Gaussian difference operation），左下角为边缘检测，右下角为边缘检测与原始图像混合后的合成图像。" title="图12.5：使用像素着色器进行图像处理操作。其中左上角为原始图像，在其基础上进行了各种处理。右上角为高斯差分运算（Gaussian difference operation），左下角为边缘检测，右下角为边缘检测与原始图像混合后的合成图像。"/></p>
+
+  <p>在本章节结束的时候，我们会介绍一些使用广告牌和图像处理技术进行实现的效果，不再去赘述所有可能的算法。</p>
+
+  <h2 id='122-重投影技术'>12.2 重投影技术</h2>
+
+  <p>重投影技术基于对前一帧计算样本进行重用的思想。顾名思义，这些样本可以从新的观察位置和观察方向尽可能地进行重复使用。重投影方法的一个目标是将渲染成本分摊到多个帧上，即利用时间一致性（temporal coherence）。因此，这也与章节5.4.2中所介绍的时域抗锯齿有关。重投影方法的另一个目标是，如果应用程序未能及时完成当前帧的渲染，则构建一个近似结果。这种方法在虚拟现实应用中尤其重要，可以避免模拟器眩晕症（simulator sickness）（章节21.4.1）。</p>
+
+  <p>重投影方法分为反向重投影（reverse reprojection）和正向重投影（forward reprojection）。反向重投影[1264, 1556]的基本思想如图12.6所示。当在 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 时刻渲染一个三角形时，会计算当前帧（ 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ ）和前一帧（ 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6520-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6520-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6520-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6520-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6520-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6520-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ ）的顶点位置。使用顶点着色中的 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.052ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 465 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5350-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-5350-TEX-I-1D467"/></g></g></g></svg></mjx-container>
+
+ 和 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.62ex" height="1.027ex" role="img" focusable="false" viewBox="0 -443 716 454" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6015-TEX-I-1D464" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D464" xlink:href="#MJX-6015-TEX-I-1D464"/></g></g></g></svg></mjx-container>
+
+ 分量，像素着色器可以为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 和 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6517-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6517-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6517-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6517-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6517-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6517-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 时刻计算插值 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="3.803ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 1681 1000" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.566ex;"><defs><path id="MJX-6509-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/>
+
+  <path id="MJX-6509-TEX-N-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"/>
+
+  <path id="MJX-6509-TEX-I-1D464" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-6509-TEX-I-1D467"/></g>
+
+  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(465,0)"><g data-mml-node="mo"><use data-c="2F" xlink:href="#MJX-6509-TEX-N-2F"/></g></g>
+
+  <g data-mml-node="mi" transform="translate(965,0)"><use data-c="1D464" xlink:href="#MJX-6509-TEX-I-1D464"/></g></g></g></svg></mjx-container>
+
+ ，如果两帧之间的距离足够近，那么可以在前一帧的颜色缓冲中来对位置 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.256ex" height="2.679ex" role="img" focusable="false" viewBox="0 -882.5 1880.9 1184.1" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.682ex;"><defs><path id="MJX-6510-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+  <path id="MJX-6510-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6510-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6510-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+  <path id="MJX-6510-TEX-I-1D456" d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msubsup"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6510-TEX-B-1D429"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,411.6) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6510-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(361,0)"><use data-c="2212" xlink:href="#MJX-6510-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1139,0)"><use data-c="31" xlink:href="#MJX-6510-TEX-N-31"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,-293.8) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D456" xlink:href="#MJX-6510-TEX-I-1D456"/></g></g></g></g></g></svg></mjx-container>
+
+ 的颜色进行双线性查找，并使用这个颜色值来代替当前帧的颜色值，而不是重新计算一个新的着色值。对于前一帧中被遮挡的区域（例如图12.6中的深绿色区域），这些区域没有相应的着色像素可以使用，这种现象被称为缓存未命中（cache miss）。发生这种事件的时候，我们需要计算新的像素着色值来填补这些空洞。由于着色值的重用假定它们与任何类型的运动（物体、相机、光源）都无关，因此明智的做法是不要在太多帧中重用这些着色值。Nehab等人[1264]建议，在重复使用几帧之后，应当进行自动刷新。一种方法是将屏幕区域划分为 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.357ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 600 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5659-TEX-I-1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D45B" xlink:href="#MJX-5659-TEX-I-1D45B"/></g></g></g></svg></mjx-container>
+
+ 个组，其中每组是伪随机选择的 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.507ex" role="img" focusable="false" viewBox="0 -666 1778 666" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: 0px;"><defs><path id="MJX-6511-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+
+  <path id="MJX-6511-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="32" xlink:href="#MJX-6511-TEX-N-32"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-6511-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="32" xlink:href="#MJX-6511-TEX-N-32"/></g></g></g></svg></mjx-container>
+
+ 像素区域。每一帧都会更新一个组，避免重复使用某些像素值的时间过长。反向重投影的另一种变体是存储一个速度缓冲区（velocity buffer），并在屏幕空间中执行所有测试，这样做可以避免顶点的双重变换。</p>
+
+  <p>![图12.6：左图是 t−1 时刻的绿色 三角形 和蓝色三角形；右图是 t 时刻的绿色 三角形 和蓝色三角形。右图中的三维点 \mathbf{p}_{i}^{t} 位于绿色三角形上两个像素的中心，它们连同像素面积一起，被反向重投影到了左图中的点 \mathbf{p}_{i}^{t-1} 。从左图中我们可以看到，点 \mathbf{p}_{0}^{t-1} 被遮挡，而 \mathbf{p}_{0}^{t} 则是可见的，在这种情况下，没有着色结果可以被重复使用。然而，点 \mathbf{p}_{1} 在 t−1 时刻和 t 时刻都是可见的，因此可以对该点重用着色结果。 [1264]](images/Chapter-12/202307131510213.png "图12.6：左图是 t−1 时刻的绿色 三角形 和蓝色三角形；右图是 t 时刻的绿色 三角形 和蓝色三角形。右图中的三维点 \mathbf{p}<em>{i}^{t} 位于绿色三角形上两个像素的中心，它们连同像素面积一起，被反向重投影到了左图中的点 \mathbf{p}</em>{i}^{t-1} 。从左图中我们可以看到，点 \mathbf{p}<em>{0}^{t-1} 被遮挡，而 \mathbf{p}</em>{0}^{t} 则是可见的，在这种情况下，没有着色结果可以被重复使用。然而，点 \mathbf{p}_{1} 在 t−1 时刻和 t 时刻都是可见的，因此可以对该点重用着色结果。 [1264]")</p>
+
+  <p>为了获得更好的质量，还可以使用一个运行时平均滤波器（running-average filter）[1264, 1556]，它会逐步淘汰旧的着色值。它特别适用于空间抗锯齿（spatial antialiasing）、软阴影和全局光照。这个滤波器的描述如下：</p>
+
+  <div contenteditable="false" spellcheck="false" class="mathjax-block md-end-block md-math-block md-rawblock" id="mathjax-n61" cid="n61" mdtype="math_block" data-math-tag-before="0" data-math-tag-after="0" data-math-labels="[]">
+    <div class="md-rawblock-container md-math-container" tabindex="-1">
+      <mjx-container class="MathJax" jax="SVG" display="true" width="full" style="min-width: 50.083ex; position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="2.791ex" role="img" focusable="false" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.83ex; min-width: 50.083ex;"><defs><path id="MJX-6487-TEX-B-1D41C" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"/>
+
+      <path id="MJX-6487-TEX-I-1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"/>
+
+      <path id="MJX-6487-TEX-SO-28" d="M152 251Q152 646 388 850H416Q422 844 422 841Q422 837 403 816T357 753T302 649T255 482T236 250Q236 124 255 19T301 -147T356 -251T403 -315T422 -340Q422 -343 416 -349H388Q359 -325 332 -296T271 -213T212 -97T170 56T152 251Z"/>
+
+      <path id="MJX-6487-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+      <path id="MJX-6487-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+      <path id="MJX-6487-TEX-SO-29" d="M305 251Q305 -145 69 -349H56Q43 -349 39 -347T35 -338Q37 -333 60 -307T108 -239T160 -136T204 27T221 250T204 473T160 636T108 740T60 807T35 839Q35 850 50 850H56H69Q197 743 256 566Q305 425 305 251Z"/>
+
+      <path id="MJX-6487-TEX-N-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/>
+
+      <path id="MJX-6487-TEX-I-1D6FC" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"/>
+
+      <path id="MJX-6487-TEX-N-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+
+      <path id="MJX-6487-TEX-N-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/>
+
+      <path id="MJX-6487-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+      <path id="MJX-6487-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+      <path id="MJX-6487-TEX-N-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/>
+
+      <path id="MJX-6487-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+
+      <path id="MJX-6487-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/></defs>
+
+      <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(0.019382,-0.019382) translate(0, -866.7)"><g data-mml-node="math"><g data-mml-node="mtable" transform="translate(3356,0) translate(-3356,0)"><g transform="translate(0 866.7) matrix(1 0 0 -1 0 0) scale(51.6)"><svg data-table="true" preserveAspectRatio="xMidYMid" viewBox="7712.4 -866.7 1 1233.4"><g transform="matrix(1 0 0 -1 0 0)"><g data-mml-node="mlabeledtr" transform="translate(0,-17.2)"><g data-mml-node="mtd"><g data-mml-node="msub"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6487-TEX-B-1D41C"/></g></g>
+
+      <g data-mml-node="TeXAtom" transform="translate(544,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D453" xlink:href="#MJX-6487-TEX-I-1D453"/></g></g></g>
+
+      <g data-mml-node="mrow" transform="translate(1149.6,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6487-TEX-SO-28"/></g>
+
+      <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6487-TEX-B-1D429"/></g></g>
+
+      <g data-mml-node="TeXAtom" transform="translate(672,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6487-TEX-I-1D461"/></g></g></g>
+
+      <g data-mml-node="mo" transform="translate(1435.3,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6487-TEX-SO-29"/></g></g>
+
+      <g data-mml-node="mo" transform="translate(3320.6,0)"><use data-c="3D" xlink:href="#MJX-6487-TEX-N-3D"/></g>
+
+      <g data-mml-node="mi" transform="translate(4376.4,0)"><use data-c="1D6FC" xlink:href="#MJX-6487-TEX-I-1D6FC"/></g>
+
+      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(5016.4,0)"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6487-TEX-B-1D41C"/></g></g>
+
+      <g data-mml-node="mrow" transform="translate(5694.1,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6487-TEX-SO-28"/></g>
+
+      <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6487-TEX-B-1D429"/></g></g>
+
+      <g data-mml-node="TeXAtom" transform="translate(672,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6487-TEX-I-1D461"/></g></g></g>
+
+      <g data-mml-node="mo" transform="translate(1435.3,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6487-TEX-SO-29"/></g></g>
+
+      <g data-mml-node="mo" transform="translate(7809.6,0)"><use data-c="2B" xlink:href="#MJX-6487-TEX-N-2B"/></g>
+
+      <g data-mml-node="mo" transform="translate(8809.8,0)"><use data-c="28" xlink:href="#MJX-6487-TEX-N-28"/></g>
+
+      <g data-mml-node="mn" transform="translate(9198.8,0)"><use data-c="31" xlink:href="#MJX-6487-TEX-N-31"/></g>
+
+      <g data-mml-node="mo" transform="translate(9921,0)"><use data-c="2212" xlink:href="#MJX-6487-TEX-N-2212"/></g>
+
+      <g data-mml-node="mi" transform="translate(10921.2,0)"><use data-c="1D6FC" xlink:href="#MJX-6487-TEX-I-1D6FC"/></g>
+
+      <g data-mml-node="mo" transform="translate(11561.2,0)"><use data-c="29" xlink:href="#MJX-6487-TEX-N-29"/></g>
+
+      <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(11950.2,0)"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6487-TEX-B-1D41C"/></g></g>
+
+      <g data-mml-node="mrow" transform="translate(12627.9,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6487-TEX-SO-28"/></g>
+
+      <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6487-TEX-B-1D429"/></g></g>
+
+      <g data-mml-node="TeXAtom" transform="translate(672,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6487-TEX-I-1D461"/></g>
+
+      <g data-mml-node="mo" transform="translate(361,0)"><use data-c="2212" xlink:href="#MJX-6487-TEX-N-2212"/></g>
+
+      <g data-mml-node="mn" transform="translate(1139,0)"><use data-c="31" xlink:href="#MJX-6487-TEX-N-31"/></g></g></g>
+
+      <g data-mml-node="mo" transform="translate(2338.9,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6487-TEX-SO-29"/></g></g></g></g></g></svg>
+
+      <svg data-labels="true" preserveAspectRatio="xMaxYMid" viewBox="2556 -866.7 1 1233.4"><g data-labels="true" transform="matrix(1 0 0 -1 0 0)"><g data-mml-node="mtd" id="mjx-eqn:12.2" transform="translate(0,732.8)"><text data-id-align="true"/>
+
+      <g data-idbox="true" transform="translate(0,-750)"><g data-mml-node="mtext"><use data-c="28" xlink:href="#MJX-6487-TEX-N-28"/>
+
+      <use data-c="31" xlink:href="#MJX-6487-TEX-N-31" transform="translate(389,0)"/>
+
+      <use data-c="32" xlink:href="#MJX-6487-TEX-N-32" transform="translate(889,0)"/>
+
+      <use data-c="2E" xlink:href="#MJX-6487-TEX-N-2E" transform="translate(1389,0)"/>
+
+      <use data-c="32" xlink:href="#MJX-6487-TEX-N-32" transform="translate(1667,0)"/>
+
+      <use data-c="29" xlink:href="#MJX-6487-TEX-N-29" transform="translate(2167,0)"/></g></g></g></g></svg></g></g></g></g></svg></mjx-container>
+    </div>
+  </div>
+
+  <p>其中 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="5.817ex" height="2.713ex" role="img" focusable="false" viewBox="0 -849.5 2570.9 1199" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.791ex;"><defs><path id="MJX-6512-TEX-B-1D41C" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"/>
+
+  <path id="MJX-6512-TEX-SO-28" d="M152 251Q152 646 388 850H416Q422 844 422 841Q422 837 403 816T357 753T302 649T255 482T236 250Q236 124 255 19T301 -147T356 -251T403 -315T422 -340Q422 -343 416 -349H388Q359 -325 332 -296T271 -213T212 -97T170 56T152 251Z"/>
+
+  <path id="MJX-6512-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+  <path id="MJX-6512-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6512-TEX-SO-29" d="M305 251Q305 -145 69 -349H56Q43 -349 39 -347T35 -338Q37 -333 60 -307T108 -239T160 -136T204 27T221 250T204 473T160 636T108 740T60 807T35 839Q35 850 50 850H56H69Q197 743 256 566Q305 425 305 251Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6512-TEX-B-1D41C"/></g></g>
+
+  <g data-mml-node="mrow" transform="translate(677.7,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6512-TEX-SO-28"/></g>
+
+  <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6512-TEX-B-1D429"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6512-TEX-I-1D461"/></g></g></g>
+
+  <g data-mml-node="mo" transform="translate(1435.3,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6512-TEX-SO-29"/></g></g></g></g></svg></mjx-container>
+
+ 是点 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="2.211ex" height="2.262ex" role="img" focusable="false" viewBox="0 -805.6 977.3 999.6" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.439ex;"><defs><path id="MJX-6513-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+  <path id="MJX-6513-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6513-TEX-B-1D429"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6513-TEX-I-1D461"/></g></g></g></g></g></svg></mjx-container>
+
+ 上的新着色值， 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="7.861ex" height="2.713ex" role="img" focusable="false" viewBox="0 -849.5 3474.6 1199" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.791ex;"><defs><path id="MJX-6514-TEX-B-1D41C" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"/>
+
+  <path id="MJX-6514-TEX-SO-28" d="M152 251Q152 646 388 850H416Q422 844 422 841Q422 837 403 816T357 753T302 649T255 482T236 250Q236 124 255 19T301 -147T356 -251T403 -315T422 -340Q422 -343 416 -349H388Q359 -325 332 -296T271 -213T212 -97T170 56T152 251Z"/>
+
+  <path id="MJX-6514-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+  <path id="MJX-6514-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6514-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6514-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+  <path id="MJX-6514-TEX-SO-29" d="M305 251Q305 -145 69 -349H56Q43 -349 39 -347T35 -338Q37 -333 60 -307T108 -239T160 -136T204 27T221 250T204 473T160 636T108 740T60 807T35 839Q35 850 50 850H56H69Q197 743 256 566Q305 425 305 251Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6514-TEX-B-1D41C"/></g></g>
+
+  <g data-mml-node="mrow" transform="translate(677.7,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6514-TEX-SO-28"/></g>
+
+  <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6514-TEX-B-1D429"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6514-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(361,0)"><use data-c="2212" xlink:href="#MJX-6514-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1139,0)"><use data-c="31" xlink:href="#MJX-6514-TEX-N-31"/></g></g></g>
+
+  <g data-mml-node="mo" transform="translate(2338.9,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6514-TEX-SO-29"/></g></g></g></g></svg></mjx-container>
+
+ 是前一帧中的重投影颜色， 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="6.884ex" height="2.713ex" role="img" focusable="false" viewBox="0 -849.5 3042.8 1199" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.791ex;"><defs><path id="MJX-6515-TEX-B-1D41C" d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"/>
+
+  <path id="MJX-6515-TEX-I-1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"/>
+
+  <path id="MJX-6515-TEX-SO-28" d="M152 251Q152 646 388 850H416Q422 844 422 841Q422 837 403 816T357 753T302 649T255 482T236 250Q236 124 255 19T301 -147T356 -251T403 -315T422 -340Q422 -343 416 -349H388Q359 -325 332 -296T271 -213T212 -97T170 56T152 251Z"/>
+
+  <path id="MJX-6515-TEX-B-1D429" d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"/>
+
+  <path id="MJX-6515-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6515-TEX-SO-29" d="M305 251Q305 -145 69 -349H56Q43 -349 39 -347T35 -338Q37 -333 60 -307T108 -239T160 -136T204 27T221 250T204 473T160 636T108 740T60 807T35 839Q35 850 50 850H56H69Q197 743 256 566Q305 425 305 251Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D41C" xlink:href="#MJX-6515-TEX-B-1D41C"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(544,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D453" xlink:href="#MJX-6515-TEX-I-1D453"/></g></g></g>
+
+  <g data-mml-node="mrow" transform="translate(1149.6,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><use data-c="28" xlink:href="#MJX-6515-TEX-SO-28"/></g>
+
+  <g data-mml-node="msup" transform="translate(458,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D429" xlink:href="#MJX-6515-TEX-B-1D429"/></g></g>
+
+  <g data-mml-node="TeXAtom" transform="translate(672,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6515-TEX-I-1D461"/></g></g></g>
+
+  <g data-mml-node="mo" transform="translate(1435.3,0) translate(0 -0.5)"><use data-c="29" xlink:href="#MJX-6515-TEX-SO-29"/></g></g></g></g></svg></mjx-container>
+
+ 是应用滤波器之后的最终颜色。Nehab等人在某些用例中使用 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="7.859ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 3473.6 1000" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.566ex;"><defs><path id="MJX-6516-TEX-I-1D6FC" d="M34 156Q34 270 120 356T309 442Q379 442 421 402T478 304Q484 275 485 237V208Q534 282 560 374Q564 388 566 390T582 393Q603 393 603 385Q603 376 594 346T558 261T497 161L486 147L487 123Q489 67 495 47T514 26Q528 28 540 37T557 60Q559 67 562 68T577 70Q597 70 597 62Q597 56 591 43Q579 19 556 5T512 -10H505Q438 -10 414 62L411 69L400 61Q390 53 370 41T325 18T267 -2T203 -11Q124 -11 79 39T34 156ZM208 26Q257 26 306 47T379 90L403 112Q401 255 396 290Q382 405 304 405Q235 405 183 332Q156 292 139 224T121 120Q121 71 146 49T208 26Z"/>
+
+  <path id="MJX-6516-TEX-N-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/>
+
+  <path id="MJX-6516-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-6516-TEX-N-2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"/>
+
+  <path id="MJX-6516-TEX-N-35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D6FC" xlink:href="#MJX-6516-TEX-I-1D6FC"/></g>
+
+  <g data-mml-node="mo" transform="translate(917.8,0)"><use data-c="3D" xlink:href="#MJX-6516-TEX-N-3D"/></g>
+
+  <g data-mml-node="mn" transform="translate(1973.6,0)"><use data-c="33" xlink:href="#MJX-6516-TEX-N-33"/></g>
+
+  <g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(2473.6,0)"><g data-mml-node="mo"><use data-c="2F" xlink:href="#MJX-6516-TEX-N-2F"/></g></g>
+
+  <g data-mml-node="mn" transform="translate(2973.6,0)"><use data-c="35" xlink:href="#MJX-6516-TEX-N-35"/></g></g></g></svg></mjx-container>
+
+ ，但是他建议根据具体的渲染内容来尝试使用不同的值。</p>
+
+  <p>正向重投影则是从第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6517-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6517-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6517-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6517-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6517-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6517-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 帧的像素开始，并将它们投影到第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 帧中，因此不需要进行两次顶点着色。这意味着来自第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6520-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6520-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6520-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6520-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6520-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6520-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 帧的像素会被分散到第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 帧中，而反向重投影方法则会收集从第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6520-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6520-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6520-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6520-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6520-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6520-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 帧到第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 帧的像素值。反向重投影方法还需要处理那些变得可见的遮挡区域，通常会通过一些启发式的空洞填充方法来完成，即使用周围像素的信息来推断出缺失区域的值。Yu等人[1952]使用正向重投影方法，以一种廉价的方式来计算景深效果。Didyk等人[350]基于运动向量（motion vector），在第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6520-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6520-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6520-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6520-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2212" xlink:href="#MJX-6520-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6520-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 帧中自适应地生成网格来避免空洞，而不是使用经典的空洞填充方法。这个网格是通过深度测试来进行渲染的，然后会将其投影到第 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 帧中，这意味着遮挡问题和折叠问题，是作为带深度测试的自适应三角形网格光栅化的一部分来进行处理的。Didyk等人将他们的方法从左眼重投影到右眼，从而为虚拟现实生成一对立体图像，这两个图像之间的相关性通常会很高。后来，Didyk等人[351]提出了一种感知驱动的方法（perceptually motivated method）来执行时域采样，例如：将帧率从40 Hz增加到120 Hz。</p>
+
+  <p>Yang和Bowles [185, 1945, 1946]提出了从 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="0.817ex" height="1.441ex" role="img" focusable="false" viewBox="0 -626 361 637" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-6285-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6285-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 和 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.714ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 2083.4 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6521-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6521-TEX-N-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+
+  <path id="MJX-6521-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6521-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2B" xlink:href="#MJX-6521-TEX-N-2B"/></g>
+
+  <g data-mml-node="mn" transform="translate(1583.4,0)"><use data-c="31" xlink:href="#MJX-6521-TEX-N-31"/></g></g></g></svg></mjx-container>
+
+ 两帧中，投影到这两个帧之间 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="5.404ex" height="1.808ex" role="img" focusable="false" viewBox="0 -717 2388.4 799" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6522-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6522-TEX-N-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+
+  <path id="MJX-6522-TEX-I-1D6FF" d="M195 609Q195 656 227 686T302 717Q319 716 351 709T407 697T433 690Q451 682 451 662Q451 644 438 628T403 612Q382 612 348 641T288 671T249 657T235 628Q235 584 334 463Q401 379 401 292Q401 169 340 80T205 -10H198Q127 -10 83 36T36 153Q36 286 151 382Q191 413 252 434Q252 435 245 449T230 481T214 521T201 566T195 609ZM112 130Q112 83 136 55T204 27Q233 27 256 51T291 111T309 178T316 232Q316 267 309 298T295 344T269 400L259 396Q215 381 183 342T137 256T118 179T112 130Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D461" xlink:href="#MJX-6522-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(583.2,0)"><use data-c="2B" xlink:href="#MJX-6522-TEX-N-2B"/></g>
+
+  <g data-mml-node="mi" transform="translate(1583.4,0)"><use data-c="1D6FF" xlink:href="#MJX-6522-TEX-I-1D6FF"/></g>
+
+  <g data-mml-node="mi" transform="translate(2027.4,0)"><use data-c="1D461" xlink:href="#MJX-6522-TEX-I-1D461"/></g></g></g></svg></mjx-container>
+
+ 帧的方法，即 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="9.114ex" height="2.262ex" role="img" focusable="false" viewBox="0 -750 4028.2 1000" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.566ex;"><defs><path id="MJX-6523-TEX-I-1D6FF" d="M195 609Q195 656 227 686T302 717Q319 716 351 709T407 697T433 690Q451 682 451 662Q451 644 438 628T403 612Q382 612 348 641T288 671T249 657T235 628Q235 584 334 463Q401 379 401 292Q401 169 340 80T205 -10H198Q127 -10 83 36T36 153Q36 286 151 382Q191 413 252 434Q252 435 245 449T230 481T214 521T201 566T195 609ZM112 130Q112 83 136 55T204 27Q233 27 256 51T291 111T309 178T316 232Q316 267 309 298T295 344T269 400L259 396Q215 381 183 342T137 256T118 179T112 130Z"/>
+
+  <path id="MJX-6523-TEX-I-1D461" d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"/>
+
+  <path id="MJX-6523-TEX-N-2208" d="M84 250Q84 372 166 450T360 539Q361 539 377 539T419 540T469 540H568Q583 532 583 520Q583 511 570 501L466 500Q355 499 329 494Q280 482 242 458T183 409T147 354T129 306T124 272V270H568Q583 262 583 250T568 230H124V228Q124 207 134 177T167 112T231 48T328 7Q355 1 466 0H570Q583 -10 583 -20Q583 -32 568 -40H471Q464 -40 446 -40T417 -41Q262 -41 172 45Q84 127 84 250Z"/>
+
+  <path id="MJX-6523-TEX-N-5B" d="M118 -250V750H255V710H158V-210H255V-250H118Z"/>
+
+  <path id="MJX-6523-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6523-TEX-N-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+
+  <path id="MJX-6523-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+
+  <path id="MJX-6523-TEX-N-5D" d="M22 710V750H159V-250H22V-210H119V710H22Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D6FF" xlink:href="#MJX-6523-TEX-I-1D6FF"/></g>
+
+  <g data-mml-node="mi" transform="translate(444,0)"><use data-c="1D461" xlink:href="#MJX-6523-TEX-I-1D461"/></g>
+
+  <g data-mml-node="mo" transform="translate(1082.8,0)"><use data-c="2208" xlink:href="#MJX-6523-TEX-N-2208"/></g>
+
+  <g data-mml-node="mo" transform="translate(2027.6,0)"><use data-c="5B" xlink:href="#MJX-6523-TEX-N-5B"/></g>
+
+  <g data-mml-node="mn" transform="translate(2305.6,0)"><use data-c="30" xlink:href="#MJX-6523-TEX-N-30"/></g>
+
+  <g data-mml-node="mo" transform="translate(2805.6,0)"><use data-c="2C" xlink:href="#MJX-6523-TEX-N-2C"/></g>
+
+  <g data-mml-node="mn" transform="translate(3250.2,0)"><use data-c="31" xlink:href="#MJX-6523-TEX-N-31"/></g>
+
+  <g data-mml-node="mo" transform="translate(3750.2,0)"><use data-c="5D" xlink:href="#MJX-6523-TEX-N-5D"/></g></g></g></svg></mjx-container>
+
+ 。这些方法有更大的机会能够更好地处理遮挡情况，因为它们使用了两帧而不是一帧。在游戏中使用这种方法，能够将帧率从30 FPS提高到60 FPS，这种效果是可能的，因为该方法的运行时间不到1毫秒。我们推荐Yang和Bowles的课程笔记[1946]，以及Scherzer等人[1559]对时域相关方法的广泛调查。Valent [1812]在《杀戮区域：暗影坠落》中也使用了重投影方法来加速渲染。有关使用重投影来实现时域抗锯齿的细节，请参阅章节5.4.2末尾的大量参考资料。</p>
+
+  <h2 id='123-镜头光晕和泛光'>12.3 镜头光晕和泛光</h2>
+
+  <p>镜头光晕（lens flare）是由光线通过间接反射，或者其他非预期途径穿过晶状体系统或者眼睛所引起的现象。耀斑（flare）可以分为几种现象，其中最明显的是光晕（halo）和绒毛状光环（ciliary corona）。光晕是由透镜晶体结构的径向纤维所引起的，它看起来像一个围绕着光源的圆环，其外缘是红色的，而内部则是紫色的。光晕的视觉尺寸是恒定的，与到光源的距离无关。绒毛状光环来自于透镜的密度波动，它表现为从某一点辐射出的射线，这些射线可以延伸到光晕以外的地方[1683]。</p>
+
+  <p>当镜头的某些部分在内部反射光线或者折射光线时，镜头也可以产生一些其他的次要效果。例如：由于相机的光圈叶片，可能会产生多边形图案。由于玻璃上的细小凹槽，可能在挡风玻璃上看到条状光线[1303]。泛光是由晶状体和眼睛其他部分的散射所引起的，它会在光源周围产生辉光效果，并降低场景其他地方的对比度。数码相机会通过电荷耦合器件（charge-coupled device，CCD）来将光子转换为电荷，从而实现图像的捕获。CCD中的一个电荷位置饱和并溢出到邻近的位置时，就会发生泛光现象。光晕、日冕和泛光，这类效果被称为炫光效果（glare effect）。</p>
+
+  <p>实际上，随着相机技术的不断进步，大多数这样的人工瑕疵也越来越少。更好的设计、镜头罩和抗反射涂层，可以减少或者消除这些错误的鬼影瑕疵[598, 786]。然而，现在通常会使用一些数字方式，来将这些效果添加到真实照片上。因为计算机显示器所能够产生的光线强度是有限的，因此我们会通过在图像中添加这种效果，来给人眼一种场景或者物体变亮的印象[1951]。在照片、电影和交互式计算机图形程序中，由于这些效果的普遍使用，使得泛光效果和镜头光晕几乎是陈词滥调（cliches）的。然而，如果使用得当，这些效果可以给观众提供强烈的视觉暗示。</p>
+
+  <p>为了提供令人信服的效果，镜头光晕应当随着光源位置的变化而变化。King [899]创建了一组具有不同纹理的正方形方块来表示镜头光晕，它们的中心位于从屏幕上光源位置到屏幕中心的直线上。当光源远离屏幕中心时，这些正方形方块会变小且更加透明；随着光源向内移动，它们会变大且更加不透明。Maughan [1140]通过使用GPU来计算屏幕面光源的遮挡，从而改变镜头光晕的亮度。他生成了一个单像素的强度纹理，然后使用它来对效果的亮度进行衰减。Sekulic [1600]将光源渲染为单个多边形，使用遮挡查询硬件来给出可见区域的像素计数（详见章节19.7.1）。为了避免在等待查询值返回给CPU时的GPU停滞，查询到的结果会在下一帧中进行使用，然后来确定衰减量。由于这些炫光现象的强度可能会以相当连续和可预测的方式进行变化，因此单帧的延迟几乎不会引起感知上的混乱。Gjøl和Svendsen [539]首先生成一个深度缓冲（这个深度缓冲也将其用于其他效果），并在镜头光晕将会出现的区域以螺旋模式来采样32次，并使用采样结果来对光晕纹理进行衰减。在渲染光晕几何图形时，可见性采样是在顶点着色器中完成的，这样可以避免硬件遮挡查询所造成的延迟。</p>
+
+  <p>场景中明亮物体或者光源的条纹，可以通过绘制半透明广告牌，或者对明亮像素本身进行后处理过滤来实现。《侠盗猎车手5》等游戏使用了一组应用在广告牌上的纹理，来实现这些效果[293]。</p>
+
+  <p>Oat [1303]讨论了使用steerable滤波器来产生条纹效果的方法。这种类型的滤波器并不是在一个区域上进行对称滤波，而是会在一个给定方向上进行滤波。沿着这个给定方向的纹素值会被相加，从而产生一个条纹效果。该方法使用了降采样到四分之一宽度和四分之一高度的图像，并使用乒乓缓冲区执行两次pass，给出了令人信服的条纹效果。图12.7展示了这种技术的一个例子。</p>
+
+  <p>![图12.7：镜头光晕、星状眩光和泛光效果，以及景深和动态模糊。请注意一些正在移动的球，其表面出现了频闪的现象，这是由于对独立的图像进行了累积。 [1208]](images/Chapter-12/202307131717408.png "图12.7：镜头光晕、星状眩光和泛光效果，以及景深和动态模糊。请注意一些正在移动的球，其表面出现了频闪的现象，这是由于对独立的图像进行了累积。 [1208]")</p>
+
+  <p>除了广告牌之外，还有许多其他的变体和技术，这些技术的效果要更好。Mittring [1229]使用一些图像处理技术来隔离图像中的明亮部分，对它们进行下采样，并在一些纹理中对它们进行模糊。然后再通过复制、缩放、镜像和着色等操作，将它们再次合成到最终图像上。使用这种方法，艺术家无法单独控制每个光晕的外观表现，因为所有的光晕都会使用这个相同的生成过程。然而，图像上任何明亮的部分都可能产生镜头光晕，例如镜面反射、表面的自发光部分、明亮的火花粒子等。Wronski [1919]描述了变形镜头光晕，这是20世纪50年代使用的电影摄像设备所带来的副产品。Hullin等人[598, 786]为各种鬼影瑕疵提供了一个物理模型，并通过追踪一组光线来计算其效果。它给出了基于镜头系统设计的合理结果，并在精度和性能之间进行了权衡。Lee和Eisemann [1012]在这项工作的基础上，使用了一个线性模型，从而避免了昂贵的预处理操作，Hennessy [716]则给出了实现细节。图12.8中展示了实际产品中所使用的典型镜头光晕系统。</p>
+
+  <p><img src="../media/202307131749868.png" referrerpolicy="no-referrer" alt="图12.8：游戏《巫师3》中生成太阳光晕的过程。首先，对输入图像应用一个高对比度的校正曲线，从而分离太阳未被遮挡的部分。接下来，对图像应用以太阳为中心的径向模糊。如左侧图像所示，模糊是以一系列方式进行执行的，每次模糊都是基于前一次模糊的输出结果。这样做可以创建一个平滑的、高质量的模糊，同时可以在每个pass中使用有限数量的样本来提高效率。所有的模糊操作都是在半分辨率下进行的，从而减少时间开销。最终生成的光晕图像会与原始场景渲染的结果进行叠加。" title="图12.8：游戏《巫师3》中生成太阳光晕的过程。首先，对输入图像应用一个高对比度的校正曲线，从而分离太阳未被遮挡的部分。接下来，对图像应用以太阳为中心的径向模糊。如左侧图像所示，模糊是以一系列方式进行执行的，每次模糊都是基于前一次模糊的输出结果。这样做可以创建一个平滑的、高质量的模糊，同时可以在每个pass中使用有限数量的样本来提高效率。所有的模糊操作都是在半分辨率下进行的，从而减少时间开销。最终生成的光晕图像会与原始场景渲染的结果进行叠加。"/></p>
+
+  <p>泛光效果，即一个非常明亮的区域，其亮度溢出到相邻的像素上，它是通过结合前文中已经提出的几种技术来实现的。其主要的想法是，创建一个仅由“过曝”明亮物体所组成的泛光图像，对其进行模糊处理，然后再将其合成到正常的图像中。所使用的模糊通常是高斯模糊[832]，但是最近与参考镜头的匹配表明，这个模糊分布应当更倾向于尖峰形状[512]。制作这种图像的一种常见方法是bright-pass滤波器：保留任何明亮的像素，将所有暗淡的像素都变成黑色，通常会在过渡点进行一些混合或者缩放[1616, 1674]。对于只有几个小物体的泛光效果，可以通过计算屏幕包围盒，来限制后期处理中模糊pass和合成pass的范围[1859]。</p>
+
+  <p>中间过程的泛光图像可以使用低分辨率进行渲染，例如：将分辨率降低到原始宽度和原始高度的二分之一到八分之一。这样做一方面可以节省时间开销，另一方面有助于提高过滤效果。这幅低分辨率的图像被模糊之后，会与原始图像相结合。这种降低分辨率的方法会被用于许多后处理效果的实现中，就像是压缩颜色分辨率或者降低颜色分辨率的技术一样[1877]。泛光图像可以被下采样若干次，并从生成的图像中进行重新采样，在最小化采样成本的同时，还可以提供更加广泛的模糊效果[832, 1391, 1918]。例如：在屏幕上移动的单个明亮像素可能会导致闪烁，因为它可能在某些帧中并没有被采样。</p>
+
+  <p>由于泛光效果的目标是让图像在明亮的地方看起来过度曝光，因此图像的颜色还会按需要进行缩放，并添加到原始图像中。这种加法混合方式会使得颜色更加饱和，并最终变成白色，这通常正是我们想要的，图12.9给出了一个示例。Alpha混合可以用于更加艺术化的控制[1859]。对于高动态范围（HDR）图像，可以通过过滤（而不是阈值化）来获得更好的结果[512, 832]。LDR和HDR的泛光效果可以分开计算，然后再进行组合，从而以一种更加令人信服的方式来捕获不同的现象[539]。当然还可以有其他的变体，例如：前一帧的结果也可以添加到当前帧中，为动画物体提供一个条纹发光的效果[815]。</p>
+
+  <p>![图12.9：HDR的色调映射和泛光效果。下面的图像是通过在原始图像上使用色调映射，并在原始图像上添加后处理泛光效果而生成的。 [1869]](images/Chapter-12/202307131821903.png "图12.9：HDR的色调映射和泛光效果。下面的图像是通过在原始图像上使用色调映射，并在原始图像上添加后处理泛光效果而生成的。 [1869]")</p>
+
+  <h2 id='124-景深'>12.4 景深</h2>
+
+  <p>对于一个给定设置的相机镜头，它有一个物体聚焦的范围，即它的景深（depth of field）。任何超出这个范围的物体都是模糊的，距离越远越模糊。在摄影中，这种模糊效果的强弱与光圈大小和焦距有关。减小光圈的尺寸可以增加景深，也就是说：减小光圈尺寸，可以增加聚焦的深度范围，但是形成图像的光亮也会相应减少（详见章节9.2）。在户外白天拍摄的照片通常具有较大的景深，因为光量充足，使用一个较小的光圈也能保证足够的进光量，在最理想情况下，光圈可以足够小，即一个针孔相机。而在一个光线昏暗的房间里，景深则会明显缩小。因此，控制景深效果的一种方法是将其与色调映射联系起来，使得失焦（out-of-focus）物体随着光照水平的降低而变得更加模糊。另一种方法则是允许手动进行艺术控制，根据需要改变焦点和增加景深，从而达到理想的艺术效果，如图12.10所示。</p>
+
+  <p>![图12.10：景深效果取决于相机的焦距。 [209, 1178]](images/Chapter-12/image_QQa1DAb17H.png "图12.10：景深效果取决于相机的焦距。 [209, 1178]")</p>
+
+  <p>可以使用一个累积缓冲区（accumulation buffer）来模拟景深效果[637]，详见图12.11。通过改变镜头上的观察位置并保持焦点固定，物体将会相对于它们与焦点的距离从而被渲染得更加模糊。然而，与其他累积效果一样，这种方法的成本很高，需要对每张图像进行多次渲染。也就是说，它确实可以收敛到正确的ground-truth图像，这个图像可以用于测试其他景深算法的质量。通过改变观察光线在光圈上的位置（初始发射位置），光线追踪也可以收敛到物理正确的结果。为了提高渲染效率，有许多方法会在失焦的物体上使用较低层次的LOD。</p>
+
+  <p><img src="../media/202308180822154.png" referrerpolicy="no-referrer" alt="图12.11：通过累积缓冲区形成的景深效果。观看者所在的位置稍微移动了一点点，同时保持观察方向指向焦点。将每个渲染出的图像相加在一起，然后再显示所有图像的平均值，即可获得景深效果。" title="图12.11：通过累积缓冲区形成的景深效果。观看者所在的位置稍微移动了一点点，同时保持观察方向指向焦点。将每个渲染出的图像相加在一起，然后再显示所有图像的平均值，即可获得景深效果。"/></p>
+
+  <p>虽然这种方法对于交互式应用而言不切实际，但是这种在镜头上移动观察位置，再将结果累积平均的技术，提供了一种合理的方式来考虑每个像素中应当记录什么信息。场景中的表面按照距离可以分为三个区域：聚焦在焦点附近的区域（focus field，焦点场或者中场）；远处的区域（远场）；较近的区域（近场）。对于位于焦距处的表面，每个像素都是清晰聚焦的，因为所有累积的图像都具有大致相同的渲染结果。焦点场是一个深度范围，在这个深度范围内的物体只会发生轻微的失焦，例如少于半个像素[209, 1178]。这个深度范围就是摄影师们所说的景深。而在交互式计算机图形学中，我们会默认使用一个具有完美焦距的针孔相机，因此景深指的是对远场内容和近场内容进行模糊的效果。最终平均图像中的每个像素，都是在不同观察位置下所看到的表面位置的混合结果，由于这些表面位置可能会有很大的差异，因此会使得失焦区域（out-of-focus）变得模糊。</p>
+
+  <p>这个问题有一个有限的解决方案，即创建不同的图层来渲染不同区域中的内容。即对焦点物体渲染一副图像，对距离大于焦距的物体（远场）渲染一副图像，对距离小于焦距的物体（近场）渲染一副图像。这个操作可以通过改变相机的远近裁剪平面来实现。将远场图像和近场图像进行模糊处理，然后再将这三幅图像按照前后顺序组合在一起[1294]。这种方法被称为2.5维方法，之所以这么叫，是因为这些二维图像被赋予了深度并据此组合在一起，这种方法在某些情况下可以提供合理的结果。但是当物体跨越多个图像时，这种方法就会失效，因为物体会突然从模糊变为聚焦。此外，所有过滤后的物体都具有均匀一致的模糊程度，这个模糊程度不会随着距离而发生任何变化，这样是不合理的[343]。</p>
+
+  <p>观察这个过程的另一种方法是：考虑景深如何对表面上的单个位置产生影响。现在让我们想象表面上的一个小点，当表面聚焦时，我们可以通过单个像素看到这个小点；如果表面失焦，小点则将出现在附近的像素中，这取决于不同的观察视图。在极限情况下，这个小点将在像素网格上定义一个实心圆。这个实心圆被称为弥散圆（circle of confusion）。</p>
+
+  <p>在摄影中，焦点场之外的审美质量被称为散景（bokeh），这是一个来自日语的单词，其意思是“模糊（blur）”。(bokeh读作“bow-ke”，其中“bow”是“bow and arrow”中的“bow”，“ke”是“kettle”中的“ke”）。通过光圈的光线通常是均匀分布的，而不是符合某种高斯分布[1681]。模糊区域的形状与光圈叶片的数量、形状以及尺寸有关。一些廉价的相机会产生五边形的模糊，而不是完美的圆形；而目前大多数新相机都有7个叶片，高端机型有9个或者更多叶片。还有一些更好的相机会使用圆形叶片，从而使得散景效果呈圆形[1915]。在夜间拍摄时会使用更大尺寸的光圈，从而可以产生一个更圆的图案。与镜头光晕（lens flare）和泛光（bloom）被放大的效果相类似，我们有时会刻意渲染一个六边形的弥散圆，从而暗示我们正在用一个物理相机进行拍摄。正如Barre-Brisebois所解释的那样[107]，在可分离的两pass后处理模糊中，六边形是一种特别容易产生的形状，因此被广泛应用在许多游戏中。</p>
+
+  <p>计算景深效果的一种方法是，获取每个像素在表面上的位置，并将其着色值散射（scatter）到这个弥散圆或者弥散多边形内部的相邻像素中，如图12.12左侧所示。但是这个散射的概念不能很好地映射到像素着色器的功能上。像素着色器可以进行高效的并行操作，其中一个原因就是因为它们不会将结果传播给相邻像素。一种解决方案是为每个远近场像素都渲染一个sprite（详见章节13.5） [1228, 1677, 1915]。每个sprite都会被渲染到一个单独的图层中，sprite的大小由弥散圆的半径所决定。每一个图层都存储了所有重叠sprite的平均混合和，然后这些图层会被一个接一个地组合起来。这种方法有时也会被称为前向映射（forward mapping）技术[343]。这种方法有一些致命的缺点，首先是性能问题，即使使用图像降采样技术，这种方法也可能会很慢，更加糟糕的是，这种方法的时间开销是不稳定的，尤其是当焦点场很浅时（焦距很小）[1517, 1681]。性能的可变性意味着我们很难去管理每帧用于渲染的预算，即分配给执行所有渲染操作的时间。这种不可预测性会导致帧丢失，以及用户体验上的不均衡，不平滑。</p>
+
+  <p><img src="../media/202308180930147.png" referrerpolicy="no-referrer" alt="图12.12：散射（scatter）操作是获取像素的着色值，并将其扩散到邻近区域的像素上，例如通过渲染一个圆形的sprite。在聚集操作中，相邻区域的值被采样并用于影响某一个像素。GPU的像素着色器经过优化，可以通过纹理采样来执行聚集操作。" title="图12.12：散射（scatter）操作是获取像素的着色值，并将其扩散到邻近区域的像素上，例如通过渲染一个圆形的sprite。在聚集操作中，相邻区域的值被采样并用于影响某一个像素。GPU的像素着色器经过优化，可以通过纹理采样来执行聚集操作。"/></p>
+
+  <p>另一种思考弥散圆的方法是：假设像素周围的局部邻域都具有相同的深度。有了这个想法之后，就可以执行一个聚集（gather）操作了，如图12.12右侧所示。对于聚集前置渲染pass结果这个操作，像素着色器是经过专门优化的。因此，我们可以根据每个像素的深度，来对表面进行不同程度的模糊，从而实现景深效果。像素的深度信息定义了一个弥散圆（circle of confusion） [1672]，即应当被采样聚集的区域有多宽。这种聚集方法被称为反向映射方法（backward mapping，reverse mapping）。</p>
+
+  <p>大多数实用的景深算法都是从一个视角的初始图像开始，这意味着从一开始我们就缺失了一些信息。这个单一视角所能看到的场景信息是不完整的，场景的其他视图可能还会看到一些额外的表面。正如Pesce所指出的那样，我们应当尽可能地利用我们拥有的可见样本[1390]。</p>
+
+  <p>这类聚集技术在多年来不断发展，每一次都在之前工作的基础上有所改进。这里我们将主要介绍Bukowski等人[209, 1178]所提出的方法及其遇到的问题，以及这些问题相应的解决方案。他们的方案基于深度信息，为每个像素生成一个代表弥散圆半径的带符号值。这个半径可以从相机设置和特性中获得，但是艺术家们通常更喜欢手动控制效果，因为近场、焦点场和远场的范围都可以手动调整。半径的符号指定了像素是位于近场还是远场，其中 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="14.598ex" height="1.692ex" role="img" focusable="false" viewBox="0 -666 6452.1 748" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.186ex;"><defs><path id="MJX-6524-TEX-N-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+
+  <path id="MJX-6524-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+
+  <path id="MJX-6524-TEX-N-2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z"/>
+
+  <path id="MJX-6524-TEX-N-35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/>
+
+  <path id="MJX-6524-TEX-N-3C" d="M694 -11T694 -19T688 -33T678 -40Q671 -40 524 29T234 166L90 235Q83 240 83 250Q83 261 91 266Q664 540 678 540Q681 540 687 534T694 519T687 505Q686 504 417 376L151 250L417 124Q686 -4 687 -5Q694 -11 694 -19Z"/>
+
+  <path id="MJX-6524-TEX-I-1D45F" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><use data-c="2212" xlink:href="#MJX-6524-TEX-N-2212"/></g>
+
+  <g data-mml-node="mn" transform="translate(778,0)"><use data-c="30" xlink:href="#MJX-6524-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6524-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="35" xlink:href="#MJX-6524-TEX-N-35" transform="translate(778,0)"/></g>
+
+  <g data-mml-node="mo" transform="translate(2333.8,0)"><use data-c="3C" xlink:href="#MJX-6524-TEX-N-3C"/></g>
+
+  <g data-mml-node="mi" transform="translate(3389.6,0)"><use data-c="1D45F" xlink:href="#MJX-6524-TEX-I-1D45F"/></g>
+
+  <g data-mml-node="mo" transform="translate(4118.3,0)"><use data-c="3C" xlink:href="#MJX-6524-TEX-N-3C"/></g>
+
+  <g data-mml-node="mn" transform="translate(5174.1,0)"><use data-c="30" xlink:href="#MJX-6524-TEX-N-30"/>
+
+  <use data-c="2E" xlink:href="#MJX-6524-TEX-N-2E" transform="translate(500,0)"/>
+
+  <use data-c="35" xlink:href="#MJX-6524-TEX-N-35" transform="translate(778,0)"/></g></g></g></svg></mjx-container>
+
+ 处于焦点场，即半个像素的模糊会被认为处于焦点场中。</p>
+
+  <p>这个包含弥散圆半径的缓冲区会用于将图像分成两个图像，即近场图像和其他图像，每个图像都会在两个pass中，使用可分离的滤波器进行下采样和模糊操作。这里的图像分离是为了解决一个关键问题，即近场中的物体应当具有模糊的边缘。如果我们根据弥散圆的半径对每个像素进行模糊，并输出到单个图像中，那么最终结果中的前景物体可能会是模糊的，但仍然会具有清晰的边缘。例如：从前景物体穿过轮廓边缘到达聚焦物体时，样本半径将会降为零，因为聚焦物体不需要进行模糊处理。这将会导致前景物体对其周围像素的影响突然下降，从而产生一个尖锐的边缘，如图12.13所示。</p>
+
+  <p>![图12.13：近场模糊。左边是没有景深效果的原始图像。在中间，近场像素会被模糊，但是在靠近焦点场的区域会有一个清晰的物体边缘。右图展示了使用单独的近场图像，并将其叠加在较远内容上的效果，近场像素不仅会被模糊，同时也不会出现清晰的物体边缘。 [209, 1178]](images/Chapter-12/202308181020686.png "图12.13：近场模糊。左边是没有景深效果的原始图像。在中间，近场像素会被模糊，但是在靠近焦点场的区域会有一个清晰的物体边缘。右图展示了使用单独的近场图像，并将其叠加在较远内容上的效果，近场像素不仅会被模糊，同时也不会出现清晰的物体边缘。 [209, 1178]")</p>
+
+  <p>我们想要的效果是，让位于近场中的物体被平滑地模糊，并产生超出其边界的模糊效果。这是通过在单独的图像中写入并模糊近场像素来实现的。此外，这个近场图像中的每个像素都会被赋予一个alpha值，来代表它的混合因子，这个混合因子同样也会被模糊处理。在创建两个分离图像的时候，还可以使用联合双边滤波和其他的一些测试；详情请参阅论文[209, 1178]，以及其中提供的详细代码。这些测试有这样的几个功能，例如：对于远场模糊，对于那些比采样像素远得多的邻近物体，会选择将其丢弃。</p>
+
+  <p>在根据弥散圆半径进行分离和模糊处理之后，我们会将这两个分离图像再次合成。我们会使用弥散圆的半径，来对原始聚焦图像和远场图像之间进行线性插值。弥散圆的半径越大，所使用的模糊远场结果就越多。然后再使用近场图像中的alpha覆盖率值，来将近场图像与刚才的插值结果相融合。通过这种方式，可以让近场的模糊内容适当地扩散到后面的场景上，如图12.10和图12.14所示。</p>
+
+  <p><img src="../media/202308181034438.png" referrerpolicy="no-referrer" alt="图12.14：《巫师3》中的景深效果。近场和远场模糊令人信服地与焦点场混合在一起。" title="图12.14：《巫师3》中的景深效果。近场和远场模糊令人信服地与焦点场混合在一起。"/></p>
+
+  <p>这个算法有几个简化和调整，可以使其看起来更加合理。还可以使用一些其他的方法来更好地处理粒子，并且透明度也可能会导致一些问题，因为这些现象都涉及了每个像素多个 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.052ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 465 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5350-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-5350-TEX-I-1D467"/></g></g></g></svg></mjx-container>
+
+ 深度的问题。尽管如此，由于这种方法只需要输入颜色缓冲区和深度缓冲区，并且只使用了三个后处理pass，因此这个方法简单且相对健壮。基于弥散圆的采样，以及将远场、近场分离为单独的图像（或者图像集合）的思想，是许多景深模拟算法的共同主题。下面我们将讨论在电子游戏中所使用的一些新方法（就像前面提到的方法一样），这些方法需要高效、健壮，同时还具有可预测的开销 [832, 1390]。</p>
+
+  <p>这里我们所介绍的第一种方法使用了运动模糊，有关运动模糊的概念和方法，我们将在下一小节中重新进行讨论。回到最初弥散圆的概念中，想象一下，将图像中的每个像素都转换为对应的弥散圆，其强度与圆的面积成反比。按顺序依次来渲染这组圆会给带来我们最好的结果，但是这样就把我们带回到了之前提到的散射（scatter）概念，因此这样做通常是不切实际的。但是这种思维模式在这里会很有价值，给定一个像素，我们想要确定所有重叠在该位置上的弥散圆，并将它们按照顺序混合在一起，如图12.15所示。使用场景定义的最大弥散圆半径，对于每个像素，我们可以检查位于该半径范围内的每个邻居像素，并查找其弥散圆是否包含当前给定像素的位置。然后将所有影响该像素的重叠相邻样本进行排序和混合。</p>
+
+  <p><img src="../media/202308181124864.png" referrerpolicy="no-referrer" alt="图12.15：重叠的弥散圆。左侧是一个包含五个点的场景，这些点都是聚焦的。假设其中的红色点位于近场中，它最接近观察者，其次是橙色点；绿色点位于焦点场内；蓝色点和紫色点位于远场中，紫色点距离最远。右图展示了由于应用景深而产生的弥散圆，较大的圆圈对于每个像素的影响较小。绿色点是不变的，因为它是聚焦的。最中心的像素只有红色和橙色的圆圈相重叠，因此它们会混合在一起，红色覆盖橙色，最终会形成该像素的颜色。" title="图12.15：重叠的弥散圆。左侧是一个包含五个点的场景，这些点都是聚焦的。假设其中的红色点位于近场中，它最接近观察者，其次是橙色点；绿色点位于焦点场内；蓝色点和紫色点位于远场中，紫色点距离最远。右图展示了由于应用景深而产生的弥散圆，较大的圆圈对于每个像素的影响较小。绿色点是不变的，因为它是聚焦的。最中心的像素只有红色和橙色的圆圈相重叠，因此它们会混合在一起，红色覆盖橙色，最终会形成该像素的颜色。"/></p>
+
+  <p>上述这种方法是理想的，但是在GPU上，将找到的片元进行排序，这个操作的开销太大了。相反，我们使用了一种被称为“聚集时散射（scatter as you gather）”的方法，我们通过查找哪些邻居像素将会散射到当前像素位置来进行聚集操作。选择具有最小 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.052ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 465 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5350-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-5350-TEX-I-1D467"/></g></g></g></svg></mjx-container>
+
+ 深度（最近距离）的重叠邻居来表示较近的图像。任何其他在 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.052ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 465 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5350-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-5350-TEX-I-1D467"/></g></g></g></svg></mjx-container>
+
+ 深度上与该深度接近的重叠邻居，都会将其alpha混合的贡献添加进来，然后再取平均值，并将颜色和alpha值存储在“前景”层中。而这种类型的混合则不需要进行排序操作。而所有其他剩余的重叠邻居，同样会进行类似的求和平均，并将结果放在一个单独的“背景”层中。这里的前景层和背景层并不对应于之前我们所提到的近场和远场，它们只是在每个像素区域中碰巧所找到的任何东西。然后前景图像会被合成到背景图像上，产生近场模糊的效果。虽然这种方法听起来很复杂，但是通过应用各种采样和过滤技术，可以使其十分高效。你可以参考Jimenez [832]、Sousa [1681]、Sterna [1698]和Courreges [293, 294]的演示来了解一些不同形式的实现，并查看图12.16中所展示的例子。</p>
+
+  <p>![图12.16：近景深和远景深。在前景中，明亮的反射杆上存在五边形的散景。 [1408]](images/Chapter-12/202308181124031.png "图12.16：近景深和远景深。在前景中，明亮的反射杆上存在五边形的散景。 [1408]")</p>
+
+  <p>在一些较早的电子游戏中使用的是另一种方法，该方法基于计算热扩散（heat diffusion）的想法。图像被视为向外扩散的热分布，而每个弥散圆则代表了该像素的热传导系数（thermal conductivity）；而焦点区域则是一个完美的绝缘体，不会发生热扩散。Kass等人[864]描述了如何将一维的热扩散系统视为一个三对角矩阵（tridiagonal matrix），每个样本都可以在常数时间内进行求解。计算着色器可以很好地存储和求解这种类型的矩阵，因此相关从业者开发了几种实现，其中图像会沿着每个轴分解为这样的一维系统[612, 615, 1102, 1476]。弥散圆的可见性问题仍然存在，通常会基于深度信息，生成并合成单独的图层来进行解决。这种技术无法很好地处理弥散圆中的不连续性，因此如今已经很少使用了。</p>
+
+  <p>一种特殊的景深效果是由明亮的光源或者画面中的反射所引起的。光源或者镜面反射的弥散圆，即使这种效果会在区域中变得暗淡，但是可能还是要比其画面中的相邻物体亮得多。虽然将每个模糊像素都渲染为一个sprite是十分昂贵的，但是这些明亮的光源往往具有更高的对比度，因此可以更加清楚地显示出光圈的形状。而其余像素之间的差异则比较小，因此形状不那么重要。有时，“散景（bokeh）”一词也被（这是错误的）用来指代这些明亮的区域。检测高对比度区域，并只将这些较亮像素渲染为sprite，同时对其余像素使用聚集技术，从而可以获得一个具有定义的散景，同时也更加高效[1229, 1400, 1517]，如图12.16所示。计算着色器同样也可以发挥作用，它可以为聚集景深、高效散景溅射（splatting）创建高质量的SAT表[764]。</p>
+
+  <p>我们只介绍了渲染景深和明亮散景效果的一小部分方法，并描述了一些用于提高过程效率的技术。研究人员还探索了随机光栅化（stochastic rasterization）、光场处理等方法。Vaidyanathan等人[1806]的文章对之前的工作进行了总结，McGuire [1178]给出了一些实现上的总结。</p>
+
+  <h2 id='125-运动模糊'>12.5 运动模糊</h2>
+
+  <p>为了渲染出令人信服的图像序列，稳定且足够高的帧率是很重要的。平滑且连续的运动当然是更好的，但是过低的帧率会使得运动变得不稳定。电影会以每秒24帧的速度进行放映，但是电影院通常是黑暗的，在昏暗的光线下，眼睛的瞬时响应（temporal response）对昏暗光线的闪烁不太敏感。此外，电影放映机以24 FPS的速度改变图像，但是在显示下一幅图像之前，会将当前图像重新显示2-4次，来减少人眼感知到的闪烁。当然，也许最重要的是，电影的每一帧画面，通常都是运动模糊过的图像；而在默认情况下，交互式图形程序所生成的图像没有运动模糊的。运动模糊（motion blur），也可以叫做动态模糊。</p>
+
+  <p>在电影中，运动模糊来源于画面中物体在屏幕上的移动，或者来自于摄像机本身的运动。当相机快门打开1/40秒-1/60秒时，就会出现这种效果，而电影中拍摄一帧画面的时间是1/24秒。我们习惯于在电影中看到这种模糊效果，并且会认为这是很正常的，因此我们也希望在电子游戏中能看到它们。当快门的打开时间为1/500秒或者更短时，可以产生一种剧烈运动（hyperkinetic）的效果，这种效果最早出现在《角斗士》和《拯救大兵瑞恩》等电影中。</p>
+
+  <p>对于快速移动的物体，在没有运动模糊的情况下会显得很不稳定，这些物体在帧与帧之间“跳过”了许多像素。这也可以被认为是一种走样，类似于锯齿，但其本质上是时间上的锯齿而不是空间上的。运动模糊可以被认为是一种时域上的抗锯齿。正如提高显示分辨率可以减少锯齿但是无法消除它们一样，提高帧率也不能完全消除对运动模糊的需求。电子游戏的一大特点就是相机和物体的快速运动，因此应用运动模糊可以显著提高它们的视觉效果。事实上，30 FPS加上运动模糊的效果，通常要比60 FPS但没有运动模糊的效果好[51, 437, 584]。</p>
+
+  <p>运动模糊依赖于相对运动。如果一个物体在屏幕上从左向右移动，那么它在屏幕的水平方向会被模糊。如果相机正在跟随一个移动的物体，那么物体不会被模糊，而发生相对运动的背景则会被模糊，如图12.17所示。这就是现实世界的相机的工作原理，一个优秀的导演知道如何拍摄一个镜头，并使得所感兴趣的区域是聚焦且不模糊的。</p>
+
+  <p><img src="../media/202308181445428.png" referrerpolicy="no-referrer" alt="图12.17：在左边，相机是固定的，汽车是模糊的。在右边，相机跟随汽车，背景是模糊的。" title="图12.17：在左边，相机是固定的，汽车是模糊的。在右边，相机跟随汽车，背景是模糊的。"/></p>
+
+  <p>与景深效果类似，累积一系列图像提供了一种创建运动模糊的方法[637]。当相机快门打开的时候，一帧画面存在一个持续时间。场景会在这段时间内的不同时间进行渲染，每次渲染前都会对相机和物体进行重新定位。生成的若干张图像会被混合在一起，最终得到一个图像，其中相对于相机视野发生运动的物体是模糊。但是对于实时渲染而言，这样的过程通常是适得其反的，因为它会大大降低帧率。此外，如果物体发生快速运动，并且单个独立图像变得可感知时，就会看到瑕疵，图12.7中也展示了这个问题。随机光栅化可以避免多幅图像混合时出现的鬼影现象，但是相对应的，它会产生噪声现象[621, 832]。</p>
+
+  <p>如果我们想要的是运动模糊的画面效果，而不是完全真实的物理模拟，那么这个累积的概念可以被巧妙地运用。想象一些，我们现在已经生成了运动模型的8帧画面，并将其求和到一个高精度缓冲区中，然后对其求平均值并显示在屏幕上。在第9帧中，模型会被再次渲染并累加，但是同时，我们会再次执行第1帧的渲染，并从求和结果中减去第1帧渲染的结果。现在缓冲区中还是有8帧模糊的运动模型，即第2帧到第9帧。而在下一帧中，我们将会减去第2帧，然后加上第10帧，同样得到第3到第10帧，共计8帧的累积总和。这样就产生了高度模糊的艺术效果，但是代价是每一帧会渲染两遍场景[1192]。</p>
+
+  <p>对于实时图形程序而言，需要一些比上述多次渲染方法更快的技术。景深和运动模糊都可以通过对一组视野进行平均来渲染，这表明了两种现象之间的相似性。为了高效渲染这些效果，这两种效果都需要将它们的样本分散到邻近的像素上，但是通常我们都会执行聚集操作。它们还需要处理不同模糊程度的多个层级，并在给定起始帧内容的情况下重建被遮挡的区域。</p>
+
+  <p>运动模糊有几种不同的来源，每种都有各自适用的方法。这些来源可以分为相机方向变化、相机位置变化、物体位置变化、物体方向变化，这里大致按照复杂性递增的顺序进行列举的。如果相机保持位置不变，那么整个世界可以被认为是一个围绕着观察者的天空盒（详见章节13.3）。此时改变相机方向会使得图像整体上出现方向性的模糊。给定此时相机旋转的方向和速度，我们沿着这个方向对每个像素进行采样，这个速度决定了滤波器的宽度。这种定向模糊被称为线积分卷积（line integral convolution，LIC）[219, 703]，它也被用于流体流动的可视化。Mitchell [1221]讨论了在给定运动方向下的运动模糊的立方体环境贴图（motion-blurring cubic environment map）。如果相机沿着其观察方向轴进行旋转，那么使用一个圆形模糊，每个像素的方向和速度会相对于旋转中心而发生变化[1821]。</p>
+
+  <p>如果相机的位置发生变化，那么视差（parallax）就会起作用，例如：远处物体的移动速度相对较慢，模糊也相对较少。当相机沿着观察方向向前移动的时候，这里的视差可以被忽略。仅仅使用一个径向模糊就可能足够了，这种方法能够实现夸张的戏剧效果，图12.18展示了这样一个例子。</p>
+
+  <p><img src="../media/202308181531046.png" referrerpolicy="no-referrer" alt="图12.18：放射状的径向模糊可以增强运动感。" title="图12.18：放射状的径向模糊可以增强运动感。"/></p>
+
+  <p>为了增加真实感，例如在一个竞速游戏中，我们需要适当计算每个物体运动的模糊效果。如果在向前看的同时进行侧向移动，这在计算机图形学中被称为平移（pan），深度缓冲区会告诉我们每个物体应该被模糊多少。</p>
+
+  <blockquote>
+    <p>在电影摄影中，平移（pan）指的是在不改变位置的情况下左右旋转相机。其他的一些术语是，横向移动为“truck”，垂直移动是“pedestal”。</p>
+  </blockquote>
+
+  <p>物体越近，模糊程度就越大。如果相机向前移动的话，运动量就更加复杂了。Rosado [1509]描述了如何使用前一帧的相机观察矩阵，来实时计算画面的速度。这里的想法是将像素的屏幕位置和深度转换回世界空间中，然后再使用前一帧的相机观察矩阵，来将这个世界空间坐标转换为屏幕上的位置。前后屏幕空间位置之间的差异就是速度向量，它可以用于对该像素进行模糊。复合物体可以渲染为原始屏幕大小的四分之一，这样既节省了像素处理的开销，又过滤掉了采样的噪声[1428]。</p>
+
+  <p>如果物体之间相互独立移动，那么情况会变得更加复杂。一种直接但有局限性的方法是对模糊本身进行建模和渲染。这就是使用线段来代表移动粒子的基本原理。这个概念可以扩展到其他物体上，想象一把剑划过天空，在刀片的前后，沿其边缘添加了两个多边形。这些可以在运行时动态建模或者动态生成。这些多边形的每个顶点都使用了alpha不透明度，即多边形与剑相交的地方是完全不透明的，而在多边形的外边缘则是完全透明的。这个想法的核心思路是，模型在运动方向上具有透明度，这模拟了剑只在快门打开的部分时间里（假想的）才会覆盖这些像素的效果。</p>
+
+  <p>这种方法可以用于一些简单的模型，例如摆动的剑刃，但是诸如纹理、高光以及其他特征也需要进行模糊。每个移动的表面可以被视为单个的样本，我们想要对这些样本进行散射操作（早期的运动模糊方法就是这样做的），可以通过在运动方向上对几何形状进行扩展从而实现这个目的[584, 1681]。这种几何操作是十分昂贵的，因此开发了“边聚集边散射（scatter-as-you-gather）”的方法。对于景深效果，我们会将每个样本扩展到其弥散圆的半径范围内。对于运动样本，我们将会沿着一帧中移动的路径对每个样本进行拉伸，类似于LIC。快速移动的样本会覆盖更多的区域，因此它在单个位置的影响就比较小。理论上而言，我们可以获取场景中的所有样本，并按照顺序将其绘制为半透明的线段，图12.19展示了可视化的结果。随着采样次数的增加，模糊效果的前后边缘都会出现一个平滑透明的渐变，就像是我们在剑的例子中所做的那样。</p>
+
+  <p>![图12.19：在左边，单个样本水平移动给出了一个透明的结果。在右边，由于覆盖外部区域的样本数量比较少，7个样本产生了一个锥形的效果。最中间的区域是不透明的，因为在整个一帧画面中，它总是会被一些样本所覆盖。 [832]](images/Chapter-12/202308181634806.png "图12.19：在左边，单个样本水平移动给出了一个透明的结果。在右边，由于覆盖外部区域的样本数量比较少，7个样本产生了一个锥形的效果。最中间的区域是不透明的，因为在整个一帧画面中，它总是会被一些样本所覆盖。 [832]")</p>
+
+  <p>为了应用这个想法，我们需要知道每个像素表面的速度。一个被广泛采用的工具是速度缓冲区（velocity buffer）[584]。想要创建这个速度缓冲区，需要在模型的每个顶点上插值出屏幕空间速度。可以通过在模型上应用两个模型矩阵来计算出这个速度，其中一个矩阵用于前一帧，另一个矩阵用于当前帧。顶点着色器会计算前后位置的差异，并将这个差异向量转换为屏幕空间下的相对坐标，图12.20展示了速度缓冲区的可视化结果。Wronski [1912]讨论了如何推导速度缓冲区，以及如何将运动模糊与时域抗锯齿相结合。Courreges [294]简要说明了《毁灭战士（2016）》是如何实现这种组合的，并对结果进行了比较。</p>
+
+  <p>![图12.20：运动模糊源自于物体和相机的相对运动。右下角展示了深度缓冲区和速度缓冲区的可视化结果。 [1173]](images/Chapter-12/202308181712698.png "图12.20：运动模糊源自于物体和相机的相对运动。右下角展示了深度缓冲区和速度缓冲区的可视化结果。 [1173]")</p>
+
+  <p>一旦获得了速度缓冲区，每个物体在各个像素处的速度也就已知了；此时，未被模糊的图像也被渲染完成了。请注意，我们在处理景深时遇到了一个类似的问题，即计算效果所需的全部信息并不是从一张单一图像中获得的，还有一些当前视图看不见的信息。对于景深而言，理想情况是将多个视图平均在一起，其中一些视图包括了在其他视图中看不到的物体表面。而对于交互式运动模糊而言，我们会从时间序列中取出一帧，并将其用作代表性图像。我们将尽可能地使用这些数据，同时需要意识到，单一视图无法提供运动模糊效果所需的全部数据，这个因素有时候可能会产生一些瑕疵。</p>
+
+  <p>给定这一帧和速度缓冲区，我们可以使用一个用于运动模糊的“边聚集边散射（scatter-as-you-gather）”系统，来重建影响每个像素的物体。我们从McGuire等人[208, 1173]所描述的方法开始，这个方法被Sousa [1681]和Jimenez [832]进一步发展了，（Pettineo [1408]提供了源代码）。在第一个pass中，计算屏幕上每个部分的最大速度，例如：将每 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.557ex" role="img" focusable="false" viewBox="0 -666 1778 688" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6525-TEX-N-38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"/>
+
+  <path id="MJX-6525-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="38" xlink:href="#MJX-6525-TEX-N-38"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-6525-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="38" xlink:href="#MJX-6525-TEX-N-38"/></g></g></g></svg></mjx-container>
+
+ 像素称为一个瓦片（tile，章节23.1），找到这个瓦片内的最大速度。该pass的结果是一个包含各个瓦片最大速度（一个包含大小和方向的矢量）的缓冲区。在第二个pass中，在瓦片结果缓冲区中，会为每个瓦片检索的 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-5373-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-5373-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-5373-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-5373-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 的区域，以找到区域内的最大速度。这个pass确保了一个瓦片中快速移动的物体，其运动模糊的影响将会被相邻瓦片计算在内。也就是说，初始静态的场景视图将会变成物体模糊的图像。这些模糊效果可以重叠到相邻瓦片中，因此这些瓦片必须对一个足够宽的区域进行检查，才能找到这些快速移动的物体。</p>
+
+  <p>最后，在第三个pass中计算运动模糊的图像。与景深类似，检查每个像素的邻域是否存在快速移动并且与该像素重叠的样本。二者不同之处在于，运动模糊中的每个样本都有不同的运动方向和运动速度。相关学者和从业人员已经开发了不同的方法，来对这些相关的样本进行过滤和混合。其中一种方法是使用瓦片内最大速度来确定滤波核的方向和宽度。如果这个速度小于半个像素，则不需要进行运动模糊[1173]；否则，将会沿着最大速度的方向进行图像采样。需要注意的是，遮挡在这里十分重要，因为它与景深效果有关。在一个静态物体后面快速移动的模型，其模糊效果不应该溢出到这个静态物体上。如果发现邻近样本的距离与该像素 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="1.052ex" height="1.025ex" role="img" focusable="false" viewBox="0 -442 465 453" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.025ex;"><defs><path id="MJX-5350-TEX-I-1D467" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><use data-c="1D467" xlink:href="#MJX-5350-TEX-I-1D467"/></g></g></g></svg></mjx-container>
+
+ 深度足够接近，则认为这个邻近样本是可见的。我们将这些样本混合在一起，从而形成前景的贡献。</p>
+
+  <p>在图12.19中，运动模糊物体有三个区域。其中不透明区域会被前景物体完全覆盖，因此不需要进行混合处理。在原始图像中（最上面的7个蓝色像素），外部模糊区域（outer）在对应的像素位置上有一个背景颜色，前景可以与之混合。然而，内部模糊区域（inner）则不包含背景颜色，因为原始图像只包含前景信息。对于这些像素，通过对采样后不在前景中的相邻像素进行过滤来估计背景颜色，这么做的理由是对背景的任何估计，都比什么都没有要好。图12.20给出了一个示例。</p>
+
+  <p>有几种采样和过滤方法可以用来对这种方法所生成的外观进行改进。为了避免鬼影，采样位置会随机抖动（jitter）半个像素[1173]。在外部模糊区域中，我们拥有正确的背景，但是在内部模糊区域中，我们只有对背景的估计值，在这里进行一点模糊处理，可以避免由于背景估计所带来的不连续性[832]。像素内物体的移动方向和移动速度，可能会与 
+
+  <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg xmlns="http://www.w3.org/2000/svg" width="4.023ex" height="1.554ex" role="img" focusable="false" viewBox="0 -665 1778 687" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" style="vertical-align: -0.05ex;"><defs><path id="MJX-6526-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+
+  <path id="MJX-6526-TEX-I-D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"/></defs>
+
+  <g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><use data-c="33" xlink:href="#MJX-6526-TEX-N-33"/></g>
+
+  <g data-mml-node="mi" transform="translate(500,0)"><use data-c="D7" xlink:href="#MJX-6526-TEX-I-D7"/></g>
+
+  <g data-mml-node="mn" transform="translate(1278,0)"><use data-c="33" xlink:href="#MJX-6526-TEX-N-33"/></g></g></g></svg></mjx-container>
+
+ 瓦片集合内的主导速度不相同，因此在这种情况下可以使用一个不同的滤波方法[621]。Bukowski等人[208]提供了其他的实现细节，并讨论了如何在不同平台上对该方法进行扩展。</p>
+
+  <p>这种方法非常适合动态模糊，但是其他的一些方法和系统当然也是可行的，这些方法在质量和性能之间进行了权衡。例如：Andreev [51]使用速度缓冲区和运动模糊，在30 FPS渲染的帧之间进行插值，从而有效地提供了60 FPS的帧率。另一个概念则是将运动模糊和景深这两个效果结合到同一个系统中。其关键思想是将速度向量和弥散圆相结合，从而得到统一的模糊滤波核 [1390, 1391, 1679, 1681]。</p>
+
+  <p>还有一些其他的方法被进行了研究，随着GPU功能和性能的不断提高，这些研究仍将继续。例如，Munkberg等人[1247]使用随机和交错采样，从而在低采样率下来渲染景深和运动模糊效果。而在随后的pass中，他们使用一种快速重建技术[682]，来减少采样瑕疵，并恢复运动模糊和景深的平滑属性。</p>
+
+  <p>在电子游戏中，玩家的体验通常并不像观看电影一样，电子游戏在他们的直接控制下，视角会以一种不可预测的方式进行变化。在这种情况下，如果纯粹基于一种相机的方式，运动模糊有时会表现得很差。例如：在第一人称射击游戏中，有些用户发现视角旋转所带来的模糊效果会分散注意力，甚至导致运动眩晕症（motion sickness，晕3D）。在《使命召唤：高级战争》中，有一个选项可以移除由于摄像机旋转所产生的运动模糊效果，从而使得运动模糊只会发生在运动的物体上。其美术团队在游戏过程中移除了旋转模糊，但是在一些过场动画中则打开了它。平移运动模糊仍然被开启，因为它有助于传达人物奔跑时的速度感。此外，一些艺术指导也可以用来修改运动模糊的物体，这是物理的电影摄像机无法做到的。假设一艘飞船进入了用户的视野，但是摄像机没有跟踪它，也就是说，玩家没有转头。通过使用标准的运动模糊，这个飞船将会变得模糊，即使此时玩家的眼睛正在追踪它。如果我们假设玩家将要追踪一个物体，我们可以相应地调整算法，使得玩家的眼睛在跟随这个物体的时候，背景是模糊的，而物体仍然保持清晰。</p>
+
+  <p>眼动追踪设备（eye tracking device）和更高的帧率可能有助于改善运动模糊的应用，或者完全消除它。然而，运动模糊效果可以使人产生一种电影般的感觉，因此它可能会继续以这种方式或者其他原因进行使用，例如暗示疾病或者头晕等。运动模糊可能会继续进行使用，如何应用它可以是一门艺术，也可以是一门科学。</p>
+
+  <h2 id='补充阅读和资源'>补充阅读和资源</h2>
+
+  <p>一些教科书致力于传统的图像处理，例如Gonzalez和Woods等人[559]的书籍。我们特别要注意的是Szeliski所撰写的《Computer Vision: Algorithms and Applications》[1729]一书，因为它讨论了图像处理和其他许多主题，以及它们是如何与合成渲染（synthetic rendering）相关的。这本书的电子版可以免费下载，详见我们网站realtimerendering.com上的链接。Paris等人[1355]的课程讲义提供了有关双边滤波器的正式介绍，也给出了许多应用它们的例子。</p>
+
+  <p>McGuire等人[208, 1173]和Guertin等人[621]的文章清晰地阐述了他们各自在运动模糊方面的工作，他们也提供了具体的实现代码。Navarro等人[1263]为交互式和批处理应用程序提供了一份有关运动模糊的全面报告。Jimenez [832]详细阐述了滤波和采样的问题，以及散景、运动模糊、泛光和其他电影效果的解决方案。Wronski [1918]讨论了如何重组复杂的后处理管线，从而提高效率。有关一系列模拟光学透镜效果的更多信息，请参阅由Gotanda [575]组织的SIGGRAPH课程中的相关讲座。</p>
+</body>
+</html>

@@ -1,0 +1,1671 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta name="dtb:uid" content="urn:uuid:d7af0167-1f94-4aa8-b2a1-a88fd9cfbbfc"/>
+    <meta name="dtb:depth" content="1"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+    <meta name="cover" content="cover_png"/>
+  </head>
+  <docTitle>
+    <text>实时渲染第四版</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint-0">
+      <navLabel>
+        <text>实时渲染第四版</text>
+      </navLabel>
+      <content src="text/title_page.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint-1">
+      <navLabel>
+        <text>实时渲染第四版</text>
+      </navLabel>
+      <content src="text/ch001.xhtml#实时渲染第四版"/>
+      <navPoint id="navPoint-2">
+        <navLabel>
+          <text>目录</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#目录"/>
+      </navPoint>
+      <navPoint id="navPoint-3">
+        <navLabel>
+          <text>实时渲染第四版</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#实时渲染第四版"/>
+        <navPoint id="navPoint-4">
+          <navLabel>
+            <text>关于本书</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#关于本书"/>
+        </navPoint>
+        <navPoint id="navPoint-5">
+          <navLabel>
+            <text>相关链接</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#相关链接"/>
+        </navPoint>
+        <navPoint id="navPoint-6">
+          <navLabel>
+            <text>序言</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#序言"/>
+        </navPoint>
+        <navPoint id="navPoint-7">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-1"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-8">
+        <navLabel>
+          <text>Chapter 1 Introduction 简介</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-1-introduction-简介-1"/>
+        <navPoint id="navPoint-9">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-2"/>
+        </navPoint>
+        <navPoint id="navPoint-10">
+          <navLabel>
+            <text>1.1 内容概述</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#内容概述"/>
+        </navPoint>
+        <navPoint id="navPoint-11">
+          <navLabel>
+            <text>1.2 符号和定义</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#符号和定义"/>
+        </navPoint>
+        <navPoint id="navPoint-12">
+          <navLabel>
+            <text>深入阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#深入阅读和资源"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-13">
+        <navLabel>
+          <text>Chapter 2 The Graphics Rendering Pipeline 图形渲染管线</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-2-the-graphics-rendering-pipeline-图形渲染管线-1"/>
+        <navPoint id="navPoint-14">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-3"/>
+        </navPoint>
+        <navPoint id="navPoint-15">
+          <navLabel>
+            <text>2.1 渲染管线的架构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#渲染管线的架构"/>
+        </navPoint>
+        <navPoint id="navPoint-16">
+          <navLabel>
+            <text>2.2 应用阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#应用阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-17">
+          <navLabel>
+            <text>2.3 几何处理阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#几何处理阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-18">
+          <navLabel>
+            <text>2.4 光栅化阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光栅化阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-19">
+          <navLabel>
+            <text>2.5 像素处理阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#像素处理阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-20">
+          <navLabel>
+            <text>2.6 回顾整个管线</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#回顾整个管线"/>
+        </navPoint>
+        <navPoint id="navPoint-21">
+          <navLabel>
+            <text>总结（Conclusion)</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#总结conclusion"/>
+        </navPoint>
+        <navPoint id="navPoint-22">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-23">
+        <navLabel>
+          <text>Chapter 3 The Graphics Processing Unit 图形处理单元</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-3-the-graphics-processing-unit-图形处理单元-1"/>
+        <navPoint id="navPoint-24">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-4"/>
+        </navPoint>
+        <navPoint id="navPoint-25">
+          <navLabel>
+            <text>3.1 数据并行结构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#数据并行结构"/>
+        </navPoint>
+        <navPoint id="navPoint-26">
+          <navLabel>
+            <text>3.2 GPU 管线概述</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#gpu-管线概述"/>
+        </navPoint>
+        <navPoint id="navPoint-27">
+          <navLabel>
+            <text>3.3 可编程着色器阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#可编程着色器阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-28">
+          <navLabel>
+            <text>3.4 可编程着色及其API的演变</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#可编程着色及其api的演变"/>
+        </navPoint>
+        <navPoint id="navPoint-29">
+          <navLabel>
+            <text>3.5 顶点着色器</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#顶点着色器"/>
+        </navPoint>
+        <navPoint id="navPoint-30">
+          <navLabel>
+            <text>3.6 曲面细分阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#曲面细分阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-31">
+          <navLabel>
+            <text>3.7 几何着色器</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#几何着色器"/>
+        </navPoint>
+        <navPoint id="navPoint-32">
+          <navLabel>
+            <text>3.8 像素着色器</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#像素着色器"/>
+        </navPoint>
+        <navPoint id="navPoint-33">
+          <navLabel>
+            <text>3.9 合并阶段</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#合并阶段"/>
+        </navPoint>
+        <navPoint id="navPoint-34">
+          <navLabel>
+            <text>3.10 计算着色器</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#计算着色器"/>
+        </navPoint>
+        <navPoint id="navPoint-35">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-1"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-36">
+        <navLabel>
+          <text>Chapter 4 Transform 变换</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-4-transform-变换-1"/>
+        <navPoint id="navPoint-37">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-5"/>
+        </navPoint>
+        <navPoint id="navPoint-38">
+          <navLabel>
+            <text>4.1基本变换</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#基本变换"/>
+        </navPoint>
+        <navPoint id="navPoint-39">
+          <navLabel>
+            <text>4.2 特殊的矩阵变换和操作</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#特殊的矩阵变换和操作"/>
+        </navPoint>
+        <navPoint id="navPoint-40">
+          <navLabel>
+            <text>4.3 四元数</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#四元数"/>
+        </navPoint>
+        <navPoint id="navPoint-41">
+          <navLabel>
+            <text>4.4 顶点混合</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#顶点混合"/>
+        </navPoint>
+        <navPoint id="navPoint-42">
+          <navLabel>
+            <text>4.5 变形</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#变形"/>
+        </navPoint>
+        <navPoint id="navPoint-43">
+          <navLabel>
+            <text>4.6 几何缓存回放</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#几何缓存回放"/>
+        </navPoint>
+        <navPoint id="navPoint-44">
+          <navLabel>
+            <text>4.7 投影</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#投影"/>
+        </navPoint>
+        <navPoint id="navPoint-45">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-2"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-46">
+        <navLabel>
+          <text>Chapter 5 Shading Basics 着色基础</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-5-shading-basics-着色基础-1"/>
+        <navPoint id="navPoint-47">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-6"/>
+        </navPoint>
+        <navPoint id="navPoint-48">
+          <navLabel>
+            <text>5.1 着色模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#着色模型"/>
+        </navPoint>
+        <navPoint id="navPoint-49">
+          <navLabel>
+            <text>5.2 光源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光源"/>
+        </navPoint>
+        <navPoint id="navPoint-50">
+          <navLabel>
+            <text>5.3 实现着色模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#实现着色模型"/>
+        </navPoint>
+        <navPoint id="navPoint-51">
+          <navLabel>
+            <text>5.4 锯齿和抗锯齿</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#锯齿和抗锯齿"/>
+        </navPoint>
+        <navPoint id="navPoint-52">
+          <navLabel>
+            <text>5.5 透明度，Alpha，合成</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#透明度alpha合成"/>
+        </navPoint>
+        <navPoint id="navPoint-53">
+          <navLabel>
+            <text>5.6 显示编码</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#显示编码"/>
+        </navPoint>
+        <navPoint id="navPoint-54">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-3"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-55">
+        <navLabel>
+          <text>Chapter 6 Texturing 纹理</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-6-texturing-纹理-1"/>
+        <navPoint id="navPoint-56">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-7"/>
+        </navPoint>
+        <navPoint id="navPoint-57">
+          <navLabel>
+            <text>6.1 纹理管线</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#纹理管线"/>
+        </navPoint>
+        <navPoint id="navPoint-58">
+          <navLabel>
+            <text>6.2 图像纹理</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#图像纹理"/>
+        </navPoint>
+        <navPoint id="navPoint-59">
+          <navLabel>
+            <text>6.3 程序化纹理</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#程序化纹理"/>
+        </navPoint>
+        <navPoint id="navPoint-60">
+          <navLabel>
+            <text>6.4 纹理动画</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#纹理动画"/>
+        </navPoint>
+        <navPoint id="navPoint-61">
+          <navLabel>
+            <text>6.5 材质映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#材质映射"/>
+        </navPoint>
+        <navPoint id="navPoint-62">
+          <navLabel>
+            <text>6.6 Alpha映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#alpha映射"/>
+        </navPoint>
+        <navPoint id="navPoint-63">
+          <navLabel>
+            <text>6.7 凹凸映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#凹凸映射"/>
+        </navPoint>
+        <navPoint id="navPoint-64">
+          <navLabel>
+            <text>6.8 视差映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#视差映射"/>
+        </navPoint>
+        <navPoint id="navPoint-65">
+          <navLabel>
+            <text>6.9 纹理光源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#纹理光源"/>
+        </navPoint>
+        <navPoint id="navPoint-66">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-4"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-67">
+        <navLabel>
+          <text>Chapter 7 Shadows 阴影</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-7-shadows-阴影-1"/>
+        <navPoint id="navPoint-68">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-8"/>
+        </navPoint>
+        <navPoint id="navPoint-69">
+          <navLabel>
+            <text>7.1 平面阴影</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#平面阴影"/>
+        </navPoint>
+        <navPoint id="navPoint-70">
+          <navLabel>
+            <text>7.2 曲面上的阴影</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#曲面上的阴影"/>
+        </navPoint>
+        <navPoint id="navPoint-71">
+          <navLabel>
+            <text>7.3 阴影体算法</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#阴影体算法"/>
+        </navPoint>
+        <navPoint id="navPoint-72">
+          <navLabel>
+            <text>7.4 阴影贴图</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#阴影贴图"/>
+        </navPoint>
+        <navPoint id="navPoint-73">
+          <navLabel>
+            <text>7.5 PCF</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#pcf"/>
+        </navPoint>
+        <navPoint id="navPoint-74">
+          <navLabel>
+            <text>7.6 PCSS</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#pcss"/>
+        </navPoint>
+        <navPoint id="navPoint-75">
+          <navLabel>
+            <text>7.7 过滤阴影贴图</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#过滤阴影贴图"/>
+        </navPoint>
+        <navPoint id="navPoint-76">
+          <navLabel>
+            <text>7.8 体积阴影技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#体积阴影技术"/>
+        </navPoint>
+        <navPoint id="navPoint-77">
+          <navLabel>
+            <text>7.9 不规则z-buffer</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#不规则z-buffer"/>
+        </navPoint>
+        <navPoint id="navPoint-78">
+          <navLabel>
+            <text>7.10 其他应用</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#其他应用"/>
+        </navPoint>
+        <navPoint id="navPoint-79">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-5"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-80">
+        <navLabel>
+          <text>Chapter 8 Light and Color 光与颜色</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-8-light-and-color-光与颜色-1"/>
+        <navPoint id="navPoint-81">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-9"/>
+        </navPoint>
+        <navPoint id="navPoint-82">
+          <navLabel>
+            <text>8.1 光量</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光量"/>
+        </navPoint>
+        <navPoint id="navPoint-83">
+          <navLabel>
+            <text>8.2 从场景到屏幕</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#从场景到屏幕"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-84">
+        <navLabel>
+          <text>Chapter 9 Physically Based Shading 基于物理的着色</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-9-physically-based-shading-基于物理的着色-1"/>
+        <navPoint id="navPoint-85">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-10"/>
+        </navPoint>
+        <navPoint id="navPoint-86">
+          <navLabel>
+            <text>9.1 光的物理学</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光的物理学"/>
+        </navPoint>
+        <navPoint id="navPoint-87">
+          <navLabel>
+            <text>9.2 相机</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#相机"/>
+        </navPoint>
+        <navPoint id="navPoint-88">
+          <navLabel>
+            <text>9.3 The BRDF</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#the-brdf"/>
+        </navPoint>
+        <navPoint id="navPoint-89">
+          <navLabel>
+            <text>9.4 光照（Illumination）</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光照illumination"/>
+        </navPoint>
+        <navPoint id="navPoint-90">
+          <navLabel>
+            <text>9.5 菲涅尔反射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#菲涅尔反射"/>
+        </navPoint>
+        <navPoint id="navPoint-91">
+          <navLabel>
+            <text>9.6 微观几何（Microgeometry）</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#微观几何microgeometry"/>
+        </navPoint>
+        <navPoint id="navPoint-92">
+          <navLabel>
+            <text>9.7 微表面理论</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#微表面理论"/>
+        </navPoint>
+        <navPoint id="navPoint-93">
+          <navLabel>
+            <text>9.8 表面反射的BRDF模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#表面反射的brdf模型"/>
+        </navPoint>
+        <navPoint id="navPoint-94">
+          <navLabel>
+            <text>9.9 次表面散射的BRDF模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#次表面散射的brdf模型"/>
+        </navPoint>
+        <navPoint id="navPoint-95">
+          <navLabel>
+            <text>9.10 布料的BRDF模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#布料的brdf模型"/>
+        </navPoint>
+        <navPoint id="navPoint-96">
+          <navLabel>
+            <text>9.11波动光学的BRDF模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#波动光学的brdf模型"/>
+        </navPoint>
+        <navPoint id="navPoint-97">
+          <navLabel>
+            <text>9.12 分层材质</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#分层材质"/>
+        </navPoint>
+        <navPoint id="navPoint-98">
+          <navLabel>
+            <text>9.13 混合和过滤材质</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#混合和过滤材质"/>
+        </navPoint>
+        <navPoint id="navPoint-99">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-7"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-100">
+        <navLabel>
+          <text>Chapter 10 Local Illumination 局部光照</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-10-local-illumination-局部光照-1"/>
+        <navPoint id="navPoint-101">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-11"/>
+        </navPoint>
+        <navPoint id="navPoint-102">
+          <navLabel>
+            <text>10.1 面光源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#面光源"/>
+        </navPoint>
+        <navPoint id="navPoint-103">
+          <navLabel>
+            <text>10.2 环境光照</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#环境光照"/>
+        </navPoint>
+        <navPoint id="navPoint-104">
+          <navLabel>
+            <text>10.3 球面函数和半球函数</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#球面函数和半球函数"/>
+        </navPoint>
+        <navPoint id="navPoint-105">
+          <navLabel>
+            <text>10.4 环境映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#环境映射"/>
+        </navPoint>
+        <navPoint id="navPoint-106">
+          <navLabel>
+            <text>10.5 基于图像的高光照明</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#基于图像的高光照明"/>
+        </navPoint>
+        <navPoint id="navPoint-107">
+          <navLabel>
+            <text>10.6 irradiance环境映射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#irradiance环境映射"/>
+        </navPoint>
+        <navPoint id="navPoint-108">
+          <navLabel>
+            <text>10.7 误差来源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#误差来源"/>
+        </navPoint>
+        <navPoint id="navPoint-109">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-8"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-110">
+        <navLabel>
+          <text>Chapter 11 Global Illumination 全局光照</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-11-global-illumination-全局光照-1"/>
+        <navPoint id="navPoint-111">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-12"/>
+        </navPoint>
+        <navPoint id="navPoint-112">
+          <navLabel>
+            <text>11.1 渲染方程</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#渲染方程"/>
+        </navPoint>
+        <navPoint id="navPoint-113">
+          <navLabel>
+            <text>11.2 通用全局光照</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#通用全局光照"/>
+        </navPoint>
+        <navPoint id="navPoint-114">
+          <navLabel>
+            <text>11.3 环境光遮蔽</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#环境光遮蔽"/>
+        </navPoint>
+        <navPoint id="navPoint-115">
+          <navLabel>
+            <text>11.4 定向遮蔽</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#定向遮蔽"/>
+        </navPoint>
+        <navPoint id="navPoint-116">
+          <navLabel>
+            <text>11.5 漫反射全局光照</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#漫反射全局光照"/>
+        </navPoint>
+        <navPoint id="navPoint-117">
+          <navLabel>
+            <text>11.6 镜面全局光照</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#镜面全局光照"/>
+        </navPoint>
+        <navPoint id="navPoint-118">
+          <navLabel>
+            <text>11.7 统一方法</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#统一方法"/>
+        </navPoint>
+        <navPoint id="navPoint-119">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-9"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-120">
+        <navLabel>
+          <text>Chapter 12 Image-Space Effects 图像空间特效</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-12-image-space-effects-图像空间特效"/>
+        <navPoint id="navPoint-121">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-13"/>
+        </navPoint>
+        <navPoint id="navPoint-122">
+          <navLabel>
+            <text>12.1 图像处理</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#图像处理"/>
+        </navPoint>
+        <navPoint id="navPoint-123">
+          <navLabel>
+            <text>12.2 重投影技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#重投影技术"/>
+        </navPoint>
+        <navPoint id="navPoint-124">
+          <navLabel>
+            <text>12.3 镜头光晕和泛光</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#镜头光晕和泛光"/>
+        </navPoint>
+        <navPoint id="navPoint-125">
+          <navLabel>
+            <text>12.4 景深</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#景深"/>
+        </navPoint>
+        <navPoint id="navPoint-126">
+          <navLabel>
+            <text>12.5 运动模糊</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#运动模糊"/>
+        </navPoint>
+        <navPoint id="navPoint-127">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-10"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-128">
+        <navLabel>
+          <text>Chapter 13 Beyond Polygons 超越多边形</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-13-beyond-polygons-超越多边形-1"/>
+        <navPoint id="navPoint-129">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-14"/>
+        </navPoint>
+        <navPoint id="navPoint-130">
+          <navLabel>
+            <text>13.1 渲染频谱</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#渲染频谱"/>
+        </navPoint>
+        <navPoint id="navPoint-131">
+          <navLabel>
+            <text>13.2 固定视图效果</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#固定视图效果"/>
+        </navPoint>
+        <navPoint id="navPoint-132">
+          <navLabel>
+            <text>13.3 天空盒</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#天空盒"/>
+        </navPoint>
+        <navPoint id="navPoint-133">
+          <navLabel>
+            <text>13.4 光场渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光场渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-134">
+          <navLabel>
+            <text>13.5 Sprite和图层</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#sprite和图层"/>
+        </navPoint>
+        <navPoint id="navPoint-135">
+          <navLabel>
+            <text>13.6 广告牌技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#广告牌技术"/>
+        </navPoint>
+        <navPoint id="navPoint-136">
+          <navLabel>
+            <text>13.7 位移技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#位移技术"/>
+        </navPoint>
+        <navPoint id="navPoint-137">
+          <navLabel>
+            <text>13.8 粒子系统</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#粒子系统"/>
+        </navPoint>
+        <navPoint id="navPoint-138">
+          <navLabel>
+            <text>13.9 点渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#点渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-139">
+          <navLabel>
+            <text>13.10 体素</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#体素"/>
+        </navPoint>
+        <navPoint id="navPoint-140">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-11"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-141">
+        <navLabel>
+          <text>Chapter 14 Volumetric and Translucency Rendering 体积与半透明渲染</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-14-volumetric-and-translucency-rendering-体积与半透明渲染-1"/>
+        <navPoint id="navPoint-142">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-15"/>
+        </navPoint>
+        <navPoint id="navPoint-143">
+          <navLabel>
+            <text>14.1 光线散射理论</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光线散射理论"/>
+        </navPoint>
+        <navPoint id="navPoint-144">
+          <navLabel>
+            <text>14.2 特殊的体渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#特殊的体渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-145">
+          <navLabel>
+            <text>14.3 通用的体渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#通用的体渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-146">
+          <navLabel>
+            <text>14.4 天空渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#天空渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-147">
+          <navLabel>
+            <text>14.5 半透明表面</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#半透明表面"/>
+        </navPoint>
+        <navPoint id="navPoint-148">
+          <navLabel>
+            <text>14.6 次表面散射</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#次表面散射-1"/>
+        </navPoint>
+        <navPoint id="navPoint-149">
+          <navLabel>
+            <text>14.7 毛发和皮毛</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#毛发和皮毛"/>
+        </navPoint>
+        <navPoint id="navPoint-150">
+          <navLabel>
+            <text>14.8 统一方法</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#统一方法-1"/>
+        </navPoint>
+        <navPoint id="navPoint-151">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-12"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-152">
+        <navLabel>
+          <text>Chapter 15 Non-Photorealistic Rendering 非真实感渲染</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-15-non-photorealistic-rendering-非真实感渲染"/>
+        <navPoint id="navPoint-153">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-16"/>
+        </navPoint>
+        <navPoint id="navPoint-154">
+          <navLabel>
+            <text>15.1 卡通着色</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#卡通着色"/>
+        </navPoint>
+        <navPoint id="navPoint-155">
+          <navLabel>
+            <text>15.2 轮廓渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#轮廓渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-156">
+          <navLabel>
+            <text>15.3 笔触表面风格化</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#笔触表面风格化"/>
+        </navPoint>
+        <navPoint id="navPoint-157">
+          <navLabel>
+            <text>15.4 线条</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#线条"/>
+        </navPoint>
+        <navPoint id="navPoint-158">
+          <navLabel>
+            <text>15.5 文本渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#文本渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-159">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-13"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-160">
+        <navLabel>
+          <text>Chapter 16 Polygonal Techniques 多边形技术</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-16-polygonal-techniques-多边形技术-1"/>
+        <navPoint id="navPoint-161">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-17"/>
+        </navPoint>
+        <navPoint id="navPoint-162">
+          <navLabel>
+            <text>16.1 三维数据的来源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#三维数据的来源"/>
+        </navPoint>
+        <navPoint id="navPoint-163">
+          <navLabel>
+            <text>16.2 曲面细分和三角形划分</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#曲面细分和三角形划分"/>
+        </navPoint>
+        <navPoint id="navPoint-164">
+          <navLabel>
+            <text>16.3 整合</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#整合"/>
+        </navPoint>
+        <navPoint id="navPoint-165">
+          <navLabel>
+            <text>16.4 三角形扇，三角形带和三角形网格</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#三角形扇三角形带和三角形网格"/>
+        </navPoint>
+        <navPoint id="navPoint-166">
+          <navLabel>
+            <text>16.5 简化</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#简化"/>
+        </navPoint>
+        <navPoint id="navPoint-167">
+          <navLabel>
+            <text>16.6 压缩和精度</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#压缩和精度"/>
+        </navPoint>
+        <navPoint id="navPoint-168">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-14"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-169">
+        <navLabel>
+          <text>Chapter 17 Curves and Curved Surfaces 曲线和曲面</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-17-curves-and-curved-surfaces-曲线和曲面-1"/>
+        <navPoint id="navPoint-170">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-18"/>
+        </navPoint>
+        <navPoint id="navPoint-171">
+          <navLabel>
+            <text>17.1 参数化曲线</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#参数化曲线"/>
+        </navPoint>
+        <navPoint id="navPoint-172">
+          <navLabel>
+            <text>17.2 参数化曲面</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#参数化曲面"/>
+        </navPoint>
+        <navPoint id="navPoint-173">
+          <navLabel>
+            <text>17.3 隐式表面</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#隐式表面"/>
+        </navPoint>
+        <navPoint id="navPoint-174">
+          <navLabel>
+            <text>17.4 细分曲线</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#细分曲线"/>
+        </navPoint>
+        <navPoint id="navPoint-175">
+          <navLabel>
+            <text>17.5 细分表面</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#细分表面"/>
+        </navPoint>
+        <navPoint id="navPoint-176">
+          <navLabel>
+            <text>17.6 高效曲面细分</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#高效曲面细分"/>
+        </navPoint>
+        <navPoint id="navPoint-177">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-15"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-178">
+        <navLabel>
+          <text>Chapter 18 Pipeline Optimization 管线优化</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-18-pipeline-optimization-管线优化-1"/>
+        <navPoint id="navPoint-179">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-19"/>
+        </navPoint>
+        <navPoint id="navPoint-180">
+          <navLabel>
+            <text>18.1 分析和调试工具</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#分析和调试工具"/>
+        </navPoint>
+        <navPoint id="navPoint-181">
+          <navLabel>
+            <text>18.2 定位性能瓶颈</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#定位性能瓶颈"/>
+        </navPoint>
+        <navPoint id="navPoint-182">
+          <navLabel>
+            <text>18.3 性能测量</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#性能测量"/>
+        </navPoint>
+        <navPoint id="navPoint-183">
+          <navLabel>
+            <text>18.4 优化</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#优化"/>
+        </navPoint>
+        <navPoint id="navPoint-184">
+          <navLabel>
+            <text>18.5 多处理</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#多处理"/>
+        </navPoint>
+        <navPoint id="navPoint-185">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-16"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-186">
+        <navLabel>
+          <text>Chapter 19 Acceleration Algorithms 加速算法</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-19-acceleration-algorithms-加速算法-1"/>
+        <navPoint id="navPoint-187">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-20"/>
+        </navPoint>
+        <navPoint id="navPoint-188">
+          <navLabel>
+            <text>19.1 空间数据结构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#空间数据结构"/>
+        </navPoint>
+        <navPoint id="navPoint-189">
+          <navLabel>
+            <text>19.2 剔除技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#剔除技术"/>
+        </navPoint>
+        <navPoint id="navPoint-190">
+          <navLabel>
+            <text>19.3 背面剔除</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#背面剔除"/>
+        </navPoint>
+        <navPoint id="navPoint-191">
+          <navLabel>
+            <text>19.4 视锥体剔除</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#视锥体剔除"/>
+        </navPoint>
+        <navPoint id="navPoint-192">
+          <navLabel>
+            <text>19.5 入口剔除</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#入口剔除"/>
+        </navPoint>
+        <navPoint id="navPoint-193">
+          <navLabel>
+            <text>19.6 细节剔除和小三角形剔除</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#细节剔除和小三角形剔除"/>
+        </navPoint>
+        <navPoint id="navPoint-194">
+          <navLabel>
+            <text>19.7 遮挡剔除</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#遮挡剔除"/>
+        </navPoint>
+        <navPoint id="navPoint-195">
+          <navLabel>
+            <text>19.8 剔除系统</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#剔除系统"/>
+        </navPoint>
+        <navPoint id="navPoint-196">
+          <navLabel>
+            <text>19.9 LOD</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#lod"/>
+        </navPoint>
+        <navPoint id="navPoint-197">
+          <navLabel>
+            <text>19.10 渲染大型场景</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#渲染大型场景"/>
+        </navPoint>
+        <navPoint id="navPoint-198">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-17"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-199">
+        <navLabel>
+          <text>Chapter 20 Efficient Shading 高效着色</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-20-efficient-shading-高效着色-1"/>
+        <navPoint id="navPoint-200">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-21"/>
+        </navPoint>
+        <navPoint id="navPoint-201">
+          <navLabel>
+            <text>20.1 延迟着色</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#延迟着色"/>
+        </navPoint>
+        <navPoint id="navPoint-202">
+          <navLabel>
+            <text>20.2 贴花渲染</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#贴花渲染"/>
+        </navPoint>
+        <navPoint id="navPoint-203">
+          <navLabel>
+            <text>20.3 分块着色（Tiled Shading）</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#分块着色tiled-shading"/>
+        </navPoint>
+        <navPoint id="navPoint-204">
+          <navLabel>
+            <text>20.4 聚类着色（Clustered Shading）</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#聚类着色clustered-shading"/>
+        </navPoint>
+        <navPoint id="navPoint-205">
+          <navLabel>
+            <text>20.5 延迟纹理</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#延迟纹理"/>
+        </navPoint>
+        <navPoint id="navPoint-206">
+          <navLabel>
+            <text>20.6 对象空间和纹理空间着色</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#对象空间和纹理空间着色"/>
+        </navPoint>
+        <navPoint id="navPoint-207">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-18"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-208">
+        <navLabel>
+          <text>Chapter 21 Virtual and Augmented Reality 虚拟现实和增强现实</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-21-virtual-and-augmented-reality-虚拟现实和增强现实-1"/>
+        <navPoint id="navPoint-209">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-22"/>
+        </navPoint>
+        <navPoint id="navPoint-210">
+          <navLabel>
+            <text>21.1 设备和系统概述</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#设备和系统概述"/>
+        </navPoint>
+        <navPoint id="navPoint-211">
+          <navLabel>
+            <text>21.2 物理元素</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#物理元素"/>
+        </navPoint>
+        <navPoint id="navPoint-212">
+          <navLabel>
+            <text>21.3 API和硬件</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#api和硬件"/>
+        </navPoint>
+        <navPoint id="navPoint-213">
+          <navLabel>
+            <text>21.4 渲染技术</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#渲染技术"/>
+        </navPoint>
+        <navPoint id="navPoint-214">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-19"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-215">
+        <navLabel>
+          <text>Chapter 22 Intersection Test Methods 相交测试方法</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-22-intersection-test-methods-相交测试方法-1"/>
+        <navPoint id="navPoint-216">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-23"/>
+        </navPoint>
+        <navPoint id="navPoint-217">
+          <navLabel>
+            <text>22.1 GPU加速的拾取</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#gpu加速的拾取"/>
+        </navPoint>
+        <navPoint id="navPoint-218">
+          <navLabel>
+            <text>22.2 定义和工具</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#定义和工具"/>
+        </navPoint>
+        <navPoint id="navPoint-219">
+          <navLabel>
+            <text>22.3 创建包围体</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#创建包围体"/>
+        </navPoint>
+        <navPoint id="navPoint-220">
+          <navLabel>
+            <text>22.4 几何概率</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#几何概率"/>
+        </navPoint>
+        <navPoint id="navPoint-221">
+          <navLabel>
+            <text>22.5 经验法则</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#经验法则"/>
+        </navPoint>
+        <navPoint id="navPoint-222">
+          <navLabel>
+            <text>22.6 射线/球体相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#射线球体相交"/>
+        </navPoint>
+        <navPoint id="navPoint-223">
+          <navLabel>
+            <text>22.7 射线/Box相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#射线box相交"/>
+        </navPoint>
+        <navPoint id="navPoint-224">
+          <navLabel>
+            <text>22.8 射线/三角形相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#射线三角形相交"/>
+        </navPoint>
+        <navPoint id="navPoint-225">
+          <navLabel>
+            <text>22.9 射线/多边形相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#射线多边形相交"/>
+        </navPoint>
+        <navPoint id="navPoint-226">
+          <navLabel>
+            <text>22.10 平面/Box相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#平面box相交"/>
+        </navPoint>
+        <navPoint id="navPoint-227">
+          <navLabel>
+            <text>22.11 三角形/三角形相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#三角形三角形相交"/>
+        </navPoint>
+        <navPoint id="navPoint-228">
+          <navLabel>
+            <text>22.12 三角形/Box相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#三角形box相交"/>
+        </navPoint>
+        <navPoint id="navPoint-229">
+          <navLabel>
+            <text>22.13 BV/BV相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#bvbv相交"/>
+        </navPoint>
+        <navPoint id="navPoint-230">
+          <navLabel>
+            <text>22.14 视锥体相交测试</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#视锥体相交测试"/>
+        </navPoint>
+        <navPoint id="navPoint-231">
+          <navLabel>
+            <text>22.15 线/线相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#线线相交"/>
+        </navPoint>
+        <navPoint id="navPoint-232">
+          <navLabel>
+            <text>22.16 三平面相交</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#三平面相交"/>
+        </navPoint>
+        <navPoint id="navPoint-233">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-20"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-234">
+        <navLabel>
+          <text>Chapter 23 Graphics Hardware 图形硬件</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-23-graphics-hardware-图形硬件-1"/>
+        <navPoint id="navPoint-235">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-24"/>
+        </navPoint>
+        <navPoint id="navPoint-236">
+          <navLabel>
+            <text>23.1 光栅化</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光栅化"/>
+        </navPoint>
+        <navPoint id="navPoint-237">
+          <navLabel>
+            <text>23.2 大规模计算和调度</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#大规模计算和调度"/>
+        </navPoint>
+        <navPoint id="navPoint-238">
+          <navLabel>
+            <text>23.3 延迟和占用率</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#延迟和占用率"/>
+        </navPoint>
+        <navPoint id="navPoint-239">
+          <navLabel>
+            <text>23.4 内存架构和总线</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#内存架构和总线"/>
+        </navPoint>
+        <navPoint id="navPoint-240">
+          <navLabel>
+            <text>23.5 缓存和压缩</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#缓存和压缩"/>
+        </navPoint>
+        <navPoint id="navPoint-241">
+          <navLabel>
+            <text>23.6 颜色缓冲</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#颜色缓冲"/>
+        </navPoint>
+        <navPoint id="navPoint-242">
+          <navLabel>
+            <text>23.7 深度剔除、测试和缓冲</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#深度剔除测试和缓冲"/>
+        </navPoint>
+        <navPoint id="navPoint-243">
+          <navLabel>
+            <text>23.8 纹理化</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#纹理化"/>
+        </navPoint>
+        <navPoint id="navPoint-244">
+          <navLabel>
+            <text>23.9 架构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#架构"/>
+        </navPoint>
+        <navPoint id="navPoint-245">
+          <navLabel>
+            <text>23.10 案例分析</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#案例分析"/>
+        </navPoint>
+        <navPoint id="navPoint-246">
+          <navLabel>
+            <text>23.11 光线追踪架构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光线追踪架构"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-247">
+        <navLabel>
+          <text>补充阅读和资源</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#补充阅读和资源-21"/>
+      </navPoint>
+      <navPoint id="navPoint-248">
+        <navLabel>
+          <text>Chapter 24 The Future 未来</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-24-the-future-未来-1"/>
+        <navPoint id="navPoint-249">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-25"/>
+        </navPoint>
+        <navPoint id="navPoint-250">
+          <navLabel>
+            <text>24.1 其他事项</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#其他事项"/>
+        </navPoint>
+        <navPoint id="navPoint-251">
+          <navLabel>
+            <text>24.2 你</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#你"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-252">
+        <navLabel>
+          <text>Chapter 25 Collision Detection 碰撞检测</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-25-collision-detection-碰撞检测-1"/>
+        <navPoint id="navPoint-253">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-26"/>
+        </navPoint>
+        <navPoint id="navPoint-254">
+          <navLabel>
+            <text>25.1 宽阶段碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#宽阶段碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-255">
+          <navLabel>
+            <text>25.2 中阶段碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#中阶段碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-256">
+          <navLabel>
+            <text>25.3 窄阶段碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#窄阶段碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-257">
+          <navLabel>
+            <text>25.4 射线碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#射线碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-258">
+          <navLabel>
+            <text>25.5 使用BSP树的动态CD</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#使用bsp树的动态cd"/>
+        </navPoint>
+        <navPoint id="navPoint-259">
+          <navLabel>
+            <text>25.6 限时碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#限时碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-260">
+          <navLabel>
+            <text>25.7 可变形模型</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#可变形模型"/>
+        </navPoint>
+        <navPoint id="navPoint-261">
+          <navLabel>
+            <text>25.8 连续碰撞检测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#连续碰撞检测"/>
+        </navPoint>
+        <navPoint id="navPoint-262">
+          <navLabel>
+            <text>25.9 碰撞响应</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#碰撞响应"/>
+        </navPoint>
+        <navPoint id="navPoint-263">
+          <navLabel>
+            <text>25.10 粒子</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#粒子-1"/>
+        </navPoint>
+        <navPoint id="navPoint-264">
+          <navLabel>
+            <text>25.11 动态相交测试</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#动态相交测试"/>
+        </navPoint>
+        <navPoint id="navPoint-265">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-22"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="navPoint-266">
+        <navLabel>
+          <text>Chapter 26 Real-Time Ray Tracing 实时光线追踪</text>
+        </navLabel>
+        <content src="text/ch001.xhtml#chapter-26-real-time-ray-tracing-实时光线追踪"/>
+        <navPoint id="navPoint-267">
+          <navLabel>
+            <text>目录</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#目录-27"/>
+        </navPoint>
+        <navPoint id="navPoint-268">
+          <navLabel>
+            <text>26.1 光线追踪基础</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光线追踪基础"/>
+        </navPoint>
+        <navPoint id="navPoint-269">
+          <navLabel>
+            <text>26.2 光线追踪着色器</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#光线追踪着色器"/>
+        </navPoint>
+        <navPoint id="navPoint-270">
+          <navLabel>
+            <text>26.3 顶层和底层加速结构</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#顶层和底层加速结构"/>
+        </navPoint>
+        <navPoint id="navPoint-271">
+          <navLabel>
+            <text>26.4 一致性</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#一致性"/>
+        </navPoint>
+        <navPoint id="navPoint-272">
+          <navLabel>
+            <text>26.5 降噪</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#降噪"/>
+        </navPoint>
+        <navPoint id="navPoint-273">
+          <navLabel>
+            <text>26.6 纹理过滤</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#纹理过滤"/>
+        </navPoint>
+        <navPoint id="navPoint-274">
+          <navLabel>
+            <text>26.7 推测</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#推测"/>
+        </navPoint>
+        <navPoint id="navPoint-275">
+          <navLabel>
+            <text>补充阅读和资源</text>
+          </navLabel>
+          <content src="text/ch001.xhtml#补充阅读和资源-23"/>
+        </navPoint>
+      </navPoint>
+    </navPoint>
+  </navMap>
+</ncx>

@@ -1,0 +1,1511 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="generator" content="pandoc"/>
+  <title>实时渲染第四版</title>
+  <style>
+  </style>
+  <link rel="stylesheet" type="text/css" href="styles/stylesheet1.css"/>
+</head>
+
+<body epub:type="frontmatter">
+  <nav epub:type="toc" id="toc" role="doc-toc"><h1>目录</h1>
+
+  <ol>
+    <li><a href="text/title_page.xhtml">实时渲染第四版</a> 
+
+    <ol>
+      <li><a href="text/title_page.xhtml#sigil_toc_id_2">相关链接</a></li>
+
+      <li><a href="text/title_page.xhtml#sigil_toc_id_3">序言</a></li>
+    </ol></li>
+
+    <li><a href="text/ch001.xhtml">Chapter 1 Introduction 简介</a> 
+
+    <ol>
+      <li><a href="text/ch001.xhtml#11-%E5%86%85%E5%AE%B9%E6%A6%82%E8%BF%B0">1.1 内容概述</a></li>
+
+      <li><a href="text/ch001.xhtml#12-%E7%AC%A6%E5%8F%B7%E5%92%8C%E5%AE%9A%E4%B9%89">1.2 符号和定义</a> 
+
+      <ol>
+        <li><a href="text/ch001.xhtml#121-%E6%95%B0%E5%AD%A6%E7%AC%A6%E5%8F%B7">1.2.1 数学符号</a></li>
+
+        <li><a href="text/ch001.xhtml#122-%E5%87%A0%E4%BD%95%E5%AE%9A%E4%B9%89">1.2.2 几何定义</a></li>
+
+        <li><a href="text/ch001.xhtml#123-%E7%9D%80%E8%89%B2">1.2.3 着色</a></li>
+      </ol></li>
+
+      <li><a href="text/ch001.xhtml#%E6%B7%B1%E5%85%A5%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">深入阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch002.xhtml">Chapter 2 The Graphics Rendering Pipeline 图形渲染管线</a> 
+
+    <ol>
+      <li><a href="text/ch002.xhtml#21-%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E7%9A%84%E6%9E%B6%E6%9E%84">2.1 渲染管线的架构</a></li>
+
+      <li><a href="text/ch002.xhtml#22-%E5%BA%94%E7%94%A8%E9%98%B6%E6%AE%B5">2.2 应用阶段</a></li>
+
+      <li><a href="text/ch002.xhtml#23-%E5%87%A0%E4%BD%95%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">2.3 几何处理阶段</a> 
+
+      <ol>
+        <li><a href="text/ch002.xhtml#231-%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2">2.3.1 顶点着色</a></li>
+
+        <li><a href="text/ch002.xhtml#232-%E5%8F%AF%E9%80%89%E7%9A%84%E9%A1%B6%E7%82%B9%E5%A4%84%E7%90%86">2.3.2 可选的顶点处理</a></li>
+
+        <li><a href="text/ch002.xhtml#233-%E8%A3%81%E5%89%AA">2.3.3 裁剪</a></li>
+
+        <li><a href="text/ch002.xhtml#234-%E5%B1%8F%E5%B9%95%E6%98%A0%E5%B0%84">2.3.4 屏幕映射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch002.xhtml#24-%E5%85%89%E6%A0%85%E5%8C%96%E9%98%B6%E6%AE%B5">2.4 光栅化阶段</a> 
+
+      <ol>
+        <li><a href="text/ch002.xhtml#241-%E4%B8%89%E8%A7%92%E5%BD%A2%E8%AE%BE%E7%BD%AE">2.4.1 三角形设置</a></li>
+
+        <li><a href="text/ch002.xhtml#242-%E4%B8%89%E8%A7%92%E5%BD%A2%E9%81%8D%E5%8E%86">2.4.2 三角形遍历</a></li>
+      </ol></li>
+
+      <li><a href="text/ch002.xhtml#25-%E5%83%8F%E7%B4%A0%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">2.5 像素处理阶段</a> 
+
+      <ol>
+        <li><a href="text/ch002.xhtml#251-%E5%83%8F%E7%B4%A0%E7%9D%80%E8%89%B2">2.5.1 像素着色</a></li>
+
+        <li><a href="text/ch002.xhtml#252-%E5%90%88%E5%B9%B6">2.5.2 合并</a></li>
+      </ol></li>
+
+      <li><a href="text/ch002.xhtml#26-%E5%9B%9E%E9%A1%BE%E6%95%B4%E4%B8%AA%E7%AE%A1%E7%BA%BF">2.6 回顾整个管线</a> 
+
+      <ol>
+        <li><a href="text/ch002.xhtml#%E5%BA%94%E7%94%A8%E9%98%B6%E6%AE%B5">应用阶段</a></li>
+
+        <li><a href="text/ch002.xhtml#%E5%87%A0%E4%BD%95%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">几何处理阶段</a></li>
+
+        <li><a href="text/ch002.xhtml#%E5%85%89%E6%A0%85%E5%8C%96%E9%98%B6%E6%AE%B5">光栅化阶段</a></li>
+
+        <li><a href="text/ch002.xhtml#%E5%83%8F%E7%B4%A0%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">像素处理阶段</a></li>
+      </ol></li>
+
+      <li><a href="text/ch002.xhtml#%E6%80%BB%E7%BB%93conclusion">总结（Conclusion)</a></li>
+
+      <li><a href="text/ch002.xhtml#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch003.html">Chapter 3 The Graphics Processing Unit 图形处理单元</a> 
+
+    <ol>
+      <li><a href="text/ch003.html#31-%E6%95%B0%E6%8D%AE%E5%B9%B6%E8%A1%8C%E7%BB%93%E6%9E%84">3.1 数据并行结构</a></li>
+
+      <li><a href="text/ch003.html#32-gpu-%E7%AE%A1%E7%BA%BF%E6%A6%82%E8%BF%B0">3.2 GPU 管线概述</a></li>
+
+      <li><a href="text/ch003.html#33-%E5%8F%AF%E7%BC%96%E7%A8%8B%E7%9D%80%E8%89%B2%E5%99%A8%E9%98%B6%E6%AE%B5">3.3 可编程着色器阶段</a></li>
+
+      <li><a href="text/ch003.html#34-%E5%8F%AF%E7%BC%96%E7%A8%8B%E7%9D%80%E8%89%B2%E5%8F%8A%E5%85%B6api%E7%9A%84%E6%BC%94%E5%8F%98">3.4 可编程着色及其API的演变</a></li>
+
+      <li><a href="text/ch003.html#35-%E9%A1%B6%E7%82%B9%E7%9D%80%E8%89%B2%E5%99%A8">3.5 顶点着色器</a></li>
+
+      <li><a href="text/ch003.html#36-%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86%E9%98%B6%E6%AE%B5">3.6 曲面细分阶段</a></li>
+
+      <li><a href="text/ch003.html#37-%E5%87%A0%E4%BD%95%E7%9D%80%E8%89%B2%E5%99%A8">3.7 几何着色器</a> 
+
+      <ol>
+        <li><a href="text/ch003.html#371-%E6%B5%81%E5%BC%8F%E8%BE%93%E5%87%BA">3.7.1 流式输出</a></li>
+      </ol></li>
+
+      <li><a href="text/ch003.html#38-%E5%83%8F%E7%B4%A0%E7%9D%80%E8%89%B2%E5%99%A8">3.8 像素着色器</a></li>
+
+      <li><a href="text/ch003.html#39-%E5%90%88%E5%B9%B6%E9%98%B6%E6%AE%B5">3.9 合并阶段</a></li>
+
+      <li><a href="text/ch003.html#310-%E8%AE%A1%E7%AE%97%E7%9D%80%E8%89%B2%E5%99%A8">3.10 计算着色器</a></li>
+
+      <li><a href="text/ch003.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch004.html">Chapter 4 Transform 变换</a> 
+
+    <ol>
+      <li><a href="text/ch004.html#41%E5%9F%BA%E6%9C%AC%E5%8F%98%E6%8D%A2">4.1基本变换</a> 
+
+      <ol>
+        <li><a href="text/ch004.html#411-%E5%B9%B3%E7%A7%BB">4.1.1 平移</a></li>
+
+        <li><a href="text/ch004.html#412-%E6%97%8B%E8%BD%AC">4.1.2 旋转</a> 
+
+        <ol>
+          <li><a href="text/ch004.html#%E7%A4%BA%E4%BE%8B%E7%BB%95%E6%9F%90%E4%B8%AA%E7%82%B9%E6%97%8B%E8%BD%AC">示例：绕某个点旋转</a></li>
+        </ol></li>
+
+        <li><a href="text/ch004.html#413-%E7%BC%A9%E6%94%BE">4.1.3 缩放</a> 
+
+        <ol>
+          <li><a href="text/ch004.html#%E7%A4%BA%E4%BE%8B%E6%8C%89%E4%BB%BB%E6%84%8F%E6%96%B9%E5%90%91%E8%BF%9B%E8%A1%8C%E7%BC%A9%E6%94%BE">示例：按任意方向进行缩放</a></li>
+        </ol></li>
+
+        <li><a href="text/ch004.html#414-%E5%89%AA%E5%88%87">4.14 剪切</a></li>
+
+        <li><a href="text/ch004.html#415-%E5%8F%98%E6%8D%A2%E7%9A%84%E8%BF%9E%E6%8E%A5">4.1.5 变换的连接</a></li>
+
+        <li><a href="text/ch004.html#416-%E5%88%9A%E4%BD%93%E5%8F%98%E6%8D%A2">4.1.6 刚体变换</a> 
+
+        <ol>
+          <li><a href="text/ch004.html#%E7%A4%BA%E4%BE%8B%E8%B0%83%E6%95%B4%E7%9B%B8%E6%9C%BA%E7%9A%84%E6%9C%9D%E5%90%91">示例：调整相机的朝向</a></li>
+        </ol></li>
+
+        <li><a href="text/ch004.html#417-%E6%B3%95%E7%BA%BF%E5%8F%98%E6%8D%A2">4.1.7 法线变换</a></li>
+
+        <li><a href="text/ch004.html#418-%E8%AE%A1%E7%AE%97%E9%80%86%E7%9F%A9%E9%98%B5">4.1.8 计算逆矩阵</a></li>
+      </ol></li>
+
+      <li><a href="text/ch004.html#42-%E7%89%B9%E6%AE%8A%E7%9A%84%E7%9F%A9%E9%98%B5%E5%8F%98%E6%8D%A2%E5%92%8C%E6%93%8D%E4%BD%9C">4.2 特殊的矩阵变换和操作</a> 
+
+      <ol>
+        <li><a href="text/ch004.html#421-%E6%AC%A7%E6%8B%89%E5%8F%98%E6%8D%A2">4.2.1 欧拉变换</a></li>
+
+        <li><a href="text/ch004.html#422-%E4%BB%8E%E6%AC%A7%E6%8B%89%E5%8F%98%E6%8D%A2%E4%B8%AD%E6%8F%90%E5%8F%96%E5%8F%82%E6%95%B0">4.2.2 从欧拉变换中提取参数</a> 
+
+        <ol>
+          <li><a href="text/ch004.html#%E7%A4%BA%E4%BE%8B%E7%BA%A6%E6%9D%9F%E5%8F%98%E6%8D%A2">示例：约束变换</a></li>
+        </ol></li>
+
+        <li><a href="text/ch004.html#423-%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3">4.2.3 矩阵分解</a></li>
+
+        <li><a href="text/ch004.html#424-%E7%BB%95%E4%BB%BB%E6%84%8F%E8%BD%B4%E6%97%8B%E8%BD%AC">4.2.4 绕任意轴旋转</a></li>
+      </ol></li>
+
+      <li><a href="text/ch004.html#43-%E5%9B%9B%E5%85%83%E6%95%B0">4.3 四元数</a> 
+
+      <ol>
+        <li><a href="text/ch004.html#431-%E6%95%B0%E5%AD%A6%E8%83%8C%E6%99%AF">4.3.1 数学背景</a></li>
+
+        <li><a href="text/ch004.html#432-%E5%9B%9B%E5%85%83%E6%95%B0%E5%8F%98%E6%8D%A2">4.3.2 四元数变换</a> 
+
+        <ol>
+          <li><a href="text/ch004.html#%E7%9F%A9%E9%98%B5%E8%BD%AC%E6%8D%A2">矩阵转换</a></li>
+
+          <li><a href="text/ch004.html#%E7%90%83%E9%9D%A2%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC">球面线性插值</a></li>
+
+          <li><a href="text/ch004.html#%E5%B0%86%E4%B8%80%E4%B8%AA%E5%90%91%E9%87%8F%E6%97%8B%E8%BD%AC%E5%88%B0%E5%8F%A6%E4%B8%80%E4%B8%AA%E5%90%91%E9%87%8F">将一个向量旋转到另一个向量</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch004.html#44-%E9%A1%B6%E7%82%B9%E6%B7%B7%E5%90%88">4.4 顶点混合</a></li>
+
+      <li><a href="text/ch004.html#45-%E5%8F%98%E5%BD%A2">4.5 变形</a></li>
+
+      <li><a href="text/ch004.html#46-%E5%87%A0%E4%BD%95%E7%BC%93%E5%AD%98%E5%9B%9E%E6%94%BE">4.6 几何缓存回放</a></li>
+
+      <li><a href="text/ch004.html#47-%E6%8A%95%E5%BD%B1">4.7 投影</a> 
+
+      <ol>
+        <li><a href="text/ch004.html#471-%E6%AD%A3%E4%BA%A4%E6%8A%95%E5%BD%B1">4.7.1 正交投影</a></li>
+
+        <li><a href="text/ch004.html#472-%E9%80%8F%E8%A7%86%E6%8A%95%E5%BD%B1">4.7.2 透视投影</a></li>
+      </ol></li>
+
+      <li><a href="text/ch004.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch005.html">Chapter 5 Shading Basics 着色基础</a> 
+
+    <ol>
+      <li><a href="text/ch005.html#51-%E7%9D%80%E8%89%B2%E6%A8%A1%E5%9E%8B">5.1 着色模型</a></li>
+
+      <li><a href="text/ch005.html#52-%E5%85%89%E6%BA%90">5.2 光源</a> 
+
+      <ol>
+        <li><a href="text/ch005.html#521-%E6%96%B9%E5%90%91%E5%85%89">5.2.1 方向光</a></li>
+
+        <li><a href="text/ch005.html#522-%E7%B2%BE%E7%A1%AE%E5%85%89%E6%BA%90">5.2.2 精确光源</a> 
+
+        <ol>
+          <li><a href="text/ch005.html#%E7%82%B9%E5%85%89%E6%BA%90%E6%B3%9B%E5%85%89%E7%81%AF">点光源/泛光灯</a></li>
+
+          <li><a href="text/ch005.html#%E8%81%9A%E5%85%89%E7%81%AF">聚光灯</a></li>
+
+          <li><a href="text/ch005.html#%E5%85%B6%E4%BB%96%E7%B2%BE%E7%A1%AE%E5%85%89%E6%BA%90other-punctual-lights%EF%BC%89">其他精确光源（Other Punctual Lights）</a></li>
+        </ol></li>
+
+        <li><a href="text/ch005.html#523-%E5%85%B6%E4%BB%96%E5%85%89%E6%BA%90%E7%B1%BB%E5%9E%8B">5.2.3 其他光源类型</a></li>
+      </ol></li>
+
+      <li><a href="text/ch005.html#53-%E5%AE%9E%E7%8E%B0%E7%9D%80%E8%89%B2%E6%A8%A1%E5%9E%8B">5.3 实现着色模型</a> 
+
+      <ol>
+        <li><a href="text/ch005.html#531-%E8%AE%A1%E7%AE%97%E9%A2%91%E7%8E%87">5.3.1 计算频率</a></li>
+
+        <li><a href="text/ch005.html#532-%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B">5.3.2 实现示例</a></li>
+
+        <li><a href="text/ch005.html#533-%E6%9D%90%E8%B4%A8%E7%B3%BB%E7%BB%9F">5.3.3 材质系统</a></li>
+      </ol></li>
+
+      <li><a href="text/ch005.html#54-%E9%94%AF%E9%BD%BF%E5%92%8C%E6%8A%97%E9%94%AF%E9%BD%BF">5.4 锯齿和抗锯齿</a> 
+
+      <ol>
+        <li><a href="text/ch005.html#541--%E9%87%87%E6%A0%B7%E5%92%8C%E6%BB%A4%E6%B3%A2%E7%90%86%E8%AE%BA">5.4.1 采样和滤波理论</a> 
+
+        <ol>
+          <li><a href="text/ch005.html#%E9%87%8D%E5%BB%BA">重建</a></li>
+
+          <li><a href="text/ch005.html#%E9%87%8D%E9%87%87%E6%A0%B7">重采样</a></li>
+        </ol></li>
+
+        <li><a href="text/ch005.html#542-%E5%9F%BA%E4%BA%8E%E5%B1%8F%E5%B9%95%E7%9A%84%E6%8A%97%E9%94%AF%E9%BD%BF">5.4.2 基于屏幕的抗锯齿</a> 
+
+        <ol>
+          <li><a href="text/ch005.html#%E9%87%87%E6%A0%B7%E6%A8%A1%E5%BC%8F">采样模式</a></li>
+
+          <li><a href="text/ch005.html#%E5%BD%A2%E6%80%81%E5%AD%A6%E6%96%B9%E6%B3%95morphological-methods%EF%BC%89">形态学方法（Morphological Methods）</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch005.html#55-%E9%80%8F%E6%98%8E%E5%BA%A6alpha%E5%90%88%E6%88%90">5.5 透明度，Alpha，合成</a> 
+
+      <ol>
+        <li><a href="text/ch005.html#551-%E6%B7%B7%E5%90%88%E9%A1%BA%E5%BA%8F">5.5.1 混合顺序</a></li>
+
+        <li><a href="text/ch005.html#552-%E9%A1%BA%E5%BA%8F%E6%97%A0%E5%85%B3%E7%9A%84%E9%80%8F%E6%98%8E%E5%BA%A6%E7%AE%97%E6%B3%95">5.5.2 顺序无关的透明度算法</a></li>
+
+        <li><a href="text/ch005.html#533-alpha%E9%A2%84%E4%B9%98%E4%B8%8E%E5%90%88%E6%88%90">5.3.3 Alpha预乘与合成</a></li>
+      </ol></li>
+
+      <li><a href="text/ch005.html#56-%E6%98%BE%E7%A4%BA%E7%BC%96%E7%A0%81">5.6 显示编码</a></li>
+
+      <li><a href="text/ch005.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch006.html">Chapter 6 Texturing 纹理</a> 
+
+    <ol>
+      <li><a href="text/ch006.html#61-%E7%BA%B9%E7%90%86%E7%AE%A1%E7%BA%BF">6.1 纹理管线</a> 
+
+      <ol>
+        <li><a href="text/ch006.html#611-%E6%8A%95%E5%BD%B1%E5%87%BD%E6%95%B0">6.1.1 投影函数</a></li>
+
+        <li><a href="text/ch006.html#612-%E8%BD%AC%E6%8D%A2%E5%87%BD%E6%95%B0">6.1.2 转换函数</a></li>
+
+        <li><a href="text/ch006.html#613-%E7%BA%B9%E7%90%86%E5%80%BC">6.1.3 纹理值</a></li>
+      </ol></li>
+
+      <li><a href="text/ch006.html#62-%E5%9B%BE%E5%83%8F%E7%BA%B9%E7%90%86">6.2 图像纹理</a> 
+
+      <ol>
+        <li><a href="text/ch006.html#621-%E6%94%BE%E5%A4%A7">6.2.1 放大</a></li>
+
+        <li><a href="text/ch006.html#622-%E7%BC%A9%E5%B0%8F">6.2.2 缩小</a> 
+
+        <ol>
+          <li><a href="text/ch006.html#mipmap">Mipmap</a></li>
+
+          <li><a href="text/ch006.html#summed-area%E8%A1%A8sat%EF%BC%89">Summed-Area表（SAT）</a></li>
+
+          <li><a href="text/ch006.html#%E6%97%A0%E7%BA%A6%E6%9D%9F%E7%9A%84%E5%90%84%E5%90%91%E5%BC%82%E6%80%A7%E8%BF%87%E6%BB%A4">无约束的各向异性过滤</a></li>
+        </ol></li>
+
+        <li><a href="text/ch006.html#623-%E4%BD%93%E7%A7%AF%E7%BA%B9%E7%90%86">6.2.3 体积纹理</a></li>
+
+        <li><a href="text/ch006.html#624-%E7%AB%8B%E6%96%B9%E4%BD%93%E8%B4%B4%E5%9B%BE">6.2.4 立方体贴图</a></li>
+
+        <li><a href="text/ch006.html#625%E7%BA%B9%E7%90%86%E8%A1%A8%E7%A4%BA">6.2.5纹理表示</a></li>
+
+        <li><a href="text/ch006.html#626%E7%BA%B9%E7%90%86%E5%8E%8B%E7%BC%A9">6.2.6纹理压缩</a></li>
+      </ol></li>
+
+      <li><a href="text/ch006.html#63-%E7%A8%8B%E5%BA%8F%E5%8C%96%E7%BA%B9%E7%90%86">6.3 程序化纹理</a></li>
+
+      <li><a href="text/ch006.html#64-%E7%BA%B9%E7%90%86%E5%8A%A8%E7%94%BB">6.4 纹理动画</a></li>
+
+      <li><a href="text/ch006.html#65-%E6%9D%90%E8%B4%A8%E6%98%A0%E5%B0%84">6.5 材质映射</a></li>
+
+      <li><a href="text/ch006.html#66-alpha%E6%98%A0%E5%B0%84">6.6 Alpha映射</a></li>
+
+      <li><a href="text/ch006.html#67-%E5%87%B9%E5%87%B8%E6%98%A0%E5%B0%84">6.7 凹凸映射</a> 
+
+      <ol>
+        <li><a href="text/ch006.html#671-blinn%E6%96%B9%E6%B3%95">6.7.1 Blinn方法</a></li>
+
+        <li><a href="text/ch006.html#672-%E6%B3%95%E7%BA%BF%E6%98%A0%E5%B0%84">6.7.2 法线映射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch006.html#68-%E8%A7%86%E5%B7%AE%E6%98%A0%E5%B0%84">6.8 视差映射</a> 
+
+      <ol>
+        <li><a href="text/ch006.html#681-%E8%A7%86%E5%B7%AE%E9%81%AE%E6%8C%A1%E6%98%A0%E5%B0%84">6.8.1 视差遮挡映射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch006.html#69-%E7%BA%B9%E7%90%86%E5%85%89%E6%BA%90">6.9 纹理光源</a></li>
+
+      <li><a href="text/ch006.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch007.html">Chapter 7 Shadows 阴影</a> 
+
+    <ol>
+      <li><a href="text/ch007.html#71-%E5%B9%B3%E9%9D%A2%E9%98%B4%E5%BD%B1">7.1 平面阴影</a> 
+
+      <ol>
+        <li><a href="text/ch007.html#711%E6%8A%95%E5%BD%B1%E9%98%B4%E5%BD%B1">7.1.1投影阴影</a></li>
+
+        <li><a href="text/ch007.html#712-%E8%BD%AF%E9%98%B4%E5%BD%B1">7.1.2 软阴影</a></li>
+      </ol></li>
+
+      <li><a href="text/ch007.html#72-%E6%9B%B2%E9%9D%A2%E4%B8%8A%E7%9A%84%E9%98%B4%E5%BD%B1">7.2 曲面上的阴影</a></li>
+
+      <li><a href="text/ch007.html#73-%E9%98%B4%E5%BD%B1%E4%BD%93%E7%AE%97%E6%B3%95">7.3 阴影体算法</a></li>
+
+      <li><a href="text/ch007.html#74-%E9%98%B4%E5%BD%B1%E8%B4%B4%E5%9B%BE">7.4 阴影贴图</a> 
+
+      <ol>
+        <li><a href="text/ch007.html#741-%E5%88%86%E8%BE%A8%E7%8E%87%E5%A2%9E%E5%BC%BA">7.4.1 分辨率增强</a></li>
+      </ol></li>
+
+      <li><a href="text/ch007.html#75-pcf">7.5 PCF</a></li>
+
+      <li><a href="text/ch007.html#76-pcss">7.6 PCSS</a></li>
+
+      <li><a href="text/ch007.html#77-%E8%BF%87%E6%BB%A4%E9%98%B4%E5%BD%B1%E8%B4%B4%E5%9B%BE">7.7 过滤阴影贴图</a></li>
+
+      <li><a href="text/ch007.html#78-%E4%BD%93%E7%A7%AF%E9%98%B4%E5%BD%B1%E6%8A%80%E6%9C%AF">7.8 体积阴影技术</a></li>
+
+      <li><a href="text/ch007.html#79-%E4%B8%8D%E8%A7%84%E5%88%99z-buffer">7.9 不规则z-buffer</a></li>
+
+      <li><a href="text/ch007.html#710-%E5%85%B6%E4%BB%96%E5%BA%94%E7%94%A8">7.10 其他应用</a></li>
+
+      <li><a href="text/ch007.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch008.html">Chapter 8 Light and Color 光与颜色</a> 
+
+    <ol>
+      <li><a href="text/ch008.html#81-%E5%85%89%E9%87%8F">8.1 光量</a> 
+
+      <ol>
+        <li><a href="text/ch008.html#811-%E8%BE%90%E5%B0%84%E5%BA%A6%E9%87%8F%E5%AD%A6">8.1.1 辐射度量学</a></li>
+
+        <li><a href="text/ch008.html#812-%E5%85%89%E5%BA%A6%E5%AD%A6">8.1.2 光度学</a></li>
+
+        <li><a href="text/ch008.html#813-%E8%89%B2%E5%BA%A6%E5%AD%A6">8.1.3 色度学</a></li>
+
+        <li><a href="text/ch008.html#814-%E4%BD%BF%E7%94%A8rgb%E9%A2%9C%E8%89%B2%E8%BF%9B%E8%A1%8C%E6%B8%B2%E6%9F%93">8.1.4 使用RGB颜色进行渲染</a></li>
+      </ol></li>
+
+      <li><a href="text/ch008.html#82-%E4%BB%8E%E5%9C%BA%E6%99%AF%E5%88%B0%E5%B1%8F%E5%B9%95">8.2 从场景到屏幕</a> 
+
+      <ol>
+        <li><a href="text/ch008.html#821-hdr%E6%98%BE%E7%A4%BA%E7%BC%96%E7%A0%81">8.2.1 HDR显示编码</a></li>
+
+        <li><a href="text/ch008.html#822-%E8%89%B2%E8%B0%83%E6%98%A0%E5%B0%84">8.2.2 色调映射</a> 
+
+        <ol>
+          <li><a href="text/ch008.html#%E8%89%B2%E8%B0%83%E5%86%8D%E7%8E%B0%E5%8F%98%E6%8D%A2">色调再现变换</a></li>
+
+          <li><a href="text/ch008.html#%E6%9B%9D%E5%85%89">曝光</a></li>
+        </ol></li>
+
+        <li><a href="text/ch008.html#823-%E9%A2%9C%E8%89%B2%E5%88%86%E7%BA%A7">8.2.3 颜色分级</a></li>
+
+        <li><a href="text/ch008.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+      </ol></li>
+    </ol></li>
+
+    <li><a href="text/ch009.html">Chapter 9 Physically Based Shading 基于物理的着色</a> 
+
+    <ol>
+      <li><a href="text/ch009.html#91-%E5%85%89%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6">9.1 光的物理学</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#911-%E7%B2%92%E5%AD%90">9.1.1 粒子</a></li>
+
+        <li><a href="text/ch009.html#912-%E4%BB%8B%E8%B4%A8">9.1.2 介质</a></li>
+
+        <li><a href="text/ch009.html#913-%E8%A1%A8%E9%9D%A2">9.1.3 表面</a></li>
+
+        <li><a href="text/ch009.html#914-%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%95%A3%E5%B0%84">9.1.4 次表面散射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#92-%E7%9B%B8%E6%9C%BA">9.2 相机</a></li>
+
+      <li><a href="text/ch009.html#93-the-brdf">9.3 The BRDF</a></li>
+
+      <li><a href="text/ch009.html#94-%E5%85%89%E7%85%A7illumination%EF%BC%89">9.4 光照（Illumination）</a></li>
+
+      <li><a href="text/ch009.html#95-%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84">9.5 菲涅尔反射</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#951-%E5%A4%96%E5%8F%8D%E5%B0%84">9.5.1 外反射</a></li>
+
+        <li><a href="text/ch009.html#952-%E5%85%B8%E5%9E%8B%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84%E5%80%BC">9.5.2 典型的菲涅尔反射值</a> 
+
+        <ol>
+          <li><a href="text/ch009.html#%E7%94%B5%E4%BB%8B%E8%B4%A8%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84%E7%8E%87">电介质的菲涅尔反射率</a></li>
+
+          <li><a href="text/ch009.html#%E9%87%91%E5%B1%9E%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84%E7%8E%87">金属的菲涅尔反射率</a></li>
+
+          <li><a href="text/ch009.html#%E5%8D%8A%E5%AF%BC%E4%BD%93%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84%E5%80%BC">半导体的菲涅尔反射值</a></li>
+
+          <li><a href="text/ch009.html#%E6%B0%B4%E4%B8%AD%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%8F%8D%E5%B0%84%E7%8E%87">水中的菲涅尔反射率</a></li>
+
+          <li><a href="text/ch009.html#%E5%8F%82%E6%95%B0%E5%8C%96%E7%9A%84%E8%8F%B2%E6%B6%85%E5%B0%94%E5%80%BC">参数化的菲涅尔值</a></li>
+        </ol></li>
+
+        <li><a href="text/ch009.html#953-%E5%86%85%E5%8F%8D%E5%B0%84">9.5.3 内反射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#96-%E5%BE%AE%E8%A7%82%E5%87%A0%E4%BD%95microgeometry%EF%BC%89">9.6 微观几何（Microgeometry）</a></li>
+
+      <li><a href="text/ch009.html#97-%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%90%86%E8%AE%BA">9.7 微表面理论</a></li>
+
+      <li><a href="text/ch009.html#98-%E8%A1%A8%E9%9D%A2%E5%8F%8D%E5%B0%84%E7%9A%84brdf%E6%A8%A1%E5%9E%8B">9.8 表面反射的BRDF模型</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#981-%E6%B3%95%E7%BA%BF%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0">9.8.1 法线分布函数</a> 
+
+        <ol>
+          <li><a href="text/ch009.html#%E5%90%84%E9%A1%B9%E5%90%8C%E6%80%A7%E6%B3%95%E7%BA%BF%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0">各项同性法线分布函数</a></li>
+
+          <li><a href="text/ch009.html#%E5%90%84%E9%A1%B9%E5%BC%82%E6%80%A7%E6%B3%95%E7%BA%BF%E5%88%86%E5%B8%83%E5%87%BD%E6%95%B0">各项异性法线分布函数</a></li>
+        </ol></li>
+
+        <li><a href="text/ch009.html#982-%E5%A4%9A%E6%AC%A1%E5%8F%8D%E5%BC%B9%E7%9A%84%E8%A1%A8%E9%9D%A2%E5%8F%8D%E5%B0%84">9.8.2 多次反弹的表面反射</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#99-%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%95%A3%E5%B0%84%E7%9A%84brdf%E6%A8%A1%E5%9E%8B">9.9 次表面散射的BRDF模型</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#991-%E6%AC%A1%E8%A1%A8%E9%9D%A2%E5%8F%8D%E7%85%A7%E7%8E%87">9.9.1 次表面反照率</a></li>
+
+        <li><a href="text/ch009.html#992-%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%95%A3%E5%B0%84%E5%92%8C%E7%B2%97%E7%B3%99%E7%9A%84%E5%B0%BA%E5%BA%A6">9.9.2 次表面散射和粗糙的尺度</a></li>
+
+        <li><a href="text/ch009.html#993-%E5%85%89%E6%BB%91%E8%A1%A8%E9%9D%A2%E7%9A%84%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%A8%A1%E5%9E%8B">9.9.3 光滑表面的次表面模型</a></li>
+
+        <li><a href="text/ch009.html#994-%E7%B2%97%E7%B3%99%E8%A1%A8%E9%9D%A2%E7%9A%84%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%A8%A1%E5%9E%8B">9.9.4 粗糙表面的次表面模型</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#910-%E5%B8%83%E6%96%99%E7%9A%84brdf%E6%A8%A1%E5%9E%8B">9.10 布料的BRDF模型</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#9101-%E7%BB%8F%E9%AA%8C%E5%B8%83%E6%96%99%E6%A8%A1%E5%9E%8B">9.10.1 经验布料模型</a></li>
+
+        <li><a href="text/ch009.html#9102-%E5%BE%AE%E8%A1%A8%E9%9D%A2%E5%B8%83%E6%96%99%E6%A8%A1%E5%9E%8B">9.10.2 微表面布料模型</a></li>
+
+        <li><a href="text/ch009.html#9103-%E5%BE%AE%E5%9C%86%E6%9F%B1%E4%BD%93%E5%B8%83%E6%96%99%E6%A8%A1%E5%9E%8B">9.10.3 微圆柱体布料模型</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#911%E6%B3%A2%E5%8A%A8%E5%85%89%E5%AD%A6%E7%9A%84brdf%E6%A8%A1%E5%9E%8B">9.11波动光学的BRDF模型</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#9111-%E8%A1%8D%E5%B0%84%E6%A8%A1%E5%9E%8B">9.11.1 衍射模型</a></li>
+
+        <li><a href="text/ch009.html#9112-%E8%96%84%E8%86%9C%E5%B9%B2%E6%B6%89%E6%A8%A1%E5%9E%8B">9.11.2 薄膜干涉模型</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#912-%E5%88%86%E5%B1%82%E6%9D%90%E8%B4%A8">9.12 分层材质</a></li>
+
+      <li><a href="text/ch009.html#913-%E6%B7%B7%E5%90%88%E5%92%8C%E8%BF%87%E6%BB%A4%E6%9D%90%E8%B4%A8">9.13 混合和过滤材质</a> 
+
+      <ol>
+        <li><a href="text/ch009.html#9131%E8%BF%87%E6%BB%A4%E6%B3%95%E7%BA%BF%E4%B8%8E%E6%B3%95%E7%BA%BF%E5%88%86%E5%B8%83">9.13.1过滤法线与法线分布</a></li>
+      </ol></li>
+
+      <li><a href="text/ch009.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch010.html">Chapter 10 Local Illumination 局部光照</a> 
+
+    <ol>
+      <li><a href="text/ch010.html#101-%E9%9D%A2%E5%85%89%E6%BA%90">10.1 面光源</a> 
+
+      <ol>
+        <li><a href="text/ch010.html#1011-%E5%85%89%E6%B3%BD%E6%9D%90%E8%B4%A8">10.1.1 光泽材质</a></li>
+
+        <li><a href="text/ch010.html#1012-%E4%B8%80%E8%88%AC%E5%85%89%E6%BA%90%E5%BD%A2%E7%8A%B6">10.1.2 一般光源形状</a></li>
+      </ol></li>
+
+      <li><a href="text/ch010.html#102-%E7%8E%AF%E5%A2%83%E5%85%89%E7%85%A7">10.2 环境光照</a></li>
+
+      <li><a href="text/ch010.html#103-%E7%90%83%E9%9D%A2%E5%87%BD%E6%95%B0%E5%92%8C%E5%8D%8A%E7%90%83%E5%87%BD%E6%95%B0">10.3 球面函数和半球函数</a> 
+
+      <ol>
+        <li><a href="text/ch010.html#1031%E7%AE%80%E5%8D%95%E8%A1%A8%E6%A0%BC%E5%BD%A2%E5%BC%8F">10.3.1简单表格形式</a></li>
+
+        <li><a href="text/ch010.html#1032-%E7%90%83%E9%9D%A2%E5%9F%BA%E5%BA%95">10.3.2 球面基底</a> 
+
+        <ol>
+          <li><a href="text/ch010.html#%E7%90%83%E9%9D%A2%E5%BE%84%E5%90%91%E5%9F%BA%E5%87%BD%E6%95%B0">球面径向基函数</a></li>
+
+          <li><a href="text/ch010.html#%E7%90%83%E9%9D%A2%E9%AB%98%E6%96%AF%E5%87%BD%E6%95%B0">球面高斯函数</a></li>
+
+          <li><a href="text/ch010.html#%E7%90%83%E8%B0%90%E5%87%BD%E6%95%B0">球谐函数</a></li>
+
+          <li><a href="text/ch010.html#%E5%85%B6%E4%BB%96%E7%90%83%E9%9D%A2%E8%A1%A8%E7%A4%BA">其他球面表示</a></li>
+        </ol></li>
+
+        <li><a href="text/ch010.html#1033-%E5%8D%8A%E7%90%83%E5%9F%BA%E5%BA%95">10.3.3 半球基底</a> 
+
+        <ol>
+          <li><a href="text/ch010.html#ahd%E5%9F%BA%E5%BA%95">AHD基底</a></li>
+
+          <li><a href="text/ch010.html#%E8%BE%90%E5%B0%84%E6%B3%95%E5%90%91%E6%98%A0%E5%B0%84%E5%8D%8A%E6%9D%A1%E5%91%BD2-%E5%9F%BA%E5%BA%95">辐射法向映射/《半条命2 》基底</a></li>
+
+          <li><a href="text/ch010.html#%E5%8D%8A%E7%90%83%E8%B0%90%E6%B3%A2h-basis">半球谐波/H-Basis</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch010.html#104-%E7%8E%AF%E5%A2%83%E6%98%A0%E5%B0%84">10.4 环境映射</a> 
+
+      <ol>
+        <li><a href="text/ch010.html#1041-%E7%BB%8F%E7%BA%AC%E5%BA%A6%E6%98%A0%E5%B0%84">10.4.1 经纬度映射</a></li>
+
+        <li><a href="text/ch010.html#1042-%E7%90%83%E9%9D%A2%E6%98%A0%E5%B0%84">10.4.2 球面映射</a></li>
+
+        <li><a href="text/ch010.html#1043-%E7%AB%8B%E6%96%B9%E4%BD%93%E6%98%A0%E5%B0%84">10.4.3 立方体映射</a></li>
+
+        <li><a href="text/ch010.html#1044-%E5%85%B6%E4%BB%96%E6%8A%95%E5%BD%B1%E6%96%B9%E6%B3%95">10.4.4 其他投影方法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch010.html#105-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E5%83%8F%E7%9A%84%E9%AB%98%E5%85%89%E7%85%A7%E6%98%8E">10.5 基于图像的高光照明</a> 
+
+      <ol>
+        <li><a href="text/ch010.html#1051-%E9%A2%84%E8%BF%87%E6%BB%A4%E7%8E%AF%E5%A2%83%E6%98%A0%E5%B0%84">10.5.1 预过滤环境映射</a> 
+
+        <ol>
+          <li><a href="text/ch010.html#%E5%8D%B7%E7%A7%AF%E7%8E%AF%E5%A2%83%E8%B4%B4%E5%9B%BE">卷积环境贴图</a></li>
+        </ol></li>
+
+        <li><a href="text/ch010.html#1052-%E5%BE%AE%E8%A1%A8%E9%9D%A2brdf%E7%9A%84%E5%88%86%E8%A3%82%E7%A7%AF%E5%88%86%E8%BF%91%E4%BC%BC">10.5.2 微表面BRDF的分裂积分近似</a></li>
+
+        <li><a href="text/ch010.html#1053-%E4%B8%8D%E5%AF%B9%E7%A7%B0%E5%92%8C%E5%90%84%E5%90%91%E5%BC%82%E6%80%A7%E6%B3%A2%E7%93%A3">10.5.3 不对称和各向异性波瓣</a></li>
+      </ol></li>
+
+      <li><a href="text/ch010.html#106-irradiance%E7%8E%AF%E5%A2%83%E6%98%A0%E5%B0%84">10.6 irradiance环境映射</a> 
+
+      <ol>
+        <li><a href="text/ch010.html#1061-%E7%90%83%E8%B0%90irradiance">10.6.1 球谐irradiance</a></li>
+
+        <li><a href="text/ch010.html#1062-%E5%85%B6%E4%BB%96%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95">10.6.2 其他表示方法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch010.html#107-%E8%AF%AF%E5%B7%AE%E6%9D%A5%E6%BA%90">10.7 误差来源</a></li>
+
+      <li><a href="text/ch010.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch011.html">Chapter 11 Global Illumination 全局光照</a> 
+
+    <ol>
+      <li><a href="text/ch011.html#111-%E6%B8%B2%E6%9F%93%E6%96%B9%E7%A8%8B">11.1 渲染方程</a></li>
+
+      <li><a href="text/ch011.html#112-%E9%80%9A%E7%94%A8%E5%85%A8%E5%B1%80%E5%85%89%E7%85%A7">11.2 通用全局光照</a> 
+
+      <ol>
+        <li><a href="text/ch011.html#1121-%E8%BE%90%E5%B0%84%E5%BA%A6">11.2.1 辐射度</a></li>
+
+        <li><a href="text/ch011.html#1122-%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA">11.2.2 光线追踪</a></li>
+      </ol></li>
+
+      <li><a href="text/ch011.html#113-%E7%8E%AF%E5%A2%83%E5%85%89%E9%81%AE%E8%94%BD">11.3 环境光遮蔽</a> 
+
+      <ol>
+        <li><a href="text/ch011.html#1131-%E7%8E%AF%E5%A2%83%E5%85%89%E9%81%AE%E8%94%BD%E7%90%86%E8%AE%BA">11.3.1 环境光遮蔽理论</a></li>
+
+        <li><a href="text/ch011.html#1132-%E5%8F%AF%E8%A7%81%E6%80%A7%E5%92%8Cobscurance">11.3.2 可见性和obscurance</a></li>
+
+        <li><a href="text/ch011.html#1133-%E8%80%83%E8%99%91%E7%9B%B8%E4%BA%92%E5%8F%8D%E5%B0%84">11.3.3 考虑相互反射</a></li>
+
+        <li><a href="text/ch011.html#1134-%E9%A2%84%E8%AE%A1%E7%AE%97%E7%8E%AF%E5%A2%83%E5%85%89%E9%81%AE%E8%94%BD">11.3.4 预计算环境光遮蔽</a></li>
+
+        <li><a href="text/ch011.html#1135-%E7%8E%AF%E5%A2%83%E5%85%89%E9%81%AE%E8%94%BD%E7%9A%84%E5%8A%A8%E6%80%81%E8%AE%A1%E7%AE%97">11.3.5 环境光遮蔽的动态计算</a></li>
+
+        <li><a href="text/ch011.html#1136-%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4%E6%96%B9%E6%B3%95">11.3.6 屏幕空间方法</a></li>
+
+        <li><a href="text/ch011.html#1137-%E4%BD%BF%E7%94%A8%E7%8E%AF%E5%A2%83%E5%85%89%E9%81%AE%E8%94%BD%E8%BF%9B%E8%A1%8C%E7%9D%80%E8%89%B2">11.3.7 使用环境光遮蔽进行着色</a></li>
+      </ol></li>
+
+      <li><a href="text/ch011.html#114-%E5%AE%9A%E5%90%91%E9%81%AE%E8%94%BD">11.4 定向遮蔽</a> 
+
+      <ol>
+        <li><a href="text/ch011.html#1141-%E9%A2%84%E8%AE%A1%E7%AE%97%E5%AE%9A%E5%90%91%E9%81%AE%E8%94%BD">11.4.1 预计算定向遮蔽</a></li>
+
+        <li><a href="text/ch011.html#1142-%E5%AE%9A%E5%90%91%E9%81%AE%E8%94%BD%E7%9A%84%E5%8A%A8%E6%80%81%E8%AE%A1%E7%AE%97">11.4.2 定向遮蔽的动态计算</a></li>
+
+        <li><a href="text/ch011.html#1143-%E4%BD%BF%E7%94%A8%E5%AE%9A%E5%90%91%E9%81%AE%E8%94%BD%E8%BF%9B%E8%A1%8C%E7%9D%80%E8%89%B2">11.4.3 使用定向遮蔽进行着色</a></li>
+      </ol></li>
+
+      <li><a href="text/ch011.html#115-%E6%BC%AB%E5%8F%8D%E5%B0%84%E5%85%A8%E5%B1%80%E5%85%89%E7%85%A7">11.5 漫反射全局光照</a> 
+
+      <ol>
+        <li><a href="text/ch011.html#1151-%E8%A1%A8%E9%9D%A2%E9%A2%84%E7%85%A7%E6%98%8Esurface-prelighting%EF%BC%89">11.5.1 表面预照明（Surface Prelighting）</a></li>
+
+        <li><a href="text/ch011.html#1152-%E5%AE%9A%E5%90%91%E8%A1%A8%E9%9D%A2%E9%A2%84%E7%85%A7%E6%98%8E">11.5.2 定向表面预照明</a></li>
+
+        <li><a href="text/ch011.html#1153-%E9%A2%84%E8%AE%A1%E7%AE%97%E4%BC%A0%E8%BE%93">11.5.3 预计算传输</a></li>
+
+        <li><a href="text/ch011.html#1154-%E5%AD%98%E5%82%A8%E6%96%B9%E6%B3%95">11.5.4 存储方法</a></li>
+
+        <li><a href="text/ch011.html#1155-%E5%8A%A8%E6%80%81%E6%BC%AB%E5%8F%8D%E5%B0%84%E5%85%A8%E5%B1%80%E5%85%89%E7%85%A7">11.5.5 动态漫反射全局光照</a></li>
+
+        <li><a href="text/ch011.html#1156-%E5%85%89%E7%85%A7%E4%BC%A0%E6%92%AD%E4%BD%93%E7%A7%AF">11.5.6 光照传播体积</a></li>
+
+        <li><a href="text/ch011.html#1157-%E5%9F%BA%E4%BA%8E%E4%BD%93%E7%B4%A0%E7%9A%84%E6%96%B9%E6%B3%95">11.5.7 基于体素的方法</a></li>
+
+        <li><a href="text/ch011.html#1158-%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4%E6%96%B9%E6%B3%95">11.5.8 屏幕空间方法</a></li>
+
+        <li><a href="text/ch011.html#1159-%E5%85%B6%E4%BB%96%E6%96%B9%E6%B3%95">11.5.9 其他方法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch011.html#116-%E9%95%9C%E9%9D%A2%E5%85%A8%E5%B1%80%E5%85%89%E7%85%A7">11.6 镜面全局光照</a> 
+
+      <ol>
+        <li><a href="text/ch011.html#1161-%E5%B1%80%E9%83%A8%E7%8E%AF%E5%A2%83%E8%B4%B4%E5%9B%BE">11.6.1 局部环境贴图</a></li>
+
+        <li><a href="text/ch011.html#1162-%E7%8E%AF%E5%A2%83%E8%B4%B4%E5%9B%BE%E7%9A%84%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0">11.6.2 环境贴图的动态更新</a></li>
+
+        <li><a href="text/ch011.html#1163-%E5%9F%BA%E4%BA%8E%E4%BD%93%E7%B4%A0%E7%9A%84%E6%96%B9%E6%B3%95">11.6.3 基于体素的方法</a></li>
+
+        <li><a href="text/ch011.html#1164-%E5%B9%B3%E9%9D%A2%E5%8F%8D%E5%B0%84">11.6.4 平面反射</a></li>
+
+        <li><a href="text/ch011.html#1165-%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4%E6%96%B9%E6%B3%95">11.6.5 屏幕空间方法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch011.html#117-%E7%BB%9F%E4%B8%80%E6%96%B9%E6%B3%95">11.7 统一方法</a></li>
+
+      <li><a href="text/ch011.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch012.html">Chapter 12 Image-Space Effects 图像空间特效</a> 
+
+    <ol>
+      <li><a href="text/ch012.html#121-%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86">12.1 图像处理</a> 
+
+      <ol>
+        <li><a href="text/ch012.html#1211-%E5%8F%8C%E8%BE%B9%E6%BB%A4%E6%B3%A2">12.1.1 双边滤波</a></li>
+      </ol></li>
+
+      <li><a href="text/ch012.html#122-%E9%87%8D%E6%8A%95%E5%BD%B1%E6%8A%80%E6%9C%AF">12.2 重投影技术</a></li>
+
+      <li><a href="text/ch012.html#123-%E9%95%9C%E5%A4%B4%E5%85%89%E6%99%95%E5%92%8C%E6%B3%9B%E5%85%89">12.3 镜头光晕和泛光</a></li>
+
+      <li><a href="text/ch012.html#124-%E6%99%AF%E6%B7%B1">12.4 景深</a></li>
+
+      <li><a href="text/ch012.html#125-%E8%BF%90%E5%8A%A8%E6%A8%A1%E7%B3%8A">12.5 运动模糊</a></li>
+
+      <li><a href="text/ch012.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch013.html">Chapter 13 Beyond Polygons 超越多边形</a> 
+
+    <ol>
+      <li><a href="text/ch013.html#131-%E6%B8%B2%E6%9F%93%E9%A2%91%E8%B0%B1">13.1 渲染频谱</a></li>
+
+      <li><a href="text/ch013.html#132-%E5%9B%BA%E5%AE%9A%E8%A7%86%E5%9B%BE%E6%95%88%E6%9E%9C">13.2 固定视图效果</a></li>
+
+      <li><a href="text/ch013.html#133-%E5%A4%A9%E7%A9%BA%E7%9B%92">13.3 天空盒</a></li>
+
+      <li><a href="text/ch013.html#134-%E5%85%89%E5%9C%BA%E6%B8%B2%E6%9F%93">13.4 光场渲染</a></li>
+
+      <li><a href="text/ch013.html#135-sprite%E5%92%8C%E5%9B%BE%E5%B1%82">13.5 Sprite和图层</a></li>
+
+      <li><a href="text/ch013.html#136-%E5%B9%BF%E5%91%8A%E7%89%8C%E6%8A%80%E6%9C%AF">13.6 广告牌技术</a> 
+
+      <ol>
+        <li><a href="text/ch013.html#1361-%E5%B1%8F%E5%B9%95%E5%AF%B9%E9%BD%90screen-aligned%EF%BC%89%E7%9A%84%E5%B9%BF%E5%91%8A%E7%89%8C">13.6.1 屏幕对齐（screen-aligned）的广告牌</a></li>
+
+        <li><a href="text/ch013.html#1362-%E9%9D%A2%E5%90%91%E4%B8%96%E7%95%8Cworld-oriented%EF%BC%89%E7%9A%84%E5%B9%BF%E5%91%8A%E7%89%8C">13.6.2 面向世界（world oriented）的广告牌</a></li>
+
+        <li><a href="text/ch013.html#1363-%E8%BD%B4%E5%90%91%E5%B9%BF%E5%91%8A%E7%89%8C">13.6.3 轴向广告牌</a></li>
+
+        <li><a href="text/ch013.html#1364-impostor">13.6.4 Impostor</a></li>
+
+        <li><a href="text/ch013.html#1365-%E5%B9%BF%E5%91%8A%E7%89%8C%E8%A1%A8%E7%A4%BA">13.6.5 广告牌表示</a></li>
+      </ol></li>
+
+      <li><a href="text/ch013.html#137-%E4%BD%8D%E7%A7%BB%E6%8A%80%E6%9C%AF">13.7 位移技术</a></li>
+
+      <li><a href="text/ch013.html#138-%E7%B2%92%E5%AD%90%E7%B3%BB%E7%BB%9F">13.8 粒子系统</a> 
+
+      <ol>
+        <li><a href="text/ch013.html#1381-%E7%B2%92%E5%AD%90%E7%9D%80%E8%89%B2">13.8.1 粒子着色</a></li>
+
+        <li><a href="text/ch013.html#1382-%E7%B2%92%E5%AD%90%E6%A8%A1%E6%8B%9F">13.8.2 粒子模拟</a></li>
+      </ol></li>
+
+      <li><a href="text/ch013.html#139-%E7%82%B9%E6%B8%B2%E6%9F%93">13.9 点渲染</a></li>
+
+      <li><a href="text/ch013.html#1310-%E4%BD%93%E7%B4%A0">13.10 体素</a> 
+
+      <ol>
+        <li><a href="text/ch013.html#13101-%E5%BA%94%E7%94%A8">13.10.1 应用</a></li>
+
+        <li><a href="text/ch013.html#13102-%E4%BD%93%E7%B4%A0%E5%AD%98%E5%82%A8">13.10.2 体素存储</a></li>
+
+        <li><a href="text/ch013.html#13103-%E4%BD%93%E7%B4%A0%E7%9A%84%E7%94%9F%E6%88%90">13.10.3 体素的生成</a></li>
+
+        <li><a href="text/ch013.html#13104-%E4%BD%93%E7%B4%A0%E7%9A%84%E6%B8%B2%E6%9F%93">13.10.4 体素的渲染</a></li>
+
+        <li><a href="text/ch013.html#13105-%E5%85%B6%E4%BB%96%E4%B8%BB%E9%A2%98">13.10.5 其他主题</a></li>
+      </ol></li>
+
+      <li><a href="text/ch013.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch014.html">Chapter 14 Volumetric and Translucency Rendering 体积与半透明渲染</a> 
+
+    <ol>
+      <li><a href="text/ch014.html#141-%E5%85%89%E7%BA%BF%E6%95%A3%E5%B0%84%E7%90%86%E8%AE%BA">14.1 光线散射理论</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1411-%E5%8F%82%E4%B8%8E%E4%BB%8B%E8%B4%A8%E6%9D%90%E8%B4%A8">14.1.1 参与介质材质</a></li>
+
+        <li><a href="text/ch014.html#1412-%E9%80%8F%E5%85%89%E7%8E%87">14.1.2 透光率</a></li>
+
+        <li><a href="text/ch014.html#1413-%E6%95%A3%E5%B0%84%E4%BA%8B%E4%BB%B6">14.1.3 散射事件</a></li>
+
+        <li><a href="text/ch014.html#1414-%E7%9B%B8%E4%BD%8D%E5%87%BD%E6%95%B0">14.1.4 相位函数</a> 
+
+        <ol>
+          <li><a href="text/ch014.html#%E7%91%9E%E5%88%A9%E6%95%A3%E5%B0%84">瑞利散射</a></li>
+
+          <li><a href="text/ch014.html#%E7%B1%B3%E6%B0%8F%E6%95%A3%E5%B0%84">米氏散射</a></li>
+
+          <li><a href="text/ch014.html#%E5%87%A0%E4%BD%95%E6%95%A3%E5%B0%84">几何散射</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#142-%E7%89%B9%E6%AE%8A%E7%9A%84%E4%BD%93%E6%B8%B2%E6%9F%93">14.2 特殊的体渲染</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1421-%E5%A4%A7%E8%A7%84%E6%A8%A1%E9%9B%BE">14.2.1 大规模雾</a></li>
+
+        <li><a href="text/ch014.html#1422-%E7%AE%80%E5%8D%95%E7%9A%84%E4%BD%93%E7%A7%AF%E5%85%89">14.2.2 简单的体积光</a></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#143-%E9%80%9A%E7%94%A8%E7%9A%84%E4%BD%93%E6%B8%B2%E6%9F%93">14.3 通用的体渲染</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1431-%E4%BD%93%E7%A7%AF%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96">14.3.1 体积数据可视化</a></li>
+
+        <li><a href="text/ch014.html#1432-%E5%8F%82%E4%B8%8E%E4%BB%8B%E8%B4%A8%E6%B8%B2%E6%9F%93">14.3.2 参与介质渲染</a></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#144-%E5%A4%A9%E7%A9%BA%E6%B8%B2%E6%9F%93">14.4 天空渲染</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1441-%E5%A4%A9%E7%A9%BA%E5%92%8C%E7%A9%BA%E6%B0%94%E9%80%8F%E8%A7%86">14.4.1 天空和空气透视</a></li>
+
+        <li><a href="text/ch014.html#1442-%E4%BA%91">14.4.2 云</a> 
+
+        <ol>
+          <li><a href="text/ch014.html#%E5%B0%86%E4%BA%91%E4%BD%9C%E4%B8%BA%E7%B2%92%E5%AD%90">将云作为粒子</a></li>
+
+          <li><a href="text/ch014.html#%E5%B0%86%E4%BA%91%E4%BD%9C%E4%B8%BA%E5%8F%82%E4%B8%8E%E4%BB%8B%E8%B4%A8">将云作为参与介质</a></li>
+
+          <li><a href="text/ch014.html#%E5%A4%9A%E9%87%8D%E6%95%A3%E5%B0%84%E7%9A%84%E8%BF%91%E4%BC%BC">多重散射的近似</a></li>
+
+          <li><a href="text/ch014.html#%E4%BA%91%E4%B8%8E%E5%A4%A7%E6%B0%94%E7%9A%84%E7%9B%B8%E4%BA%92%E4%BD%9C%E7%94%A8">云与大气的相互作用</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#145-%E5%8D%8A%E9%80%8F%E6%98%8E%E8%A1%A8%E9%9D%A2">14.5 半透明表面</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1451-%E8%A6%86%E7%9B%96%E7%8E%87%E5%92%8C%E9%80%8F%E5%85%89%E7%8E%87">14.5.1 覆盖率和透光率</a></li>
+
+        <li><a href="text/ch014.html#1452-%E6%8A%98%E5%B0%84">14.5.2 折射</a></li>
+
+        <li><a href="text/ch014.html#1453-%E7%84%A6%E6%95%A3%E5%92%8C%E9%98%B4%E5%BD%B1">14.5.3 焦散和阴影</a></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#146-%E6%AC%A1%E8%A1%A8%E9%9D%A2%E6%95%A3%E5%B0%84">14.6 次表面散射</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1461-%E7%8E%AF%E7%BB%95%E5%85%89%E7%85%A7">14.6.1 环绕光照</a></li>
+
+        <li><a href="text/ch014.html#1462-%E6%B3%95%E7%BA%BF%E6%A8%A1%E7%B3%8A">14.6.2 法线模糊</a></li>
+
+        <li><a href="text/ch014.html#1463-%E9%A2%84%E7%A7%AF%E5%88%86%E7%9A%AE%E8%82%A4%E7%9D%80%E8%89%B2">14.6.3 预积分皮肤着色</a></li>
+
+        <li><a href="text/ch014.html#1464-%E7%BA%B9%E7%90%86%E7%A9%BA%E9%97%B4%E6%89%A9%E6%95%A3">14.6.4 纹理空间扩散</a></li>
+
+        <li><a href="text/ch014.html#1465-%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4%E6%89%A9%E6%95%A3">14.6.5 屏幕空间扩散</a></li>
+
+        <li><a href="text/ch014.html#1466-%E6%B7%B1%E5%BA%A6%E8%B4%B4%E5%9B%BE%E6%8A%80%E6%9C%AF">14.6.6 深度贴图技术</a></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#147-%E6%AF%9B%E5%8F%91%E5%92%8C%E7%9A%AE%E6%AF%9B">14.7 毛发和皮毛</a> 
+
+      <ol>
+        <li><a href="text/ch014.html#1471-%E5%87%A0%E4%BD%95%E5%92%8Calpha">14.7.1 几何和Alpha</a></li>
+
+        <li><a href="text/ch014.html#1472-%E6%AF%9B%E5%8F%91">**14.7.2 **毛发</a></li>
+
+        <li><a href="text/ch014.html#1473-%E7%9A%AE%E6%AF%9B">14.7.3 皮毛</a></li>
+      </ol></li>
+
+      <li><a href="text/ch014.html#148-%E7%BB%9F%E4%B8%80%E6%96%B9%E6%B3%95">14.8 统一方法</a></li>
+
+      <li><a href="text/ch014.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch015.html">Chapter 15 Non-Photorealistic Rendering 非真实感渲染</a> 
+
+    <ol>
+      <li><a href="text/ch015.html#151-%E5%8D%A1%E9%80%9A%E7%9D%80%E8%89%B2">15.1 卡通着色</a></li>
+
+      <li><a href="text/ch015.html#152-%E8%BD%AE%E5%BB%93%E6%B8%B2%E6%9F%93">15.2 轮廓渲染</a> 
+
+      <ol>
+        <li><a href="text/ch015.html#1521-%E5%9F%BA%E4%BA%8E%E6%B3%95%E7%BA%BF%E7%9A%84contour%E8%BE%B9%E7%BC%98%E7%9D%80%E8%89%B2">15.2.1 基于法线的contour边缘着色</a></li>
+
+        <li><a href="text/ch015.html#1522-%E7%A8%8B%E5%BA%8F%E5%8C%96%E7%9A%84%E5%87%A0%E4%BD%95silhouette">15.2.2 程序化的几何Silhouette</a></li>
+
+        <li><a href="text/ch015.html#1523-%E5%9F%BA%E4%BA%8E%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E7%9A%84%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B">15.2.3 基于图像处理的边缘检测</a></li>
+
+        <li><a href="text/ch015.html#1524-%E5%87%A0%E4%BD%95contour%E8%BE%B9%E7%BC%98%E6%A3%80%E6%B5%8B">15.2.4 几何contour边缘检测</a></li>
+
+        <li><a href="text/ch015.html#1525-%E9%9A%90%E8%97%8F%E7%BA%BF%E7%A7%BB%E9%99%A4">15.2.5 隐藏线移除</a></li>
+      </ol></li>
+
+      <li><a href="text/ch015.html#153-%E7%AC%94%E8%A7%A6%E8%A1%A8%E9%9D%A2%E9%A3%8E%E6%A0%BC%E5%8C%96">15.3 笔触表面风格化</a></li>
+
+      <li><a href="text/ch015.html#154-%E7%BA%BF%E6%9D%A1">15.4 线条</a> 
+
+      <ol>
+        <li><a href="text/ch015.html#1541%E6%B8%B2%E6%9F%93%E4%B8%89%E8%A7%92%E5%BD%A2%E8%BE%B9%E7%BC%98">15.4.1渲染三角形边缘</a></li>
+
+        <li><a href="text/ch015.html#1542-%E6%B8%B2%E6%9F%93%E9%81%AE%E6%8C%A1%E7%BA%BF%E6%9D%A1">15.4.2 渲染遮挡线条</a></li>
+
+        <li><a href="text/ch015.html#1543-%E5%85%89%E6%99%95">15.4.3 光晕</a></li>
+      </ol></li>
+
+      <li><a href="text/ch015.html#155-%E6%96%87%E6%9C%AC%E6%B8%B2%E6%9F%93">15.5 文本渲染</a></li>
+
+      <li><a href="text/ch015.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch016.html">Chapter 16 Polygonal Techniques 多边形技术</a> 
+
+    <ol>
+      <li><a href="text/ch016.html#161-%E4%B8%89%E7%BB%B4%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9D%A5%E6%BA%90">16.1 三维数据的来源</a></li>
+
+      <li><a href="text/ch016.html#162-%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86%E5%92%8C%E4%B8%89%E8%A7%92%E5%BD%A2%E5%88%92%E5%88%86">16.2 曲面细分和三角形划分</a> 
+
+      <ol>
+        <li><a href="text/ch016.html#1621-%E7%9D%80%E8%89%B2%E9%97%AE%E9%A2%98">16.2.1 着色问题</a></li>
+
+        <li><a href="text/ch016.html#1622-%E8%BE%B9%E7%95%8C%E5%BC%80%E8%A3%82%E5%92%8Ct%E9%A1%B6%E7%82%B9">16.2.2 边界开裂和T顶点</a></li>
+      </ol></li>
+
+      <li><a href="text/ch016.html#163-%E6%95%B4%E5%90%88">16.3 整合</a> 
+
+      <ol>
+        <li><a href="text/ch016.html#1631-%E5%90%88%E5%B9%B6">16.3.1 合并</a></li>
+
+        <li><a href="text/ch016.html#1632-%E5%AE%9A%E5%90%91">16.3.2 定向</a></li>
+
+        <li><a href="text/ch016.html#1633-%E5%AE%9E%E4%BD%93%E6%80%A7">16.3.3 实体性</a></li>
+
+        <li><a href="text/ch016.html#1634-%E6%B3%95%E7%BA%BF%E5%B9%B3%E6%BB%91%E5%92%8C%E6%8A%98%E7%97%95%E8%BE%B9%E7%BC%98">16.3.4 法线平滑和折痕边缘</a></li>
+      </ol></li>
+
+      <li><a href="text/ch016.html#164-%E4%B8%89%E8%A7%92%E5%BD%A2%E6%89%87%E4%B8%89%E8%A7%92%E5%BD%A2%E5%B8%A6%E5%92%8C%E4%B8%89%E8%A7%92%E5%BD%A2%E7%BD%91%E6%A0%BC">16.4 三角形扇，三角形带和三角形网格</a> 
+
+      <ol>
+        <li><a href="text/ch016.html#1641-%E4%B8%89%E8%A7%92%E5%BD%A2%E6%89%87">16.4.1 三角形扇</a></li>
+
+        <li><a href="text/ch016.html#1641-%E4%B8%89%E8%A7%92%E5%BD%A2%E5%B8%A6">16.4.1 三角形带</a></li>
+
+        <li><a href="text/ch016.html#1643-%E4%B8%89%E8%A7%92%E5%BD%A2%E7%BD%91%E6%A0%BC">16.4.3 三角形网格</a></li>
+
+        <li><a href="text/ch016.html#1644-%E7%BC%93%E5%AD%98%E6%97%A0%E5%85%B3%E7%9A%84%E7%BD%91%E6%A0%BC%E5%B8%83%E5%B1%80">16.4.4 缓存无关的网格布局</a></li>
+
+        <li><a href="text/ch016.html#1645-%E9%A1%B6%E7%82%B9%E5%92%8C%E7%B4%A2%E5%BC%95%E7%BC%93%E5%86%B2%E5%8C%BA%E6%95%B0%E7%BB%84">16.4.5 顶点和索引缓冲区/数组</a></li>
+      </ol></li>
+
+      <li><a href="text/ch016.html#165-%E7%AE%80%E5%8C%96">16.5 简化</a> 
+
+      <ol>
+        <li><a href="text/ch016.html#1651-%E5%8A%A8%E6%80%81%E7%AE%80%E5%8C%96">16.5.1 动态简化</a></li>
+      </ol></li>
+
+      <li><a href="text/ch016.html#166-%E5%8E%8B%E7%BC%A9%E5%92%8C%E7%B2%BE%E5%BA%A6">16.6 压缩和精度</a></li>
+
+      <li><a href="text/ch016.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch017.html">Chapter 17 Curves and Curved Surfaces 曲线和曲面</a> 
+
+    <ol>
+      <li><a href="text/ch017.html#171-%E5%8F%82%E6%95%B0%E5%8C%96%E6%9B%B2%E7%BA%BF">17.1 参数化曲线</a> 
+
+      <ol>
+        <li><a href="text/ch017.html#1711-bezier%E6%9B%B2%E7%BA%BF">17.1.1 Bezier曲线</a> 
+
+        <ol>
+          <li><a href="text/ch017.html#%E4%BD%BF%E7%94%A8bernstein%E5%A4%9A%E9%A1%B9%E5%BC%8F%E7%9A%84bezier%E6%9B%B2%E7%BA%BF">使用Bernstein**多项式的Bezier曲线**</a></li>
+
+          <li><a href="text/ch017.html#%E6%9C%89%E7%90%86bezier%E6%9B%B2%E7%BA%BF">有理Bezier曲线</a></li>
+        </ol></li>
+
+        <li><a href="text/ch017.html#1712-gpu%E4%B8%8A%E7%9A%84%E6%9C%89%E7%95%8Cbezier%E6%9B%B2%E7%BA%BF">17.1.2 GPU上的有界Bezier曲线</a></li>
+
+        <li><a href="text/ch017.html#1713-%E6%9B%B2%E7%BA%BF%E7%9A%84%E8%BF%9E%E7%BB%AD%E6%80%A7%E4%B8%8E%E5%88%86%E6%AE%B5bezier%E6%9B%B2%E7%BA%BF">17.1.3 曲线的连续性与分段Bezier曲线</a></li>
+
+        <li><a href="text/ch017.html#1714-%E4%B8%89%E6%AC%A1hermite%E6%8F%92%E5%80%BC">17.1.4 三次Hermite插值</a></li>
+
+        <li><a href="text/ch017.html#1715-kochanek-bartels%E6%9B%B2%E7%BA%BF">17.1.5 Kochanek-Bartels曲线</a></li>
+
+        <li><a href="text/ch017.html#1716-b-%E6%A0%B7%E6%9D%A1">17.1.6 B-样条</a></li>
+      </ol></li>
+
+      <li><a href="text/ch017.html#172-%E5%8F%82%E6%95%B0%E5%8C%96%E6%9B%B2%E9%9D%A2">17.2 参数化曲面</a> 
+
+      <ol>
+        <li><a href="text/ch017.html#1721-bezier%E9%9D%A2%E7%89%87">17.2.1 Bezier面片</a> 
+
+        <ol>
+          <li><a href="text/ch017.html#%E6%9C%89%E7%90%86bezier%E9%9D%A2%E7%89%87">有理Bezier面片</a></li>
+        </ol></li>
+
+        <li><a href="text/ch017.html#1722-bezier%E4%B8%89%E8%A7%92%E5%BD%A2">17.2.2 Bezier三角形</a></li>
+
+        <li><a href="text/ch017.html#1723-%E8%BF%9E%E7%BB%AD%E6%80%A7">17.2.3 连续性</a></li>
+
+        <li><a href="text/ch017.html#1724-pn%E4%B8%89%E8%A7%92%E5%BD%A2">17.2.4 PN三角形</a></li>
+
+        <li><a href="text/ch017.html#1725--phong%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">17.2.5 Phong曲面细分</a></li>
+
+        <li><a href="text/ch017.html#1726-b-%E6%A0%B7%E6%9D%A1%E6%9B%B2%E9%9D%A2">17.2.6 B-样条曲面</a></li>
+      </ol></li>
+
+      <li><a href="text/ch017.html#173-%E9%9A%90%E5%BC%8F%E8%A1%A8%E9%9D%A2">17.3 隐式表面</a></li>
+
+      <li><a href="text/ch017.html#174-%E7%BB%86%E5%88%86%E6%9B%B2%E7%BA%BF">17.4 细分曲线</a></li>
+
+      <li><a href="text/ch017.html#175-%E7%BB%86%E5%88%86%E8%A1%A8%E9%9D%A2">17.5 细分表面</a> 
+
+      <ol>
+        <li><a href="text/ch017.html#1751-loop%E7%BB%86%E5%88%86">17.5.1 Loop细分</a></li>
+
+        <li><a href="text/ch017.html#1752-catmull-clark%E7%BB%86%E5%88%86">17.5.2 Catmull-Clark细分</a></li>
+
+        <li><a href="text/ch017.html#1753-%E5%88%86%E6%AE%B5%E5%B9%B3%E6%BB%91%E7%BB%86%E5%88%86">17.5.3 分段平滑细分</a></li>
+
+        <li><a href="text/ch017.html#1754-%E4%BD%8D%E7%A7%BBdisplaced-%EF%BC%89%E7%BB%86%E5%88%86">17.5.4 位移（Displaced ）细分</a></li>
+
+        <li><a href="text/ch017.html#1755-%E6%B3%95%E7%BA%BF%E7%BA%B9%E7%90%86%E5%92%8C%E9%A2%9C%E8%89%B2%E6%8F%92%E5%80%BC">17.5.5 法线、纹理和颜色插值</a></li>
+      </ol></li>
+
+      <li><a href="text/ch017.html#176-%E9%AB%98%E6%95%88%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">17.6 高效曲面细分</a> 
+
+      <ol>
+        <li><a href="text/ch017.html#1761%E5%88%86%E6%95%B0%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">17.6.1分数曲面细分</a></li>
+
+        <li><a href="text/ch017.html#1762%E8%87%AA%E9%80%82%E5%BA%94%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">17.6.2自适应曲面细分</a> 
+
+        <ol>
+          <li><a href="text/ch017.html#%E7%BB%88%E6%AD%A2%E8%87%AA%E9%80%82%E5%BA%94%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">终止自适应曲面细分</a></li>
+
+          <li><a href="text/ch017.html#%E5%88%86%E5%89%B2%E5%92%8C%E9%AA%B0%E5%AD%90%E6%96%B9%E6%B3%95">分割和骰子方法</a></li>
+        </ol></li>
+
+        <li><a href="text/ch017.html#1763-%E5%BF%AB%E9%80%9Fcatmull-clark%E6%9B%B2%E9%9D%A2%E7%BB%86%E5%88%86">17.6.3 快速Catmull-Clark曲面细分</a> 
+
+        <ol>
+          <li><a href="text/ch017.html#%E8%BF%91%E4%BC%BC%E6%96%B9%E6%B3%95">近似方法</a></li>
+
+          <li><a href="text/ch017.html#%E7%89%B9%E5%BE%81%E8%87%AA%E9%80%82%E5%BA%94%E7%BB%86%E5%88%86%E5%92%8Copensubdiv">特征自适应细分和OpenSubdiv</a></li>
+
+          <li><a href="text/ch017.html#%E8%87%AA%E9%80%82%E5%BA%94%E5%9B%9B%E5%8F%89%E6%A0%91">自适应四叉树</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch017.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch018.html">Chapter 18 Pipeline Optimization 管线优化</a> 
+
+    <ol>
+      <li><a href="text/ch018.html#181-%E5%88%86%E6%9E%90%E5%92%8C%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7">18.1 分析和调试工具</a></li>
+
+      <li><a href="text/ch018.html#182-%E5%AE%9A%E4%BD%8D%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88">18.2 定位性能瓶颈</a> 
+
+      <ol>
+        <li><a href="text/ch018.html#1821-%E5%BA%94%E7%94%A8%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95">18.2.1 应用阶段测试</a></li>
+
+        <li><a href="text/ch018.html#1822-%E5%87%A0%E4%BD%95%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95">18.2.2 几何处理阶段测试</a></li>
+
+        <li><a href="text/ch018.html#1823%E5%85%89%E6%A0%85%E5%8C%96%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95">18.2.3光栅化阶段测试</a></li>
+
+        <li><a href="text/ch018.html#1824%E5%83%8F%E7%B4%A0%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95">18.2.4像素处理阶段测试</a></li>
+
+        <li><a href="text/ch018.html#1825-%E5%90%88%E5%B9%B6%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95">18.2.5 合并阶段测试</a></li>
+      </ol></li>
+
+      <li><a href="text/ch018.html#183-%E6%80%A7%E8%83%BD%E6%B5%8B%E9%87%8F">18.3 性能测量</a></li>
+
+      <li><a href="text/ch018.html#184-%E4%BC%98%E5%8C%96">18.4 优化</a> 
+
+      <ol>
+        <li><a href="text/ch018.html#1841-%E5%BA%94%E7%94%A8%E9%98%B6%E6%AE%B5">18.4.1 应用阶段</a> 
+
+        <ol>
+          <li><a href="text/ch018.html#%E5%86%85%E5%AD%98%E9%97%AE%E9%A2%98">内存问题</a></li>
+        </ol></li>
+
+        <li><a href="text/ch018.html#1842-api%E8%B0%83%E7%94%A8">18.4.2 API调用</a> 
+
+        <ol>
+          <li><a href="text/ch018.html#%E7%8A%B6%E6%80%81%E6%94%B9%E5%8F%98">状态改变</a></li>
+
+          <li><a href="text/ch018.html#%E5%90%88%E5%B9%B6%E5%92%8C%E5%AE%9E%E4%BE%8B%E5%8C%96">合并和实例化</a></li>
+        </ol></li>
+
+        <li><a href="text/ch018.html#1843-%E5%87%A0%E4%BD%95%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">18.4.3 几何处理阶段</a></li>
+
+        <li><a href="text/ch018.html#1844-%E5%85%89%E6%A0%85%E5%8C%96%E9%98%B6%E6%AE%B5">18.4.4 光栅化阶段</a></li>
+
+        <li><a href="text/ch018.html#1845-%E5%83%8F%E7%B4%A0%E5%A4%84%E7%90%86%E9%98%B6%E6%AE%B5">18.4.5 像素处理阶段</a></li>
+
+        <li><a href="text/ch018.html#1846-%E5%B8%A7%E7%BC%93%E5%86%B2%E6%8A%80%E6%9C%AF">18.4.6 帧缓冲技术</a></li>
+
+        <li><a href="text/ch018.html#1847-%E5%90%88%E5%B9%B6%E9%98%B6%E6%AE%B5">18.4.7 合并阶段</a></li>
+      </ol></li>
+
+      <li><a href="text/ch018.html#185-%E5%A4%9A%E5%A4%84%E7%90%86">18.5 多处理</a> 
+
+      <ol>
+        <li><a href="text/ch018.html#1851-%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8%E6%B5%81%E6%B0%B4%E7%BA%BF">18.5.1 多处理器流水线</a></li>
+
+        <li><a href="text/ch018.html#1852-%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86">18.5.2 并行处理</a></li>
+
+        <li><a href="text/ch018.html#1853-%E5%9F%BA%E4%BA%8E%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%A4%9A%E5%A4%84%E7%90%86">18.5.3 基于任务的多处理</a></li>
+
+        <li><a href="text/ch018.html#1854-%E5%9B%BE%E5%BD%A2api%E7%9A%84%E5%A4%9A%E5%A4%84%E7%90%86%E6%94%AF%E6%8C%81">18.5.4 图形API的多处理支持</a></li>
+      </ol></li>
+
+      <li><a href="text/ch018.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch019.html">Chapter 19 Acceleration Algorithms 加速算法</a> 
+
+    <ol>
+      <li><a href="text/ch019.html#191-%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">19.1 空间数据结构</a> 
+
+      <ol>
+        <li><a href="text/ch019.html#1911-%E5%B1%82%E6%AC%A1%E5%8C%85%E5%9B%B4%E4%BD%93">19.1.1 层次包围体</a></li>
+
+        <li><a href="text/ch019.html#1912--bsp%E6%A0%91">19.1.2 BSP树</a> 
+
+        <ol>
+          <li><a href="text/ch019.html#%E8%BD%B4%E5%AF%B9%E9%BD%90%E7%9A%84bsp%E6%A0%91k-d%E6%A0%91%EF%BC%89">轴对齐的BSP树（k-D树）</a></li>
+
+          <li><a href="text/ch019.html#%E5%A4%9A%E8%BE%B9%E5%BD%A2%E5%AF%B9%E9%BD%90%E7%9A%84bsp%E6%A0%91">多边形对齐的BSP树</a></li>
+        </ol></li>
+
+        <li><a href="text/ch019.html#1913-%E5%85%AB%E5%8F%89%E6%A0%91">19.1.3 八叉树</a></li>
+
+        <li><a href="text/ch019.html#1914-%E7%BC%93%E5%AD%98%E6%97%A0%E5%85%B3%E5%92%8C%E7%BC%93%E5%AD%98%E6%84%9F%E7%9F%A5%E7%9A%84%E8%A1%A8%E7%A4%BA">19.1.4 缓存无关和缓存感知的表示</a></li>
+
+        <li><a href="text/ch019.html#1915-%E5%9C%BA%E6%99%AF%E5%9B%BE">19.1.5 场景图</a></li>
+      </ol></li>
+
+      <li><a href="text/ch019.html#192-%E5%89%94%E9%99%A4%E6%8A%80%E6%9C%AF">19.2 剔除技术</a></li>
+
+      <li><a href="text/ch019.html#193-%E8%83%8C%E9%9D%A2%E5%89%94%E9%99%A4">19.3 背面剔除</a></li>
+
+      <li><a href="text/ch019.html#194-%E8%A7%86%E9%94%A5%E4%BD%93%E5%89%94%E9%99%A4">19.4 视锥体剔除</a></li>
+
+      <li><a href="text/ch019.html#195-%E5%85%A5%E5%8F%A3%E5%89%94%E9%99%A4">19.5 入口剔除</a></li>
+
+      <li><a href="text/ch019.html#196-%E7%BB%86%E8%8A%82%E5%89%94%E9%99%A4%E5%92%8C%E5%B0%8F%E4%B8%89%E8%A7%92%E5%BD%A2%E5%89%94%E9%99%A4">19.6 细节剔除和小三角形剔除</a></li>
+
+      <li><a href="text/ch019.html#197-%E9%81%AE%E6%8C%A1%E5%89%94%E9%99%A4">19.7 遮挡剔除</a> 
+
+      <ol>
+        <li><a href="text/ch019.html#1971-%E9%81%AE%E6%8C%A1%E6%9F%A5%E8%AF%A2">19.7.1 遮挡查询</a></li>
+
+        <li><a href="text/ch019.html#1972-%E5%B1%82%E6%AC%A1z%E7%BC%93%E5%86%B2">19.7.2 层次Z缓冲</a></li>
+      </ol></li>
+
+      <li><a href="text/ch019.html#198-%E5%89%94%E9%99%A4%E7%B3%BB%E7%BB%9F">19.8 剔除系统</a></li>
+
+      <li><a href="text/ch019.html#199-lod">19.9 LOD</a> 
+
+      <ol>
+        <li><a href="text/ch019.html#1911-lod%E5%88%87%E6%8D%A2">19.1.1 LOD切换</a> 
+
+        <ol>
+          <li><a href="text/ch019.html#%E7%A6%BB%E6%95%A3%E5%87%A0%E4%BD%95lod">离散几何LOD</a></li>
+
+          <li><a href="text/ch019.html#%E6%B7%B7%E5%90%88lod">混合LOD</a></li>
+
+          <li><a href="text/ch019.html#alpha-lod">Alpha LOD</a></li>
+
+          <li><a href="text/ch019.html#clod%E5%92%8C%E5%9C%B0%E8%B2%8Clod">CLOD和地貌LOD</a></li>
+        </ol></li>
+
+        <li><a href="text/ch019.html#1992-lod%E9%80%89%E6%8B%A9">19.9.2 LOD选择</a> 
+
+        <ol>
+          <li><a href="text/ch019.html#%E5%9F%BA%E4%BA%8E%E8%8C%83%E5%9B%B4">基于范围</a></li>
+
+          <li><a href="text/ch019.html#%E5%9F%BA%E4%BA%8E%E6%8A%95%E5%BD%B1%E9%9D%A2%E7%A7%AF">基于投影面积</a></li>
+
+          <li><a href="text/ch019.html#%E5%85%B6%E4%BB%96%E9%80%89%E6%8B%A9%E6%96%B9%E6%B3%95">其他选择方法</a></li>
+        </ol></li>
+
+        <li><a href="text/ch019.html#1993-%E9%99%90%E6%97%B6%E7%9A%84lod%E6%B8%B2%E6%9F%93">19.9.3 限时的LOD渲染</a></li>
+      </ol></li>
+
+      <li><a href="text/ch019.html#1910-%E6%B8%B2%E6%9F%93%E5%A4%A7%E5%9E%8B%E5%9C%BA%E6%99%AF">19.10 渲染大型场景</a> 
+
+      <ol>
+        <li><a href="text/ch019.html#19101-%E8%99%9A%E6%8B%9F%E7%BA%B9%E7%90%86%E5%92%8C%E6%B5%81%E5%BC%8F%E4%BC%A0%E8%BE%93">19.10.1 虚拟纹理和流式传输</a></li>
+
+        <li><a href="text/ch019.html#19102-%E7%BA%B9%E7%90%86%E8%BD%AC%E7%A0%81">19.10.2 纹理转码</a></li>
+
+        <li><a href="text/ch019.html#19103-%E9%80%9A%E7%94%A8%E6%B5%81%E5%BC%8F%E4%BC%A0%E8%BE%93">19.10.3 通用流式传输</a></li>
+
+        <li><a href="text/ch019.html#19104-%E5%9C%B0%E5%BD%A2%E6%B8%B2%E6%9F%93">19.10.4 地形渲染</a></li>
+      </ol></li>
+
+      <li><a href="text/ch019.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch020.html">Chapter 20 Efficient Shading 高效着色</a> 
+
+    <ol>
+      <li><a href="text/ch020.html#201-%E5%BB%B6%E8%BF%9F%E7%9D%80%E8%89%B2">20.1 延迟着色</a></li>
+
+      <li><a href="text/ch020.html#202-%E8%B4%B4%E8%8A%B1%E6%B8%B2%E6%9F%93">20.2 贴花渲染</a></li>
+
+      <li><a href="text/ch020.html#203-%E5%88%86%E5%9D%97%E7%9D%80%E8%89%B2tiled-shading%EF%BC%89">20.3 分块着色（Tiled Shading）</a></li>
+
+      <li><a href="text/ch020.html#204-%E8%81%9A%E7%B1%BB%E7%9D%80%E8%89%B2clustered-shading%EF%BC%89">20.4 聚类着色（Clustered Shading）</a></li>
+
+      <li><a href="text/ch020.html#205-%E5%BB%B6%E8%BF%9F%E7%BA%B9%E7%90%86">20.5 延迟纹理</a></li>
+
+      <li><a href="text/ch020.html#206-%E5%AF%B9%E8%B1%A1%E7%A9%BA%E9%97%B4%E5%92%8C%E7%BA%B9%E7%90%86%E7%A9%BA%E9%97%B4%E7%9D%80%E8%89%B2">20.6 对象空间和纹理空间着色</a></li>
+
+      <li><a href="text/ch020.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch021.html">Chapter 21 Virtual and Augmented Reality 虚拟现实和增强现实</a> 
+
+    <ol>
+      <li><a href="text/ch021.html#211-%E8%AE%BE%E5%A4%87%E5%92%8C%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0">21.1 设备和系统概述</a></li>
+
+      <li><a href="text/ch021.html#212-%E7%89%A9%E7%90%86%E5%85%83%E7%B4%A0">21.2 物理元素</a> 
+
+      <ol>
+        <li><a href="text/ch021.html#2121-%E5%BB%B6%E8%BF%9F">21.2.1 延迟</a></li>
+
+        <li><a href="text/ch021.html#2122-%E5%85%89%E5%AD%A6">21.2.2 光学</a></li>
+
+        <li><a href="text/ch021.html#2123-%E7%AB%8B%E4%BD%93%E8%A7%86%E8%A7%89">21.2.3 立体视觉</a></li>
+      </ol></li>
+
+      <li><a href="text/ch021.html#213-api%E5%92%8C%E7%A1%AC%E4%BB%B6">21.3 API和硬件</a> 
+
+      <ol>
+        <li><a href="text/ch021.html#2131-%E7%AB%8B%E4%BD%93%E6%B8%B2%E6%9F%93">21.3.1 立体渲染</a></li>
+
+        <li><a href="text/ch021.html#2132-%E6%B3%A8%E8%A7%86%E7%82%B9%E6%B8%B2%E6%9F%93">21.3.2 注视点渲染</a></li>
+      </ol></li>
+
+      <li><a href="text/ch021.html#214-%E6%B8%B2%E6%9F%93%E6%8A%80%E6%9C%AF">21.4 渲染技术</a> 
+
+      <ol>
+        <li><a href="text/ch021.html#2141-%E6%8A%96%E5%8A%A8">21.4.1 抖动</a></li>
+
+        <li><a href="text/ch021.html#2142-%E8%AE%A1%E6%97%B6">21.4.2 计时</a></li>
+      </ol></li>
+
+      <li><a href="text/ch021.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch022.html">Chapter 22 Intersection Test Methods 相交测试方法</a> 
+
+    <ol>
+      <li><a href="text/ch022.html#221-gpu%E5%8A%A0%E9%80%9F%E7%9A%84%E6%8B%BE%E5%8F%96">22.1 GPU加速的拾取</a></li>
+
+      <li><a href="text/ch022.html#222-%E5%AE%9A%E4%B9%89%E5%92%8C%E5%B7%A5%E5%85%B7">22.2 定义和工具</a></li>
+
+      <li><a href="text/ch022.html#223-%E5%88%9B%E5%BB%BA%E5%8C%85%E5%9B%B4%E4%BD%93">22.3 创建包围体</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#2231%E5%88%9B%E5%BB%BAaabb%E5%92%8Ck-dop">22.3.1创建AABB和k-DOP</a></li>
+
+        <li><a href="text/ch022.html#2232-%E5%88%9B%E5%BB%BA%E7%90%83%E4%BD%93">22.3.2 创建球体</a></li>
+
+        <li><a href="text/ch022.html#2233-%E5%88%9B%E5%BB%BA%E5%87%B8%E5%A4%9A%E9%9D%A2%E4%BD%93">22.3.3 创建凸多面体</a></li>
+
+        <li><a href="text/ch022.html#2234-%E5%88%9B%E5%BB%BAobb">22.3.4 创建OBB</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#224-%E5%87%A0%E4%BD%95%E6%A6%82%E7%8E%87">22.4 几何概率</a></li>
+
+      <li><a href="text/ch022.html#225-%E7%BB%8F%E9%AA%8C%E6%B3%95%E5%88%99">22.5 经验法则</a></li>
+
+      <li><a href="text/ch022.html#226-%E5%B0%84%E7%BA%BF%E7%90%83%E4%BD%93%E7%9B%B8%E4%BA%A4">22.6 射线/球体相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#2261-%E6%95%B0%E5%AD%A6%E8%A7%A3%E6%B3%95">22.6.1 数学解法</a></li>
+
+        <li><a href="text/ch022.html#2262-%E4%BC%98%E5%8C%96%E8%A7%A3%E6%B3%95">22.6.2 优化解法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#227-%E5%B0%84%E7%BA%BFbox%E7%9B%B8%E4%BA%A4">22.7 射线/Box相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#2271-%E5%B9%B3%E6%9D%BF%E6%B3%95">22.7.1 平板法</a></li>
+
+        <li><a href="text/ch022.html#2272-%E5%B0%84%E7%BA%BF%E6%96%9C%E7%8E%87%E6%B3%95">22.7.2 射线斜率法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#228-%E5%B0%84%E7%BA%BF%E4%B8%89%E8%A7%92%E5%BD%A2%E7%9B%B8%E4%BA%A4">22.8 射线/三角形相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#2281-%E7%9B%B8%E4%BA%A4%E7%AE%97%E6%B3%95">22.8.1 相交算法</a></li>
+
+        <li><a href="text/ch022.html#2282-%E5%AE%9E%E7%8E%B0">22.8.2 实现</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#229-%E5%B0%84%E7%BA%BF%E5%A4%9A%E8%BE%B9%E5%BD%A2%E7%9B%B8%E4%BA%A4">22.9 射线/多边形相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#2291-%E4%BA%A4%E5%8F%89%E7%82%B9%E6%B5%8B%E8%AF%95">22.9.1 交叉点测试</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#2210-%E5%B9%B3%E9%9D%A2box%E7%9B%B8%E4%BA%A4">22.10 平面/Box相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#22101-aabb">22.10.1 AABB</a></li>
+
+        <li><a href="text/ch022.html#22102-obb">22.10.2 OBB</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#2211-%E4%B8%89%E8%A7%92%E5%BD%A2%E4%B8%89%E8%A7%92%E5%BD%A2%E7%9B%B8%E4%BA%A4">22.11 三角形/三角形相交</a></li>
+
+      <li><a href="text/ch022.html#2212-%E4%B8%89%E8%A7%92%E5%BD%A2box%E7%9B%B8%E4%BA%A4">22.12 三角形/Box相交</a></li>
+
+      <li><a href="text/ch022.html#2213-bvbv%E7%9B%B8%E4%BA%A4">22.13 BV/BV相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#22131%E7%90%83%E4%BD%93%E7%90%83%E4%BD%93%E7%9B%B8%E4%BA%A4">22.13.1球体/球体相交</a></li>
+
+        <li><a href="text/ch022.html#22132-%E7%90%83%E4%BD%93box%E7%9B%B8%E4%BA%A4">22.13.2 球体/Box相交</a></li>
+
+        <li><a href="text/ch022.html#22133-aabb-aabb%E7%9B%B8%E4%BA%A4">22.13.3 AABB-AABB相交</a></li>
+
+        <li><a href="text/ch022.html#22134-k-dopk-dop%E7%9B%B8%E4%BA%A4">22.13.4 k-DOP/k-DOP相交</a></li>
+
+        <li><a href="text/ch022.html#22135-obbobb%E4%BA%A4%E9%9B%86">22.13.5 OBB/OBB交集</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#2214-%E8%A7%86%E9%94%A5%E4%BD%93%E7%9B%B8%E4%BA%A4%E6%B5%8B%E8%AF%95">22.14 视锥体相交测试</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#22141-%E6%8F%90%E5%8F%96%E8%A7%86%E9%94%A5%E4%BD%93%E5%B9%B3%E9%9D%A2">22.14.1 提取视锥体平面</a></li>
+
+        <li><a href="text/ch022.html#22142-%E8%A7%86%E9%94%A5%E4%BD%93%E7%90%83%E4%BD%93%E7%9B%B8%E4%BA%A4">22.14.2 视锥体/球体相交</a></li>
+
+        <li><a href="text/ch022.html#22143-%E8%A7%86%E9%94%A5%E4%BD%93box%E7%9B%B8%E4%BA%A4">22.14.3 视锥体/box相交</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#2215-%E7%BA%BF%E7%BA%BF%E7%9B%B8%E4%BA%A4">22.15 线/线相交</a> 
+
+      <ol>
+        <li><a href="text/ch022.html#22151-%E4%BA%8C%E7%BB%B4">22.15.1 二维</a> 
+
+        <ol>
+          <li><a href="text/ch022.html#%E6%96%B9%E6%B3%951">方法1</a></li>
+
+          <li><a href="text/ch022.html#%E6%96%B9%E6%B3%952">方法2</a></li>
+        </ol></li>
+
+        <li><a href="text/ch022.html#22152-%E4%B8%89%E7%BB%B4">22.15.2 三维</a></li>
+      </ol></li>
+
+      <li><a href="text/ch022.html#2216-%E4%B8%89%E5%B9%B3%E9%9D%A2%E7%9B%B8%E4%BA%A4">22.16 三平面相交</a></li>
+
+      <li><a href="text/ch022.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch023.html">Chapter 23 Graphics Hardware 图形硬件</a> 
+
+    <ol>
+      <li><a href="text/ch023.html#231-%E5%85%89%E6%A0%85%E5%8C%96">23.1 光栅化</a> 
+
+      <ol>
+        <li><a href="text/ch023.html#2311-%E6%8F%92%E5%80%BC">23.1.1 插值</a></li>
+
+        <li><a href="text/ch023.html#2312-%E4%BF%9D%E5%AE%88%E5%85%89%E6%A0%85%E5%8C%96">23.1.2 保守光栅化</a></li>
+      </ol></li>
+
+      <li><a href="text/ch023.html#232-%E5%A4%A7%E8%A7%84%E6%A8%A1%E8%AE%A1%E7%AE%97%E5%92%8C%E8%B0%83%E5%BA%A6">23.2 大规模计算和调度</a></li>
+
+      <li><a href="text/ch023.html#233-%E5%BB%B6%E8%BF%9F%E5%92%8C%E5%8D%A0%E7%94%A8%E7%8E%87">23.3 延迟和占用率</a></li>
+
+      <li><a href="text/ch023.html#234-%E5%86%85%E5%AD%98%E6%9E%B6%E6%9E%84%E5%92%8C%E6%80%BB%E7%BA%BF">23.4 内存架构和总线</a></li>
+
+      <li><a href="text/ch023.html#235-%E7%BC%93%E5%AD%98%E5%92%8C%E5%8E%8B%E7%BC%A9">23.5 缓存和压缩</a></li>
+
+      <li><a href="text/ch023.html#236-%E9%A2%9C%E8%89%B2%E7%BC%93%E5%86%B2">23.6 颜色缓冲</a> 
+
+      <ol>
+        <li><a href="text/ch023.html#2361-%E8%A7%86%E9%A2%91%E6%98%BE%E7%A4%BA%E6%8E%A7%E5%88%B6%E5%99%A8">23.6.1 视频显示控制器</a></li>
+
+        <li><a href="text/ch023.html#2362-%E5%8D%95%E5%8F%8C%E4%B8%89%E9%87%8D%E7%BC%93%E5%86%B2">23.6.2 单、双、三重缓冲</a></li>
+      </ol></li>
+
+      <li><a href="text/ch023.html#237-%E6%B7%B1%E5%BA%A6%E5%89%94%E9%99%A4%E6%B5%8B%E8%AF%95%E5%92%8C%E7%BC%93%E5%86%B2">23.7 深度剔除、测试和缓冲</a></li>
+
+      <li><a href="text/ch023.html#238-%E7%BA%B9%E7%90%86%E5%8C%96">23.8 纹理化</a></li>
+
+      <li><a href="text/ch023.html#239-%E6%9E%B6%E6%9E%84">23.9 架构</a></li>
+
+      <li><a href="text/ch023.html#2310-%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90">23.10 案例分析</a> 
+
+      <ol>
+        <li><a href="text/ch023.html#23101-%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6arm-mali-g71-bifrost">23.10.1 案例研究：ARM Mali G71 Bifrost</a></li>
+
+        <li><a href="text/ch023.html#23102-%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6nvidia-pascal">23.10.2 案例研究：NVIDIA Pascal</a></li>
+
+        <li><a href="text/ch023.html#23103-%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6amd-gcn-vega">23.10.3 案例研究：AMD GCN Vega</a></li>
+      </ol></li>
+
+      <li><a href="text/ch023.html#2311-%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA%E6%9E%B6%E6%9E%84">23.11 光线追踪架构</a></li>
+    </ol></li>
+
+    <li><a href="text/ch023.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+
+    <li><a href="text/ch024.html">Chapter 24 The Future 未来</a> 
+
+    <ol>
+      <li><a href="text/ch024.html#241-%E5%85%B6%E4%BB%96%E4%BA%8B%E9%A1%B9">24.1 其他事项</a></li>
+
+      <li><a href="text/ch024.html#242-%E4%BD%A0">24.2 你</a></li>
+    </ol></li>
+
+    <li><a href="text/ch025.html">Chapter 25 Collision Detection 碰撞检测</a> 
+
+    <ol>
+      <li><a href="text/ch025.html#251-%E5%AE%BD%E9%98%B6%E6%AE%B5%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.1 宽阶段碰撞检测</a> 
+
+      <ol>
+        <li><a href="text/ch025.html#2511-%E6%89%AB%E6%8F%8F%E5%89%AA%E6%9E%9D%E7%AE%97%E6%B3%95">25.1.1 扫描剪枝算法</a></li>
+
+        <li><a href="text/ch025.html#2512-%E7%BD%91%E6%A0%BC">25.1.2 网格</a></li>
+
+        <li><a href="text/ch025.html#2513-%E5%B1%82%E6%AC%A1%E5%8C%85%E5%9B%B4%E4%BD%93">25.1.3 层次包围体</a></li>
+      </ol></li>
+
+      <li><a href="text/ch025.html#252-%E4%B8%AD%E9%98%B6%E6%AE%B5%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.2 中阶段碰撞检测</a> 
+
+      <ol>
+        <li><a href="text/ch025.html#2521-bvh%E6%9E%84%E5%BB%BA">25.2.1 BVH构建</a></li>
+
+        <li><a href="text/ch025.html#2522-bvh%E9%97%B4%E7%9A%84%E7%A2%B0%E6%92%9E%E6%B5%8B%E8%AF%95">25.2.2 BVH间的碰撞测试</a></li>
+
+        <li><a href="text/ch025.html#2523-bvh%E6%88%90%E6%9C%AC%E5%87%BD%E6%95%B0">25.2.3 BVH成本函数</a></li>
+
+        <li><a href="text/ch025.html#2524-obb%E6%A0%91">25.2.4 OBB树</a> 
+
+        <ol>
+          <li><a href="text/ch025.html#%E9%80%89%E6%8B%A9%E5%8C%85%E5%9B%B4%E4%BD%93">选择包围体</a></li>
+
+          <li><a href="text/ch025.html#%E5%BB%BA%E7%AB%8B%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84">建立层次结构</a></li>
+
+          <li><a href="text/ch025.html#%E5%A4%84%E7%90%86%E5%88%9A%E4%BD%93%E8%BF%90%E5%8A%A8">处理刚体运动</a></li>
+
+          <li><a href="text/ch025.html#%E5%85%B6%E4%BB%96">其他</a></li>
+        </ol></li>
+      </ol></li>
+
+      <li><a href="text/ch025.html#253-%E7%AA%84%E9%98%B6%E6%AE%B5%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.3 窄阶段碰撞检测</a> 
+
+      <ol>
+        <li><a href="text/ch025.html#2531-%E5%9B%BE%E5%85%83vs%E5%9B%BE%E5%85%83">25.3.1 图元vs图元</a></li>
+
+        <li><a href="text/ch025.html#2532-%E8%B7%9D%E7%A6%BB%E6%9F%A5%E8%AF%A2">25.3.2 距离查询</a></li>
+      </ol></li>
+
+      <li><a href="text/ch025.html#254-%E5%B0%84%E7%BA%BF%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.4 射线碰撞检测</a></li>
+
+      <li><a href="text/ch025.html#255-%E4%BD%BF%E7%94%A8bsp%E6%A0%91%E7%9A%84%E5%8A%A8%E6%80%81cd">25.5 使用BSP树的动态CD</a></li>
+
+      <li><a href="text/ch025.html#256-%E9%99%90%E6%97%B6%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.6 限时碰撞检测</a></li>
+
+      <li><a href="text/ch025.html#257-%E5%8F%AF%E5%8F%98%E5%BD%A2%E6%A8%A1%E5%9E%8B">25.7 可变形模型</a></li>
+
+      <li><a href="text/ch025.html#258-%E8%BF%9E%E7%BB%AD%E7%A2%B0%E6%92%9E%E6%A3%80%E6%B5%8B">25.8 连续碰撞检测</a></li>
+
+      <li><a href="text/ch025.html#259-%E7%A2%B0%E6%92%9E%E5%93%8D%E5%BA%94">25.9 碰撞响应</a></li>
+
+      <li><a href="text/ch025.html#2510-%E7%B2%92%E5%AD%90">25.10 粒子</a> 
+
+      <ol>
+        <li><a href="text/ch025.html#25101-%E7%B2%92%E5%AD%90%E7%B3%BB%E7%BB%9F">25.10.1 粒子系统</a></li>
+
+        <li><a href="text/ch025.html#25102-%E7%B2%92%E5%AD%90%E7%9A%84%E7%89%A9%E7%90%86%E6%A8%A1%E6%8B%9F">25.10.2 粒子的物理模拟</a></li>
+      </ol></li>
+
+      <li><a href="text/ch025.html#2511-%E5%8A%A8%E6%80%81%E7%9B%B8%E4%BA%A4%E6%B5%8B%E8%AF%95">25.11 动态相交测试</a> 
+
+      <ol>
+        <li><a href="text/ch025.html#25111%E7%90%83%E4%BD%93%E5%B9%B3%E9%9D%A2">25.11.1球体/平面</a></li>
+
+        <li><a href="text/ch025.html#25112%E7%90%83%E4%BD%93%E7%90%83%E4%BD%93">25.11.2球体/球体</a></li>
+
+        <li><a href="text/ch025.html#25113-%E7%90%83%E4%BD%93%E5%A4%9A%E8%BE%B9%E5%BD%A2">25.11.3 球体/多边形</a></li>
+
+        <li><a href="text/ch025.html#25114-%E5%8A%A8%E6%80%81%E5%88%86%E7%A6%BB%E8%BD%B4%E6%96%B9%E6%B3%95">25.11.4 动态分离轴方法</a></li>
+      </ol></li>
+
+      <li><a href="text/ch025.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+
+    <li><a href="text/ch026.html">Chapter 26 Real-Time Ray Tracing 实时光线追踪</a> 
+
+    <ol>
+      <li><a href="text/ch026.html#261-%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA%E5%9F%BA%E7%A1%80">26.1 光线追踪基础</a></li>
+
+      <li><a href="text/ch026.html#262-%E5%85%89%E7%BA%BF%E8%BF%BD%E8%B8%AA%E7%9D%80%E8%89%B2%E5%99%A8">26.2 光线追踪着色器</a></li>
+
+      <li><a href="text/ch026.html#263-%E9%A1%B6%E5%B1%82%E5%92%8C%E5%BA%95%E5%B1%82%E5%8A%A0%E9%80%9F%E7%BB%93%E6%9E%84">26.3 顶层和底层加速结构</a></li>
+
+      <li><a href="text/ch026.html#264-%E4%B8%80%E8%87%B4%E6%80%A7">26.4 一致性</a> 
+
+      <ol>
+        <li><a href="text/ch026.html#2641-%E5%9C%BA%E6%99%AF%E4%B8%80%E8%87%B4%E6%80%A7">26.4.1 场景一致性</a> 
+
+        <ol>
+          <li><a href="text/ch026.html#%E7%A9%BA%E9%97%B4%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%B1%9E%E6%80%A7">空间数据结构的属性</a></li>
+
+          <li><a href="text/ch026.html#%E6%9E%84%E9%80%A0%E6%96%B9%E6%A1%88">构造方案</a></li>
+
+          <li><a href="text/ch026.html#%E9%81%8D%E5%8E%86%E6%96%B9%E6%A1%88">遍历方案</a></li>
+        </ol></li>
+
+        <li><a href="text/ch026.html#2642-%E5%85%89%E7%BA%BF%E5%92%8C%E7%9D%80%E8%89%B2%E7%9A%84%E4%B8%80%E8%87%B4%E6%80%A7">26.4.2 光线和着色的一致性</a></li>
+      </ol></li>
+
+      <li><a href="text/ch026.html#265-%E9%99%8D%E5%99%AA">26.5 降噪</a></li>
+
+      <li><a href="text/ch026.html#266-%E7%BA%B9%E7%90%86%E8%BF%87%E6%BB%A4">26.6 纹理过滤</a></li>
+
+      <li><a href="text/ch026.html#267-%E6%8E%A8%E6%B5%8B">26.7 推测</a></li>
+
+      <li><a href="text/ch026.html#%E8%A1%A5%E5%85%85%E9%98%85%E8%AF%BB%E5%92%8C%E8%B5%84%E6%BA%90">补充阅读和资源</a></li>
+    </ol></li>
+  </ol></nav>
+
+  <nav epub:type="landmarks" id="landmarks" hidden=""><h1>里程碑</h1>
+
+  <ol>
+    <li><a epub:type="cover" href="text/cover.xhtml">Cover</a></li>
+  </ol></nav>
+</body>
+</html>
