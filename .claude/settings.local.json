@@ -29,7 +29,8 @@
       "Bash(echo EXIT=$?:*)",
       "Bash(cd E:\\\\Private\\\\EasyMath:*)",
       "Bash(cmd:*)",
-      "Bash(cd \"E:\\\\Private\\\\EasyMath\" && py \".claude\\\\memory\\\\reference\\\\_scripts\\\\extract_epub_chapter.py\" \"reference\\\\Real-Time Rendering, Fourth Edition \\(Tomas Akenine-Moller, Eric Haines, Naty Hoffman etc.\\)\\\\EPUB\\\\text\\\\ch004.html\" \"C:\\\\Users\\\\luogongkai\\\\AppData\\\\Local\\\\Temp\\\\ch004_test.txt\" 2>&1)"
+      "Bash(cd \"E:\\\\Private\\\\EasyMath\" && py \".claude\\\\memory\\\\reference\\\\_scripts\\\\extract_epub_chapter.py\" \"reference\\\\Real-Time Rendering, Fourth Edition \\(Tomas Akenine-Moller, Eric Haines, Naty Hoffman etc.\\)\\\\EPUB\\\\text\\\\ch004.html\" \"C:\\\\Users\\\\luogongkai\\\\AppData\\\\Local\\\\Temp\\\\ch004_test.txt\" 2>&1)",
+      "Bash(wc:*)"
     ]
   }
 }

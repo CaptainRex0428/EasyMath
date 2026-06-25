@@ -1,0 +1,1234 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ThemeSwitcher from '../../components/ThemeSwitcher.astro';
+---
+<Layout title="MVP → NDC 演示" back={{ href: '/', label: '返回主页' }}>
+
+<div id="app">
+
+  <!-- ===== HEADER ===== -->
+  <header id="topbar">
+    <a href="/" id="back-link">← 返回主页</a>
+    <span id="title">🎯 MVP → NDC 变换演示</span>
+    <ThemeSwitcher />
+  </header>
+
+  <!-- ===== INTRO BANNER ===== -->
+  <section id="intro">
+    <p>
+      本案例聚焦 <strong>MVP → NDC</strong> 这一段：从相机空间的点 <code>(x, y, z)</code> 出发（相机看向 −Z 方向，z &lt; 0 表示在前方），
+      乘以投影矩阵 <code>P</code> 得到 clip space 的齐次坐标 <code>(x<sub>c</sub>, y<sub>c</sub>, z<sub>c</sub>, w<sub>c</sub>)</code>，
+      再做 <strong>perspective divide</strong> <code>(x<sub>c</sub>/w<sub>c</sub>, y<sub>c</sub>/w<sub>c</sub>, z<sub>c</sub>/w<sub>c</sub>)</code>
+      得到 NDC <code>∈ [-1,1]³</code>。右侧悬停矩阵任一非零项可看到它参与哪个分量的计算。
+    </p>
+  </section>
+
+  <!-- ===== MAIN GRID ===== -->
+  <main id="main-grid">
+
+    <!-- LEFT: 3D scene + draggable point -->
+    <section class="panel" id="panel-scene">
+      <header class="panel-header">
+        <h2>① 相机空间俯视图（X 轴 × 深度）</h2>
+        <div class="proj-toggle">
+          <button id="btn-persp" class="proj-btn active" data-proj="persp">透视</button>
+          <button id="btn-ortho" class="proj-btn" data-proj="ortho">正交</button>
+        </div>
+      </header>
+
+      <canvas id="scene-canvas" width="560" height="380"></canvas>
+
+      <div class="preset-row">
+        <span class="preset-label">预设点：</span>
+        <button class="preset-btn" data-px="0"   data-py="0"  data-pz="-5">中心</button>
+        <button class="preset-btn" data-px="0.3" data-py="0"  data-pz="-5">右移</button>
+        <button class="preset-btn" data-px="0"   data-py="0"  data-pz="-0.11">近平面</button>
+        <button class="preset-btn" data-px="0"   data-py="0"  data-pz="-18">远平面</button>
+        <button class="preset-btn" data-px="0.9" data-py="0"  data-pz="-5">棱边</button>
+      </div>
+
+      <p class="hint">
+        点击 / 拖动场景中的橙点（当前测试点 <code id="cur-point">(0, 0, -2)</code>）。
+        <span id="in-frustum">⏵ 在视锥内</span>
+      </p>
+    </section>
+
+    <!-- CENTER: data flow -->
+    <section class="panel" id="panel-flow">
+      <header class="panel-header">
+        <h2>② 数据流：相机空间 → Clip → NDC</h2>
+      </header>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-title">Camera Space <small>(x, y, z)</small></div>
+          <div class="flow-value mono" id="v-camera">—</div>
+          <div class="flow-note">相机看向 −Z，z &lt; 0 表示在相机前方</div>
+        </div>
+
+        <div class="flow-arrow">× P</div>
+
+        <div class="flow-step clip">
+          <div class="flow-title">Clip Space <small>(x<sub>c</sub>, y<sub>c</sub>, z<sub>c</sub>, w<sub>c</sub>)</small></div>
+          <div class="flow-value mono" id="v-clip">—</div>
+          <div class="flow-note">
+            齐次坐标。<span class="hl-w">w<sub>c</sub> = <span id="v-wc">—</span></span>
+            —— 透视 ≠ 1，正交 = 1
+          </div>
+        </div>
+
+        <div class="flow-arrow">÷ w<sub>c</sub></div>
+
+        <div class="flow-step ndc">
+          <div class="flow-title">NDC <small>(x<sub>n</sub>, y<sub>n</sub>, z<sub>n</sub>) ∈ [-1,1]³</small></div>
+          <div class="flow-value mono" id="v-ndc">—</div>
+          <div class="flow-note" id="ndc-judge">—</div>
+        </div>
+      </div>
+
+      <!-- Cell contribution explainer (shown on matrix hover) -->
+      <div id="cell-explain" class="cell-explain">
+        <div class="cell-explain-empty">⬅ 悬停右侧矩阵的非零单元格，查看其对 NDC 的贡献</div>
+      </div>
+    </section>
+
+    <!-- RIGHT: matrix + comparison -->
+    <section class="panel" id="panel-matrix">
+      <header class="panel-header">
+        <h2>③ 投影矩阵 P（点击行/列）</h2>
+      </header>
+
+      <div class="matrix-wrapper">
+        <div class="matrix-side-label">行 i →</div>
+        <div class="matrix-block">
+          <div class="matrix-grid" id="mat-grid"></div>
+          <div class="matrix-axis-row top">
+            <span></span><span>列 0</span><span>列 1</span><span>列 2</span><span>列 3</span>
+          </div>
+          <div class="matrix-axis-col left">
+            <span>行 0<br><small>x<sub>c</sub></small></span>
+            <span>行 1<br><small>y<sub>c</sub></small></span>
+            <span>行 2<br><small>z<sub>c</sub></small></span>
+            <span>行 3<br><small>w<sub>c</sub></small></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="formula-note">
+        行/列标签告诉你：<strong>行 i</strong> 决定 NDC 的<strong>第 i 个分量</strong>由哪些相机空间坐标组合而来；
+        <strong>列 3</strong> 是平移项（透视为 0，正交为 -(near+far)/2）。
+      </p>
+    </section>
+
+  </main>
+
+  <!-- ===== CONTROLS ===== -->
+  <footer id="controls">
+    <div class="ctrl">
+      <label>FOV (°)</label>
+      <input type="range" id="fov" min="20" max="120" step="1" value="60">
+      <span class="ctrl-v" id="fov-v">60</span>
+    </div>
+    <div class="ctrl">
+      <label>Aspect</label>
+      <input type="range" id="aspect" min="0.5" max="2.5" step="0.05" value="1.0">
+      <span class="ctrl-v" id="aspect-v">1.00</span>
+    </div>
+    <div class="ctrl">
+      <label>near</label>
+      <input type="range" id="near" min="0.05" max="2" step="0.05" value="0.1">
+      <span class="ctrl-v" id="near-v">0.10</span>
+    </div>
+    <div class="ctrl">
+      <label>far</label>
+      <input type="range" id="far" min="5" max="50" step="0.5" value="20">
+      <span class="ctrl-v" id="far-v">20.0</span>
+    </div>
+  </footer>
+
+  <!-- ===== COMPARISON PANEL ===== -->
+  <section id="comparison">
+    <h2>④ 透视 vs 正交：同一框架，不同公式</h2>
+    <p class="cmp-intro">
+      两者都是 <strong>4×4 矩阵</strong>，作用于相机空间点 <code>(x, y, z, 1)</code>，
+      输出 clip 空间 <code>(x<sub>c</sub>, y<sub>c</sub>, z<sub>c</sub>, w<sub>c</sub>)</code>。
+      关键差别就在 <strong>第 4 行</strong>——透视的第 4 行非零，导致 w<sub>c</sub> ≠ 1，触发 perspective divide；
+      正交的第 4 行恒为 <code>(0, 0, 0, 1)</code>，w<sub>c</sub> 永远等于 1，除法是 no-op。
+    </p>
+
+    <div class="cmp-grid">
+      <div class="cmp-col">
+        <div class="cmp-head persp-head">透视 <small>Perspective</small></div>
+        <div class="cmp-roles">
+          <div><strong>x<sub>c</sub></strong> = (2n / (r-l)) · x · <span class="hl-w">1/|z|</span></div>
+          <div><strong>y<sub>c</sub></strong> = (2n / (t-b)) · y · <span class="hl-w">1/|z|</span></div>
+          <div><strong>z<sub>c</sub></strong> = <span class="hl-w">–(f+n)/(f–n)</span> · z + <span class="hl-w">–2fn/(f–n)</span></div>
+          <div class="hl-w"><strong>w<sub>c</sub></strong> = <span class="hl-w">–z</span> &nbsp;← 关键差异：来自相机空间 z 本身</div>
+        </div>
+        <ul class="cmp-props">
+          <li><strong>透视压缩</strong>：远处物体看起来更小，因为 <code>x<sub>n</sub> = x<sub>c</sub>/|z|</code></li>
+          <li><strong>frustum 形状</strong>：金字塔（梯形截面），near 处窄、far 处宽</li>
+          <li><strong>平行线不平行</strong>：真实视觉，铁轨向远方汇聚</li>
+        </ul>
+      </div>
+
+      <div class="cmp-col">
+        <div class="cmp-head ortho-head">正交 <small>Orthographic</small></div>
+        <div class="cmp-roles">
+          <div><strong>x<sub>c</sub></strong> = (2/(r-l)) · x</div>
+          <div><strong>y<sub>c</sub></strong> = (2/(t-b)) · y</div>
+          <div><strong>z<sub>c</sub></strong> = <span class="hl-w">–2/(f–n)</span> · z + <span class="hl-w">–(f+n)/(f–n)</span></div>
+          <div><strong>w<sub>c</sub></strong> = 1 &nbsp;← 永远等于 1</div>
+        </div>
+        <ul class="cmp-props">
+          <li><strong>无透视压缩</strong>：远近物体同尺寸（适合 CAD / 2D UI）</li>
+          <li><strong>frustum 形状</strong>：长方体，near 和 far 截面同尺寸</li>
+          <li><strong>平行线保持平行</strong>：没有消失点</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <strong>核心洞察：</strong>
+      透视矩阵的<strong>第 4 行只有 -1 一个非零项</strong>，且位置在 <code>(3, 2)</code>（行 3，列 2）——
+      这就是为什么 <code>w<sub>c</sub> = -z</code>。<br>
+      没有这一项，就没有 perspective divide，没有透视效果。<br>
+      <span class="hl-w">把矩阵第 4 行全部置零、第 (3,3) 置 1，就从透视退化成正交。</span>
+    </div>
+  </section>
+
+</div>
+
+<style is:inline>
+  /* ===== LAYOUT ===== */
+  #app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 16px;
+  }
+  #back-link { color: var(--text-secondary); font-size: 0.85rem; }
+  #back-link:hover { color: var(--accent-primary); }
+  #title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); flex: 1; }
+
+  #intro {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  #intro code {
+    background: var(--bg-tertiary);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-primary);
+  }
+  #intro strong { color: var(--text-primary); }
+
+  /* ===== MAIN GRID ===== */
+  #main-grid {
+    display: grid;
+    grid-template-columns: minmax(420px, 1.1fr) minmax(380px, 1fr) minmax(380px, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 1100px) {
+    #main-grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 8px;
+  }
+  .panel-header h2 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  /* ===== LEFT: scene ===== */
+  #scene-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 560 / 380;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    cursor: crosshair;
+    display: block;
+  }
+  .preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .preset-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
+  .preset-btn {
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .preset-btn:hover {
+    background: var(--bg-quaternary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+  }
+  .proj-toggle { display: flex; gap: 4px; }
+  .proj-btn {
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .proj-btn.active {
+    background: rgba(var(--accent-primary), 0.18);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+  .hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .hint code {
+    background: var(--bg-tertiary);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    color: var(--accent-primary);
+  }
+  #in-frustum {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+  }
+  #in-frustum.in { background: rgba(46, 160, 67, 0.18); color: #3fb950; }
+  #in-frustum.out { background: rgba(248, 81, 73, 0.18); color: #f85149; }
+
+  /* ===== CENTER: flow ===== */
+  .flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .flow-step {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 90px;
+  }
+  .flow-step.clip { border-color: rgba(var(--accent-primary), 0.4); }
+  .flow-step.ndc  { border-color: rgba(var(--accent-primary), 0.7); background: rgba(var(--accent-primary), 0.05); }
+  .flow-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+  }
+  .flow-title small {
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+  .flow-value {
+    font-size: 0.78rem;
+    color: var(--accent-primary);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .flow-note {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .hl-w {
+    color: #f0883e;
+    font-weight: 600;
+  }
+  .flow-arrow {
+    align-self: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    padding: 0 4px;
+    white-space: nowrap;
+  }
+  .flow-arrow sub { font-size: 0.6rem; }
+
+  .cell-explain {
+    background: var(--bg-primary);
+    border: 1px dashed var(--border-subtle);
+    border-radius: 6px;
+    padding: 10px 12px;
+    min-height: 64px;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+  .cell-explain.active {
+    border-style: solid;
+    border-color: var(--accent-primary);
+    background: rgba(var(--accent-primary), 0.04);
+  }
+  .cell-explain-empty {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px 0;
+  }
+  .cell-explain code {
+    background: var(--bg-tertiary);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    color: var(--accent-primary);
+  }
+  .cell-explain .ce-head {
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin-bottom: 4px;
+  }
+  .cell-explain .ce-formula {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 4px 0;
+  }
+
+  /* ===== RIGHT: matrix ===== */
+  .matrix-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .matrix-side-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .matrix-block {
+    flex: 1;
+    position: relative;
+    padding-top: 18px;
+    padding-left: 44px;
+  }
+  .matrix-axis-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .matrix-axis-row.top {
+    position: absolute;
+    top: 0;
+    left: 44px;
+    right: 0;
+  }
+  .matrix-axis-col {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    text-align: right;
+    padding-right: 4px;
+  }
+  .matrix-axis-col span small { font-family: var(--font-mono); color: var(--accent-primary); }
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    aspect-ratio: 1;
+  }
+  .m-cell {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    cursor: default;
+    transition: all 0.15s ease;
+    user-select: none;
+    position: relative;
+    padding: 2px;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .m-cell.zero {
+    color: var(--text-muted);
+    opacity: 0.4;
+  }
+  .m-cell.active {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(var(--accent-primary), 0.1);
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(var(--accent-primary), 0.3);
+    z-index: 2;
+  }
+  .m-cell.contrib-x { border-color: #f85149; color: #f85149; }
+  .m-cell.contrib-y { border-color: #58a6ff; color: #58a6ff; }
+  .m-cell.contrib-z { border-color: #3fb950; color: #3fb950; }
+  .m-cell.contrib-w { border-color: #f0883e; color: #f0883e; }
+  .m-cell.contrib-x.active,
+  .m-cell.contrib-y.active,
+  .m-cell.contrib-z.active,
+  .m-cell.contrib-w.active {
+    background: currentColor;
+    color: var(--bg-primary);
+  }
+  .formula-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .formula-note strong { color: var(--text-secondary); }
+
+  /* ===== CONTROLS ===== */
+  #controls {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 800px) {
+    #controls { grid-template-columns: repeat(2, 1fr); }
+  }
+  .ctrl {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ctrl label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .ctrl input[type=range] {
+    width: 100%;
+    accent-color: var(--accent-primary);
+  }
+  .ctrl-v {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent-primary);
+    text-align: right;
+  }
+
+  /* ===== COMPARISON ===== */
+  #comparison {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 18px 22px;
+  }
+  #comparison h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+  .cmp-intro {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 14px;
+  }
+  .cmp-intro code, .key-insight code {
+    background: var(--bg-tertiary);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent-primary);
+  }
+  .cmp-intro strong { color: var(--text-primary); }
+
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 800px) {
+    .cmp-grid { grid-template-columns: 1fr; }
+  }
+  .cmp-col {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .cmp-head {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .cmp-head small {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-left: 4px;
+  }
+  .persp-head { color: #f0883e; }
+  .ortho-head { color: #58a6ff; }
+  .cmp-roles {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    line-height: 1.9;
+  }
+  .cmp-roles div { color: var(--text-secondary); }
+  .cmp-props {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .cmp-props li { margin-bottom: 4px; }
+  .cmp-props strong { color: var(--text-primary); }
+  .cmp-props code {
+    background: var(--bg-tertiary);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--accent-primary);
+  }
+  .key-insight {
+    background: rgba(var(--accent-primary), 0.06);
+    border-left: 3px solid var(--accent-primary);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  .key-insight strong { color: var(--accent-primary); }
+</style>
+
+<script is:inline>
+// ============================================================
+// MVP → NDC Interactive Demo — math + rendering engine
+// ============================================================
+
+// ---------- Matrix utilities (4x4, row-major) ----------
+function matMul(a, b) {
+  const r = new Float64Array(16);
+  for (let i = 0; i < 4; i++)
+    for (let j = 0; j < 4; j++) {
+      let s = 0;
+      for (let k = 0; k < 4; k++) s += a[i*4+k] * b[k*4+j];
+      r[i*4+j] = s;
+    }
+  return r;
+}
+function vecMul(m, v) {
+  // m * (x,y,z,1)  →  4D
+  const x=v[0], y=v[1], z=v[2];
+  return [
+    m[0]*x + m[1]*y + m[2]*z + m[3],
+    m[4]*x + m[5]*y + m[6]*z + m[7],
+    m[8]*x + m[9]*y + m[10]*z + m[11],
+    m[12]*x + m[13]*y + m[14]*z + m[15],
+  ];
+}
+
+// ---------- Perspective projection (OpenGL convention: eye at origin, -Z forward) ----------
+function matPerspective(fovYRad, aspect, n, f) {
+  const fy = 1 / Math.tan(fovYRad / 2);
+  const nf = 1 / (n - f);
+  const m = new Float64Array(16);
+  m[0]  = fy / aspect;
+  m[5]  = fy;
+  m[10] = (f + n) * nf;
+  m[11] = 2 * f * n * nf;
+  m[14] = -1;          // <-- THE row that makes this perspective
+  return m;
+}
+
+// ---------- Orthographic projection ----------
+function matOrtho(l, r, b, t, n, f) {
+  const m = new Float64Array(16);
+  m[0]  = 2 / (r - l);
+  m[5]  = 2 / (t - b);
+  m[10] = -2 / (f - n);
+  m[11] = -(f + n) / (f - n);
+  m[15] = 1;            // <-- w stays 1
+  m[3]  = -(r + l) / (r - l);
+  m[7]  = -(t + b) / (t - b);
+  return m;
+}
+
+// ---------- Perspective divide ----------
+function perspectiveDivide(clip) {
+  if (Math.abs(clip[3]) < 1e-9) return [NaN, NaN, NaN];
+  return [clip[0]/clip[3], clip[1]/clip[3], clip[2]/clip[3]];
+}
+
+// ---------- Cell role classification ----------
+// Row i of P is the linear combination that yields clip[i].
+// So column j contributes the coefficient of camera-space coordinate j (x,y,z,1) to clip[i].
+function classifyCell(row, col, isPersp) {
+  // returns the NDC component this cell contributes to (x/y/z/w), or null if structurally zero.
+  if (isPersp) {
+    // Perspective matrix structure (row-major indices):
+    //  row 0: [ 0]=fy/a,  others 0, [3]=0
+    //  row 1: [5]=fy,     others 0
+    //  row 2: [10]=(f+n)nf, [11]=2fn*nf
+    //  row 3: [14]=-1
+    if (row === 0 && col === 0) return { component: 'x', label: 'x_c += (fovScale_x) · x' };
+    if (row === 1 && col === 1) return { component: 'y', label: 'y_c += (fovScale_y) · y' };
+    if (row === 2 && col === 2) return { component: 'z', label: 'z_c += A · z   (A = (f+n)/(f-n))' };
+    if (row === 2 && col === 3) return { component: 'z', label: 'z_c += B · 1   (B = -2fn/(f-n))' };
+    if (row === 3 && col === 2) return { component: 'w', label: 'w_c = -z   ← 透视核心：深度决定分母' };
+    return null;
+  } else {
+    // Orthographic matrix structure:
+    //  row 0: [0]=2/(r-l), [3]=-(r+l)/(r-l)
+    //  row 1: [5]=2/(t-b), [7]=-(t+b)/(t-b)
+    //  row 2: [10]=-2/(f-n), [11]=-(f+n)/(f-n)
+    //  row 3: all zeros except [15]=1
+    if (row === 0 && col === 0) return { component: 'x', label: 'x_c += (2/(r-l)) · x' };
+    if (row === 0 && col === 3) return { component: 'x', label: 'x_c += -(r+l)/(r-l) · 1' };
+    if (row === 1 && col === 1) return { component: 'y', label: 'y_c += (2/(t-b)) · y' };
+    if (row === 1 && col === 3) return { component: 'y', label: 'y_c += -(t+b)/(t-b) · 1' };
+    if (row === 2 && col === 2) return { component: 'z', label: 'z_c += (-2/(f-n)) · z' };
+    if (row === 2 && col === 3) return { component: 'z', label: 'z_c += -(f+n)/(f-n) · 1' };
+    if (row === 3 && col === 3) return { component: 'w', label: 'w_c = 1   ← 正交：除法恒等，NDC = clip' };
+    return null;
+  }
+}
+
+// ---------- Formatting ----------
+function fmt(v, digits=3) {
+  if (!isFinite(v)) return '—';
+  if (Math.abs(v) < 1e-4 && v !== 0) return v.toExponential(2);
+  return v.toFixed(digits);
+}
+function fmtVec(v) {
+  return `(${fmt(v[0])}, ${fmt(v[1])}, ${fmt(v[2])})`;
+}
+function fmtVec4(v) {
+  return `(${fmt(v[0])}, ${fmt(v[1])}, ${fmt(v[2])}, ${fmt(v[3])})`;
+}
+
+// ---------- App state ----------
+const state = {
+  proj: 'persp',
+  fov: 60,
+  aspect: 1.0,
+  near: 0.1,
+  far: 20,
+  // Test point in CAMERA SPACE (camera at origin looking -Z, so z < 0 = in front)
+  point: { x: 0, y: 0, z: -2 },
+};
+
+// ---------- DOM refs ----------
+const $ = id => document.getElementById(id);
+const els = {
+  fov: $('fov'), fovV: $('fov-v'),
+  aspect: $('aspect'), aspectV: $('aspect-v'),
+  near: $('near'), nearV: $('near-v'),
+  far: $('far'), farV: $('far-v'),
+  btnPersp: $('btn-persp'), btnOrtho: $('btn-ortho'),
+  canvas: $('scene-canvas'),
+  matGrid: $('mat-grid'),
+  vCamera: $('v-camera'),
+  vClip: $('v-clip'),
+  vWc: $('v-wc'),
+  vNdc: $('v-ndc'),
+  ndcJudge: $('ndc-judge'),
+  cellExplain: $('cell-explain'),
+  curPoint: $('cur-point'),
+  inFrustum: $('in-frustum'),
+};
+
+// ---------- Build projection matrix ----------
+function buildMatrix() {
+  const fovRad = state.fov * Math.PI / 180;
+  if (state.proj === 'persp') {
+    return matPerspective(fovRad, state.aspect, state.near, state.far);
+  } else {
+    // Symmetric ortho frustum: half-height derived from FOV (for visual consistency)
+    const halfH = state.near * Math.tan(fovRad / 2);
+    const halfW = halfH * state.aspect;
+    return matOrtho(-halfW, halfW, -halfH, halfH, state.near, state.far);
+  }
+}
+
+// ---------- Render matrix grid ----------
+function renderMatrix(P) {
+  els.matGrid.innerHTML = '';
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 4; col++) {
+      const v = P[row*4 + col];
+      const cell = document.createElement('div');
+      cell.className = 'm-cell';
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+
+      if (Math.abs(v) < 1e-9) {
+        cell.classList.add('zero');
+        cell.textContent = '0';
+      } else {
+        cell.textContent = fmt(v, 2);
+        const role = classifyCell(row, col, state.proj === 'persp');
+        if (role) {
+          cell.classList.add('contrib-' + role.component);
+          cell.dataset.label = role.label;
+          cell.dataset.component = role.component;
+        }
+      }
+
+      cell.addEventListener('mouseenter', onCellEnter);
+      cell.addEventListener('mouseleave', onCellLeave);
+      els.matGrid.appendChild(cell);
+    }
+  }
+}
+
+// ---------- Cell hover ----------
+let activeCell = null;
+function onCellEnter(e) {
+  const cell = e.currentTarget;
+  const label = cell.dataset.label;
+  const comp = cell.dataset.component;
+  activeCell = cell;
+  cell.classList.add('active');
+
+  if (!label) {
+    els.cellExplain.className = 'cell-explain';
+    els.cellExplain.innerHTML = `<div class="cell-explain-empty">单元格 (${cell.dataset.row}, ${cell.dataset.col}) 值为 0 — 不参与计算</div>`;
+    return;
+  }
+
+  // Try to compute the cell's contribution to its component using the current test point
+  const cam = [state.point.x, state.point.y, state.point.z, 1];
+  const row = parseInt(cell.dataset.row);
+  const col = parseInt(cell.dataset.col);
+  const v = cam[col];
+  const m = state._lastP[row*4 + col];
+  const contrib = m * v;
+
+  const compNames = { x: 'x<sub>n</sub> = x<sub>c</sub>/w<sub>c</sub>', y: 'y<sub>n</sub> = y<sub>c</sub>/w<sub>c</sub>', z: 'z<sub>n</sub> = z<sub>c</sub>/w<sub>c</sub>', w: 'w<sub>c</sub> (决定除数)' };
+
+  els.cellExplain.className = 'cell-explain active';
+  els.cellExplain.innerHTML = `
+    <div class="ce-head">📍 P[${row},${col}] = ${fmt(m, 4)}  →  贡献 <span style="color:${compColor(comp)}">${comp.toUpperCase()}<sub>${comp==='w'?'c':'n'}</sub></span></div>
+    <div class="ce-formula">${label}</div>
+    <div>当前测试点贡献：<code>${fmt(m, 4)} × ${fmt(v, 3)} = ${fmt(contrib, 4)}</code></div>
+    <div style="margin-top:6px;color:var(--text-muted)">该分量最终用于：<strong style="color:${compColor(comp)}">${compNames[comp]}</strong></div>
+  `;
+}
+function onCellLeave() {
+  if (activeCell) activeCell.classList.remove('active');
+  activeCell = null;
+  els.cellExplain.className = 'cell-explain';
+  els.cellExplain.innerHTML = `<div class="cell-explain-empty">⬅ 悬停右侧矩阵的非零单元格，查看其对 NDC 的贡献</div>`;
+}
+function compColor(c) {
+  return c==='x' ? '#f85149' : c==='y' ? '#58a6ff' : c==='z' ? '#3fb950' : '#f0883e';
+}
+
+// ---------- Render data flow ----------
+function renderFlow(clip, ndc) {
+  els.vCamera.textContent = fmtVec([state.point.x, state.point.y, state.point.z]);
+  els.vClip.textContent = fmtVec4(clip);
+  els.vWc.textContent = fmt(clip[3]);
+  els.vNdc.textContent = isFinite(ndc[0]) ? fmtVec(ndc) : '(除零)';
+
+  // Determine NDC interpretation
+  if (!isFinite(ndc[0])) {
+    els.ndcJudge.innerHTML = '<span style="color:#f85149">⚠ w<sub>c</sub> ≈ 0，除法未定义</span>';
+  } else {
+    const inX = Math.abs(ndc[0]) <= 1;
+    const inY = Math.abs(ndc[1]) <= 1;
+    const inZ = Math.abs(ndc[2]) <= 1;
+    const inside = inX && inY && inZ;
+    els.ndcJudge.innerHTML = inside
+      ? `<span style="color:#3fb950">✓ 在 NDC 立方体 [-1,1]³ 内，会被光栅化</span>`
+      : `<span style="color:#f85149">✗ 超出 NDC 立方体，被裁剪 (x:${inX?'✓':'✗'} y:${inY?'✓':'✗'} z:${inZ?'✓':'✗'})</span>`;
+  }
+  els.inFrustum.className = inside ? 'in' : 'out';
+  els.inFrustum.textContent = inside ? '✓ 在视锥内' : '✗ 在视锥外';
+}
+
+// ---------- Canvas: top-down XZ scene ----------
+function renderScene(P) {
+  const c = els.canvas;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // ============================================================
+  // Coordinate system (designed to always be readable):
+  //   canvas-x = camera-space x  (horizontal, in world units)
+  //   canvas-y = depth in front of camera (top → bottom = closer → farther)
+  // Camera icon is anchored at canvas top, frustum opens downward.
+  // ============================================================
+
+  // Pixel scales (chosen so default values fit nicely)
+  const xScale = 28;   // px per world-x unit
+  const depthScale = 14; // px per depth unit
+  const cx = W / 2;
+  const camY = 30;       // camera icon y (top of canvas)
+
+  // Helper: world-space point → screen. Y_world is camera-space depth (positive = in front).
+  function s(x, depthY) {
+    return [cx + x * xScale, camY + depthY * depthScale];
+  }
+
+  // Depth labels for the point: in this viz, depth = -state.point.z (camera-space Z is negative for points in front).
+  // state.point.z is camera-space Z (we already subtract camZ in update()).
+  const ptDepth = -state.point.z;       // positive when in front of camera
+  const ptX = state.point.x;
+  const ptY = state.point.y;            // only used for clip test, not for canvas y
+
+  // ----- Depth tick marks (vertical guide) -----
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = '9px var(--font-mono, monospace)';
+  ctx.textAlign = 'left';
+  const maxDepth = state.far + 1;
+  const tickStep = state.far <= 10 ? 1 : (state.far <= 25 ? 2 : 5);
+  for (let d = 0; d <= maxDepth; d += tickStep) {
+    const y = camY + d * depthScale;
+    if (y > H - 10) break;
+    ctx.beginPath();
+    ctx.moveTo(8, y); ctx.lineTo(W - 8, y);
+    ctx.stroke();
+    ctx.fillText(`z = -${d}`, 12, y - 2);
+  }
+
+  // ----- Compute frustum opening at near and far (in canvas-px half-width) -----
+  const fovRad = state.fov * Math.PI / 180;
+  const halfHNear = state.near * Math.tan(fovRad / 2);
+  const halfWNear = halfHNear * state.aspect;
+  const halfHFar  = state.far  * Math.tan(fovRad / 2);
+  const halfWFar  = halfHFar * state.aspect;
+
+  // Frustum corners on canvas
+  const nearTopY = camY + state.near * depthScale;
+  const farTopY  = camY + state.far  * depthScale;
+  const nearL = [cx - halfWNear * xScale, nearTopY];
+  const nearR = [cx + halfWNear * xScale, nearTopY];
+  const farL  = state.proj === 'persp' ? [cx - halfWFar * xScale, farTopY] : nearL;
+  const farR  = state.proj === 'persp' ? [cx + halfWFar * xScale, farTopY] : nearR;
+
+  // ----- Draw frustum fill -----
+  ctx.fillStyle = state.proj === 'persp' ? 'rgba(240,136,62,0.10)' : 'rgba(88,166,255,0.10)';
+  ctx.beginPath();
+  ctx.moveTo(cx, camY);
+  ctx.lineTo(nearL[0], nearL[1]);
+  ctx.lineTo(farL[0],  farL[1]);
+  ctx.lineTo(farR[0],  farR[1]);
+  ctx.lineTo(nearR[0], nearR[1]);
+  ctx.closePath();
+  ctx.fill();
+
+  // ----- Draw frustum outline -----
+  ctx.strokeStyle = state.proj === 'persp' ? 'rgba(240,136,62,0.7)' : 'rgba(88,166,255,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, camY);
+  ctx.lineTo(nearL[0], nearL[1]);
+  ctx.lineTo(farL[0],  farL[1]);
+  ctx.moveTo(cx, camY);
+  ctx.lineTo(nearR[0], nearR[1]);
+  ctx.lineTo(farR[0],  farR[1]);
+  if (state.proj === 'persp') {
+    ctx.moveTo(nearL[0], nearL[1]); ctx.lineTo(nearR[0], nearR[1]); // near plane line
+  }
+  ctx.stroke();
+
+  // ----- Near / far plane labels -----
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '9px var(--font-mono, monospace)';
+  ctx.textAlign = 'center';
+  if (state.proj === 'persp') {
+    ctx.fillText('near', cx, nearL[1] - 4);
+    ctx.fillText('far',  cx, farTopY + 12);
+  } else {
+    ctx.fillText('near = far (ortho)', cx, nearL[1] - 4);
+  }
+
+  // ----- Camera icon (apex of frustum, at canvas top) -----
+  ctx.fillStyle = '#f0f6fc';
+  ctx.beginPath();
+  ctx.moveTo(cx, camY - 10);
+  ctx.lineTo(cx - 7, camY + 2);
+  ctx.lineTo(cx + 7, camY + 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#0d1117';
+  ctx.font = '10px var(--font-mono, monospace)';
+  ctx.textAlign = 'center';
+  ctx.fillText('cam (eye)', cx, camY - 14);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillText('↓ looks toward −Z', cx, camY + 18);
+
+  // ----- Test point -----
+  // Camera-space point is (ptX, ptY, state.point.z) where state.point.z is already in camera space.
+  // In canvas: x = ptX, y = ptDepth (positive depth downward from camera)
+  const onScreenX = cx + ptX * xScale;
+  const onScreenY = camY + ptDepth * depthScale;
+  const pointVisible = onScreenY < H - 5 && Math.abs(ptX) * xScale < W / 2 - 4;
+
+  // Clip test: same math as in update()
+  const camSpace = [ptX, ptY, state.point.z, 1];
+  const clip = vecMul(P, camSpace);
+  const inFrustum = Math.abs(clip[3]) > 1e-6 &&
+                    Math.abs(clip[0]) <= Math.abs(clip[3]) &&
+                    Math.abs(clip[1]) <= Math.abs(clip[3]) &&
+                    clip[2] >= -clip[3] && clip[2] <= clip[3];
+
+  // Dashed sight ray from camera to point (if in front of camera)
+  if (ptDepth > 0 && pointVisible) {
+    ctx.strokeStyle = inFrustum ? 'rgba(240,136,62,0.45)' : 'rgba(110,118,129,0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, camY);
+    ctx.lineTo(onScreenX, onScreenY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Point dot
+  if (pointVisible) {
+    ctx.fillStyle = inFrustum ? '#f0883e' : '#6e7681';
+    ctx.strokeStyle = inFrustum ? '#f0883e' : '#6e7681';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(onScreenX, onScreenY, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    // Outline ring for visibility
+    ctx.strokeStyle = 'rgba(13,17,23,0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  } else {
+    // Off-canvas indicator
+    ctx.fillStyle = 'rgba(240,136,62,0.4)';
+    ctx.beginPath();
+    ctx.arc(onScreenX < 4 ? 4 : onScreenX > W-4 ? W-4 : onScreenX,
+            onScreenY < 4 ? 4 : onScreenY > H-4 ? H-4 : onScreenY, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Point label
+  const labelX = Math.min(onScreenX + 12, W - 130);
+  const labelY = Math.max(onScreenY - 8, 14);
+  ctx.fillStyle = inFrustum ? '#f0883e' : '#8b949e';
+  ctx.font = '11px var(--font-mono, monospace)';
+  ctx.textAlign = 'left';
+  ctx.fillText(`(${ptX.toFixed(2)}, ${ptY.toFixed(2)}, ${state.point.z.toFixed(2)})`, labelX, labelY);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '9px var(--font-mono, monospace)';
+  ctx.fillText(`cam-space: x=${ptX.toFixed(2)} z=${state.point.z.toFixed(2)}`, labelX, labelY + 12);
+  if (!inFrustum && Math.abs(clip[3]) > 1e-6) {
+    ctx.fillStyle = '#f85149';
+    ctx.fillText(`out of frustum (w_c=${fmt(clip[3])})`, labelX, labelY + 24);
+  }
+
+  // ----- Legend -----
+  ctx.fillStyle = 'rgba(13,17,23,0.88)';
+  ctx.fillRect(8, 8, 210, 78);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.strokeRect(8, 8, 210, 78);
+  ctx.fillStyle = '#f0f6fc';
+  ctx.font = '11px var(--font-sans, sans-serif)';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = state.proj === 'persp' ? '#f0883e' : '#58a6ff';
+  ctx.fillText(`${state.proj === 'persp' ? 'Perspective' : 'Orthographic'} Frustum`, 16, 26);
+  ctx.fillStyle = '#f0f6fc';
+  ctx.fillText(`FOV ${state.fov}°  Aspect ${state.aspect.toFixed(2)}`, 16, 42);
+  ctx.fillText(`Near ${state.near}  Far ${state.far}`, 16, 58);
+  ctx.fillStyle = '#f0883e';
+  ctx.fillText(`Test point: (${ptX.toFixed(2)}, ${ptY.toFixed(2)}, ${state.point.z.toFixed(2)})`, 16, 74);
+}
+
+// ---------- Master update ----------
+// state.point is interpreted directly in CAMERA SPACE:
+//   state.point.x = camera-space x (world x when camera has no roll, which is our case)
+//   state.point.y = camera-space y (we keep it 0 for top-down view; clip test still uses it)
+//   state.point.z = camera-space z  (NEGATIVE for points in front of the camera)
+function update() {
+  const P = buildMatrix();
+  state._lastP = P;
+
+  const camPoint = [state.point.x, state.point.y, state.point.z, 1];
+  const clip = vecMul(P, camPoint);
+  const ndc = perspectiveDivide(clip);
+
+  renderMatrix(P);
+  renderFlow(clip, ndc);
+  renderScene(P);
+  els.curPoint.textContent = `(${state.point.x.toFixed(2)}, ${state.point.y.toFixed(2)}, ${state.point.z.toFixed(2)})`;
+}
+
+// ---------- Dragging ----------
+// Click/drag in canvas to move the test point.
+//   canvas-x → state.point.x (camera-space x)
+//   canvas-y (downward) → depth in front of camera  →  state.point.z = -(depth)
+let dragging = false;
+const X_SCALE = 28;
+const DEPTH_SCALE = 14;
+const CAM_Y = 30;
+const CX_PIX = els.canvas.width / 2;
+
+function pickPoint(clientX, clientY) {
+  const rect = els.canvas.getBoundingClientRect();
+  const sx = els.canvas.width / rect.width;
+  const sy = els.canvas.height / rect.height;
+  const px = (clientX - rect.left) * sx;
+  const py = (clientY - rect.top)  * sy;
+  const x = (px - CX_PIX) / X_SCALE;
+  const depth = (py - CAM_Y) / DEPTH_SCALE;
+  return { x, depth };
+}
+
+els.canvas.addEventListener('mousedown', e => {
+  const { x, depth } = pickPoint(e.clientX, e.clientY);
+  // Existing point in screen coords
+  const exScreen = CX_PIX + state.point.x * X_SCALE;
+  const ezDepth  = -state.point.z;
+  const eyScreen = CAM_Y + ezDepth * DEPTH_SCALE;
+  const rect = els.canvas.getBoundingClientRect();
+  const sx = els.canvas.width / rect.width;
+  const sy = els.canvas.height / rect.height;
+  const mx = (e.clientX - rect.left) * sx;
+  const my = (e.clientY - rect.top)  * sy;
+  if (Math.hypot(mx - exScreen, my - eyScreen) < 14) {
+    dragging = true;
+  } else {
+    // Move to click
+    state.point.x = Math.max(-3, Math.min(3, x));
+    state.point.z = -Math.max(0.05, Math.min(state.far + 1, depth));
+    state.point.y = 0;
+    update();
+  }
+});
+els.canvas.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const { x, depth } = pickPoint(e.clientX, e.clientY);
+  state.point.x = Math.max(-3, Math.min(3, x));
+  state.point.z = -Math.max(0.05, Math.min(state.far + 1, depth));
+  state.point.y = 0;
+  update();
+});
+window.addEventListener('mouseup', () => { dragging = false; });
+
+// ---------- Preset buttons ----------
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.point.x = parseFloat(btn.dataset.px);
+    state.point.y = parseFloat(btn.dataset.py);
+    state.point.z = parseFloat(btn.dataset.pz);
+    update();
+  });
+});
+
+// ---------- Projection toggle ----------
+els.btnPersp.addEventListener('click', () => setProj('persp'));
+els.btnOrtho.addEventListener('click', () => setProj('ortho'));
+function setProj(p) {
+  state.proj = p;
+  els.btnPersp.classList.toggle('active', p === 'persp');
+  els.btnOrtho.classList.toggle('active', p === 'ortho');
+  update();
+}
+
+// ---------- Slider bindings ----------
+function bind(slider, label, key, parser=parseFloat) {
+  slider.addEventListener('input', () => {
+    state[key] = parser(slider.value);
+    label.textContent = slider.step >= 1 ? slider.value : parseFloat(slider.value).toFixed(2);
+    update();
+  });
+}
+bind(els.fov,     els.fovV,     'fov');
+bind(els.aspect,  els.aspectV,  'aspect');
+bind(els.near,    els.nearV,    'near');
+bind(els.far,     els.farV,     'far');
+
+// Initial render
+update();
+</script>
+</Layout>
