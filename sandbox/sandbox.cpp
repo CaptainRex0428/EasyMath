@@ -123,6 +123,103 @@ int main(int argc, char * argv[])
 
 	std::cout << std::endl << "=== 所有测试完成 ===" << std::endl;
 
+	// ========================================
+	// 测试 5: MTXReflection - 反射矩阵
+	// ========================================
+	std::cout << std::endl << "--- 测试 MTXReflection (反射矩阵) ---" << std::endl;
+
+	// 测试 5.1: 基础反射（枚举形式）
+	std::cout << ">>> 基础反射矩阵（枚举形式）：" << std::endl;
+
+	Matrix<float, 4, 4> reflectYZ = MTXReflection<float>(ReflectionPlane::YZ);      // 翻转 X
+	Matrix<float, 4, 4> reflectXZ = MTXReflection<float>(ReflectionPlane::XZ);      // 翻转 Y
+	Matrix<float, 4, 4> reflectXY = MTXReflection<float>(ReflectionPlane::XY);      // 翻转 Z
+	Matrix<float, 4, 4> reflectOrigin = MTXReflection<float>(ReflectionPlane::Origin);  // 翻转全部
+
+	PRINT(reflectYZ);
+	PRINT(reflectXZ);
+	PRINT(reflectXY);
+	PRINT(reflectOrigin);
+
+	// 验证对角线值
+	std::cout << "验证对角线值：" << std::endl;
+	std::cout << "YZ 平面反射（翻转 X）：对角线 = (" << reflectYZ(0,0) << ", " << reflectYZ(1,1) << ", " << reflectYZ(2,2) << ", " << reflectYZ(3,3) << ")" << std::endl;
+	std::cout << "XZ 平面反射（翻转 Y）：对角线 = (" << reflectXZ(0,0) << ", " << reflectXZ(1,1) << ", " << reflectXZ(2,2) << ", " << reflectXZ(3,3) << ")" << std::endl;
+	std::cout << "XY 平面反射（翻转 Z）：对角线 = (" << reflectXY(0,0) << ", " << reflectXY(1,1) << ", " << reflectXY(2,2) << ", " << reflectXY(3,3) << ")" << std::endl;
+	std::cout << "原点反射（翻转全部）：对角线 = (" << reflectOrigin(0,0) << ", " << reflectOrigin(1,1) << ", " << reflectOrigin(2,2) << ", " << reflectOrigin(3,3) << ")" << std::endl;
+	std::cout << std::endl;
+
+	// 测试 5.2: 任意平面反射
+	std::cout << ">>> 任意平面反射（Householder 反射）：" << std::endl;
+
+	Vector3 planeNormal{0.0f, 1.0f, 0.0f};      // 法向量：指向 Y 轴正方向
+	Vector3 pointOnPlane{0.0f, 5.0f, 0.0f};    // 平面经过点 (0, 5, 0)，即 Y = 5 平面
+
+	Matrix<float, 4, 4> reflectPlane = MTXReflection<float>(planeNormal, pointOnPlane);
+	PRINT(reflectPlane);
+
+	// 测试 5.3: 验证反射矩阵的性质
+	std::cout << ">>> 验证反射矩阵的性质：" << std::endl;
+
+	// 性质 1: det = -1（手性反转）
+	float det = reflectPlane.determinant();
+	std::cout << "行列式 det = " << det << "（应该是 -1.0）" << std::endl;
+
+	// 性质 2: 3×3 旋转部分正交性（线性部分为 Householder 矩阵，必正交）
+	// 注意：完整 4×4 反射矩阵包含平移分量，整体不是正交的——正交性只对 3×3 上三角成立
+	std::cout << "3×3 旋转部分（Householder）正交性检查：" << std::endl;
+	Matrix<float, 3, 3> upper3x3;
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = 0; j < 3; ++j) {
+			upper3x3(i, j) = reflectPlane(i, j);
+		}
+	}
+	auto orthoCheck = upper3x3 * upper3x3.transpose();
+	std::cout << orthoCheck << std::endl;
+	std::cout << "（3×3 上三角块应接近单位矩阵，验证线性部分的正交性）" << std::endl;
+
+	// 性质 3: 自逆性（M == M⁻¹）
+	Matrix<float, 4, 4> inverseMat = reflectPlane.inverse();
+	std::cout << "自逆性检查 M == M⁻¹：" << std::endl;
+	std::cout << "原矩阵：" << std::endl << reflectPlane << std::endl;
+	std::cout << "逆矩阵：" << std::endl << inverseMat << std::endl;
+	std::cout << "两者相等：" << (reflectPlane == inverseMat ? "是" : "否") << "（应该是 是）" << std::endl;
+
+	// 测试 5.4: 不动点测试（平面上的点反射后不变）
+	std::cout << ">>> 不动点测试（平面上的点反射后不变）：" << std::endl;
+
+	Vector<float, 4> pointOnPlane4{0.0f, 5.0f, 0.0f, 1.0f};  // 平面上的点
+	auto reflectedPoint = reflectPlane * pointOnPlane4;
+
+	std::cout << "原点（在平面上）：" << pointOnPlane4 << std::endl;
+	std::cout << "反射后：" << reflectedPoint << std::endl;
+	std::cout << "验证：Y 坐标不变 = " << reflectedPoint[1] << "（应该是 5.0）" << std::endl;
+
+	// 测试 5.5: 镜像点测试
+	std::cout << ">>> 镜像点测试：" << std::endl;
+
+	Vector<float, 4> testPoint{2.0f, 8.0f, 4.0f, 1.0f};    // 测试点 (2, 8, 4)
+	auto reflectedTestPoint = reflectPlane * testPoint;
+
+	std::cout << "原点：" << testPoint << std::endl;
+	std::cout << "反射后：" << reflectedTestPoint << std::endl;
+	std::cout << "验证：X 坐标不变 = " << reflectedTestPoint[0] << "（应该是 2.0）" << std::endl;
+	std::cout << "验证：Y 坐标镜像 = " << reflectedTestPoint[1] << "（应该是 2.0 = 5 - (8-5)）" << std::endl;
+	std::cout << "验证：Z 坐标不变 = " << reflectedTestPoint[2] << "（应该是 4.0）" << std::endl;
+
+	// 测试 5.6: 一致性测试（枚举形式 vs 通用形式）
+	std::cout << ">>> 一致性测试（枚举形式 vs 通用形式）：" << std::endl;
+
+	// YZ 平面反射（枚举）vs 法向量 (-1, 0, 0) 过原点的平面（通用）
+	Matrix<float, 4, 4> reflectYZ_enum = MTXReflection<float>(ReflectionPlane::YZ);
+	Vector3 yzNormal{-1.0f, 0.0f, 0.0f};
+	Vector3 yzPoint{0.0f, 0.0f, 0.0f};
+	Matrix<float, 4, 4> reflectYZ_generic = MTXReflection<float>(yzNormal, yzPoint);
+
+	std::cout << "枚举形式 MTXReflection(YZ)：" << std::endl << reflectYZ_enum << std::endl;
+	std::cout << "通用形式 MTXReflection({-1,0,0}, {0,0,0})：" << std::endl << reflectYZ_generic << std::endl;
+	std::cout << "两者相等：" << (reflectYZ_enum == reflectYZ_generic ? "是" : "否") << "（应该是 是）" << std::endl;
+
 	return 0;
 }
 

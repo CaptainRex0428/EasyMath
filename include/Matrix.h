@@ -560,7 +560,16 @@ namespace EasyMath
 	{
 		return matrix.print(out);
 	}
-	
+
+	// 反射平面对应的基础反射（关于坐标平面或原点）
+	enum class ReflectionPlane
+	{
+		YZ,      // 翻转 X：关于 YZ 平面（X=0 平面）反射  → diag(-1, 1, 1, 1)
+		XZ,      // 翻转 Y：关于 XZ 平面（Y=0 平面）反射  → diag( 1,-1, 1, 1)
+		XY,      // 翻转 Z：关于 XY 平面（Z=0 平面）反射  → diag( 1, 1,-1, 1)
+		Origin   // 关于原点反射（全部坐标取反）          → diag(-1,-1,-1, 1)
+	};
+
 	// 单位矩阵
 	template<typename T, size_t N, 
 		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
@@ -643,6 +652,71 @@ namespace EasyMath
 		mat(1, 1) = y;
 		mat(2, 2) = z;
 		return mat;
+	}
+
+	// 基础反射矩阵（关于坐标平面或原点）
+	template<typename T,
+		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	Matrix<T, 4, 4> MTXReflection(ReflectionPlane plane)
+	{
+		Matrix<T, 4, 4> mat = MTXIdentity<T, 4>();
+		switch (plane)
+		{
+		case ReflectionPlane::YZ:     mat(0, 0) = T(-1); break;
+		case ReflectionPlane::XZ:     mat(1, 1) = T(-1); break;
+		case ReflectionPlane::XY:     mat(2, 2) = T(-1); break;
+		case ReflectionPlane::Origin:
+			mat(0, 0) = T(-1);
+			mat(1, 1) = T(-1);
+			mat(2, 2) = T(-1);
+			break;
+		}
+		return mat;
+	}
+
+	/**
+	 * 创建任意平面反射矩阵（Householder 反射）
+	 * 关于经过 pointOnPlane、法向量为 normal 的平面进行反射
+	 *
+	 * @param normal        平面的法向量（自动归一化；可传任意长度）
+	 * @param pointOnPlane  平面上的任意一点（用于确定平面位置）
+	 * @return 4×4 反射矩阵；det = -1（手性反转）
+	 *
+	 * 使用场景：
+	 * - 平面镜渲染：把场景绕镜面镜像后渲染一次
+	 * - 镜像复制：half-model 镜像生成完整模型
+	 * - 物理模拟：球撞墙反弹
+	 *
+	 * 公式：M = I - 2 n n^T + 2 (n·P) n ⊗ e4
+	 * 不变量：正交、M == M⁻¹、det = -1、平面上点是不动点
+	 *
+	 * 优化：缓存 2nx/2ny/2nz/d；内联点积
+	 */
+	template<typename T,
+		typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	Matrix<T, 4, 4> MTXReflection(
+		const Vector<T, 3>& normal,
+		const Vector<T, 3>& pointOnPlane)
+	{
+		T invLen = T(1) / normal.length();
+		assert(invLen != T(0) && "Reflection normal vector cannot be zero-length");
+
+		T nx = normal.x * invLen;
+		T ny = normal.y * invLen;
+		T nz = normal.z * invLen;
+
+		T twoNx = T(2) * nx;
+		T twoNy = T(2) * ny;
+		T twoNz = T(2) * nz;
+
+		T d = nx * pointOnPlane.x + ny * pointOnPlane.y + nz * pointOnPlane.z;
+
+		return {
+			T(1) - twoNx * nx,  -twoNx * ny,           -twoNx * nz,           twoNx * d,
+			-twoNy * nx,        T(1) - twoNy * ny,     -twoNy * nz,           twoNy * d,
+			-twoNz * nx,        -twoNz * ny,           T(1) - twoNz * nz,     twoNz * d,
+			T(0),               T(0),                  T(0),                  T(1)
+		};
 	}
 
 	/**
